@@ -1,8 +1,15 @@
 services:
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - static_volume:/app/staticfiles
+    depends_on:
+      - app
+    restart: always
+
   app:
     build: .
-    ports:
-      - "8000:8000"
     environment:
       - PORT=8000
       - USE_SQLITE=False
@@ -16,7 +23,7 @@ services:
       - CELERY_RESULT_BACKEND=redis://redis:6379/1
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672//
     volumes:
-      - static_volume:/app/forex_platform/staticfiles
+      - static_volume:/app/staticfiles
     depends_on:
       db:
         condition: service_healthy
