@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import APIClient, AuditLog, Subscription
+from .models import APIClient, AuditLog, Subscription, Payment
 
 
 @admin.register(APIClient)
@@ -64,6 +64,45 @@ class SubscriptionAdmin(admin.ModelAdmin):
         updated = queryset.update(status='cancelled', auto_renew=False)
         self.message_user(request, f'{updated} abonnement(s) annulé(s).')
     cancel_subscriptions.short_description = 'Annuler les abonnements sélectionnés'
+
+
+@admin.register(Payment)
+class PaymentAdmin(admin.ModelAdmin):
+    list_display = ['user', 'subscription', 'amount', 'payment_method', 'status', 'created_at']
+    list_filter = ['payment_method', 'status', 'created_at']
+    search_fields = ['user__username', 'transaction_id', 'stripe_payment_intent_id']
+    readonly_fields = ['created_at', 'updated_at']
+    
+    fieldsets = (
+        ('Informations paiement', {
+            'fields': ('user', 'subscription', 'amount', 'currency', 'payment_method', 'status')
+        }),
+        ('Identifiants transaction', {
+            'fields': ('transaction_id', 'stripe_payment_intent_id', 'paypal_order_id')
+        }),
+        ('Dates', {
+            'fields': ('created_at', 'updated_at')
+        }),
+        ('Notes', {
+            'fields': ('notes',)
+        }),
+    )
+    
+    actions = ['mark_as_completed', 'mark_as_failed']
+    
+    def mark_as_completed(self, request, queryset):
+        count = 0
+        for payment in queryset:
+            if payment.status == 'pending':
+                payment.mark_completed()
+                count += 1
+        self.message_user(request, f'{count} paiement(s) marqué(s) comme complété(s). Les abonnements ont été activés et les clés API générées.')
+    mark_as_completed.short_description = 'Marquer comme complété (active abonnement + génère clé API)'
+    
+    def mark_as_failed(self, request, queryset):
+        updated = queryset.filter(status='pending').update(status='failed')
+        self.message_user(request, f'{updated} paiement(s) marqué(s) comme échoué(s).')
+    mark_as_failed.short_description = 'Marquer comme échoué'
 
 
 @admin.register(AuditLog)

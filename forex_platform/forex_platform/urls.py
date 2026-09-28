@@ -14,6 +14,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # User Interface
     path('register/', api_gateway_views.register_view, name='register'),
+    path('payment/', api_gateway_views.payment_view, name='payment'),
     path('subscription/', api_gateway_views.subscription_view, name='subscription'),
     # API Documentation
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),

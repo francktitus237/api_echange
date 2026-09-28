@@ -59,10 +59,18 @@ Utilisez le fichier `docker-compose.dokploy.yml` qui inclut :
 
 Les utilisateurs peuvent s'inscrire via : `https://votre-domaine.com/register/`
 
-Lors de l'inscription :
-- Un compte utilisateur est créé
-- Un abonnement Free est automatiquement attribué
-- Une clé API est générée automatiquement
+**Nouveau flux avec paiement :**
+1. L'utilisateur s'inscrit
+2. Il est redirigé vers la page de paiement
+3. Il choisit son plan (Free, Standard, Premium, Partner)
+4. Il choisit sa méthode de paiement (Stripe, PayPal, ou Manuel)
+5. Une fois le paiement validé, son abonnement est activé
+6. Sa clé API est générée automatiquement
+
+**Pour le plan Free :**
+- L'utilisateur peut sélectionner le plan Free (0€)
+- Le paiement est automatiquement validé
+- La clé API est générée immédiatement
 
 ### Dashboard Admin Django
 
@@ -82,8 +90,9 @@ Accédez au dashboard via : `https://votre-domaine.com/admin/`
 **Processus simple :**
 
 1. **Créer un compte** : `https://votre-domaine.com/register/`
-2. **Choisir un abonnement** : `https://votre-domaine.com/subscription/`
-3. **Récupérer la clé API** : Affichée dans l'interface abonnement
+2. **Choisir un abonnement et payer** : `https://votre-domaine.com/payment/`
+3. **Récupérer la clé API** : Affichée dans l'interface abonnement après paiement validé
+4. **Configurer dans leur projet** : Utiliser la clé API avec le header `X-API-KEY`
 
 **Configuration dans leur projet :**
 

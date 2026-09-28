@@ -484,22 +484,11 @@ def register_view(request):
         
         user = User.objects.create_user(username=username, email=email, password=password)
         
-        # Créer un abonnement free par défaut
-        Subscription.objects.create(user=user, plan='free', status='active')
-        
-        # Créer une clé API par défaut
-        raw_key, key_hash, prefix = APIClient.generate_key()
-        APIClient.objects.create(
-            user=user,
-            name='Default API Key',
-            api_key_prefix=prefix,
-            api_key_hash=key_hash,
-            tier='free',
-            quota_requests_per_hour=100,
-        )
+        # Créer un abonnement en attente de paiement
+        subscription = Subscription.objects.create(user=user, plan='free', status='pending')
         
         login(request, user)
-        return redirect('/subscription/')
+        return redirect('/payment/')
     
     return render(request, 'register.html')
 
@@ -512,7 +501,7 @@ def subscription_view(request):
         subscription = Subscription.objects.get(user=request.user)
         current_plan = subscription.plan
     except Subscription.DoesNotExist:
-        subscription = Subscription.objects.create(user=request.user, plan='free', status='active')
+        subscription = Subscription.objects.create(user=request.user, plan='free', status='pending')
         current_plan = 'free'
     
     # Récupérer la clé API active
@@ -526,4 +515,78 @@ def subscription_view(request):
         'current_plan': current_plan,
         'api_key': api_key,
         'subscription': subscription,
+    })
+
+
+def payment_view(request):
+    if not request.user.is_authenticated:
+        return redirect('/register/')
+    
+    try:
+        subscription = Subscription.objects.get(user=request.user)
+    except Subscription.DoesNotExist:
+        subscription = Subscription.objects.create(user=request.user, plan='free', status='pending')
+    
+    # Si l'abonnement est déjà actif, rediriger vers la page de souscription
+    if subscription.is_active():
+        return redirect('/subscription/')
+    
+    if request.method == 'POST':
+        plan = request.POST.get('plan', 'free')
+        payment_method = request.POST.get('payment_method', 'stripe')
+        
+        # Mettre à jour le plan de l'abonnement
+        subscription.plan = plan
+        subscription.save()
+        
+        # Créer un paiement en attente
+        plan_prices = {
+            'free': 0,
+            'standard': 9.99,
+            'premium': 29.99,
+            'partner': 99.99,
+        }
+        
+        payment = Payment.objects.create(
+            user=request.user,
+            subscription=subscription,
+            amount=plan_prices.get(plan, 0),
+            currency='EUR',
+            payment_method=payment_method,
+            status='pending'
+        )
+        
+        if payment_method == 'manual':
+            # Pour paiement manuel, informer l'utilisateur
+            return render(request, 'payment.html', {
+                'subscription': subscription,
+                'plan_prices': plan_prices,
+                'success': f'Demande de paiement manuel envoyée. Contactez le support pour finaliser le paiement de {plan_prices.get(plan, 0)}€. Votre référence : {payment.id}'
+            })
+        elif payment_method == 'stripe':
+            # Rediriger vers Stripe (à implémenter avec Stripe SDK)
+            return render(request, 'payment.html', {
+                'subscription': subscription,
+                'plan_prices': plan_prices,
+                'error': 'Intégration Stripe à configurer. Utilisez le paiement manuel pour le moment.'
+            })
+        elif payment_method == 'paypal':
+            # Rediriger vers PayPal (à implémenter avec PayPal SDK)
+            return render(request, 'payment.html', {
+                'subscription': subscription,
+                'plan_prices': plan_prices,
+                'error': 'Intégration PayPal à configurer. Utilisez le paiement manuel pour le moment.'
+            })
+    
+    # Récupérer les prix des plans
+    plan_prices = {
+        'free': 0,
+        'standard': 9.99,
+        'premium': 29.99,
+        'partner': 99.99,
+    }
+    
+    return render(request, 'payment.html', {
+        'subscription': subscription,
+        'plan_prices': plan_prices,
     })

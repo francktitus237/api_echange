@@ -75,6 +75,7 @@ class Subscription(models.Model):
     ]
     
     STATUS_CHOICES = [
+        ('pending', 'Pending Payment'),
         ('active', 'Active'),
         ('trial', 'Trial'),
         ('past_due', 'Past Due'),
@@ -84,7 +85,7 @@ class Subscription(models.Model):
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='subscription')
     plan = models.CharField(max_length=20, choices=PLAN_CHOICES, default='free')
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     start_date = models.DateTimeField(auto_now_add=True)
     end_date = models.DateTimeField(null=True, blank=True)
     auto_renew = models.BooleanField(default=True)
@@ -117,3 +118,62 @@ class Subscription(models.Model):
             api_client.tier = tier
             api_client.quota_requests_per_hour = APIClient.QUOTA_MAP.get(tier, 100)
             api_client.save()
+
+
+class Payment(models.Model):
+    PAYMENT_METHOD_CHOICES = [
+        ('stripe', 'Stripe'),
+        ('paypal', 'PayPal'),
+        ('manual', 'Manual (Admin)'),
+    ]
+    
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('completed', 'Completed'),
+        ('failed', 'Failed'),
+        ('refunded', 'Refunded'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='payments')
+    subscription = models.ForeignKey(Subscription, on_delete=models.CASCADE, related_name='payments')
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    currency = models.CharField(max_length=3, default='EUR')
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    stripe_payment_intent_id = models.CharField(max_length=100, blank=True, null=True)
+    paypal_order_id = models.CharField(max_length=100, blank=True, null=True)
+    transaction_id = models.CharField(max_length=100, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    notes = models.TextField(blank=True, help_text="Notes pour paiement manuel")
+    
+    class Meta:
+        verbose_name = "Payment"
+        verbose_name_plural = "Payments"
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.amount}€ ({self.status})"
+    
+    def mark_completed(self):
+        self.status = 'completed'
+        self.save()
+        # Activer l'abonnement
+        self.subscription.status = 'active'
+        self.subscription.start_date = timezone.now()
+        # Calculer la date de fin (1 mois)
+        from datetime import timedelta
+        self.subscription.end_date = timezone.now() + timedelta(days=30)
+        self.subscription.save()
+        # Générer la clé API si elle n'existe pas
+        if not self.user.api_clients.exists():
+            raw_key, key_hash, prefix = APIClient.generate_key()
+            tier = self.subscription.get_tier_from_plan()
+            APIClient.objects.create(
+                user=self.user,
+                name=f'{self.subscription.plan.capitalize()} API Key',
+                api_key_prefix=prefix,
+                api_key_hash=key_hash,
+                tier=tier,
+                quota_requests_per_hour=APIClient.QUOTA_MAP.get(tier, 100),
+            )
