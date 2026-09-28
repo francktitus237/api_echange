@@ -23,28 +23,17 @@ fi
 # Celery services share this entrypoint but must not run migrate concurrently.
 case "$*" in
     *supervisord*)
-        echo "=== Waiting for database ==="
-        python - <<'PYEOF'
-import os, sys, time
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'forex_platform.settings')
-import django
-django.setup()
-from django.db import connection
-for i in range(30):
-    try:
-        connection.ensure_connection()
-        print('Database ready')
-        break
-    except Exception as e:
-        print(f'DB not ready ({e}); retry {i + 1}/30')
-        time.sleep(2)
-        connection.close()
-else:
-    sys.exit(1)
-PYEOF
-
-        echo "=== Applying migrations ==="
-        python manage.py migrate --settings=forex_platform.settings --noinput
+        echo "=== Applying migrations (with DB wait) ==="
+        retries=0
+        until python manage.py migrate --settings=forex_platform.settings --noinput; do
+            retries=$((retries + 1))
+            if [ "$retries" -ge 15 ]; then
+                echo "=== Database unreachable after 15 tries ==="
+                exit 1
+            fi
+            echo "=== DB not ready, retry $retries/15 ==="
+            sleep 3
+        done
 
         echo "=== Collecting static files ==="
         python manage.py collectstatic --settings=forex_platform.settings --noinput || true

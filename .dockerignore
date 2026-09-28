@@ -7,7 +7,6 @@ db.sqlite3
 *.md
 !README_PRODUCTION.md
 !DOKPLOY_CONFIG.md
-*.html
 ForexPlatform.postman_collection.json
 .gitignore
 node_modules/
