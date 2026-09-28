@@ -1,41 +1,44 @@
 services:
-  nginx:
-    image: nginx:alpine
-    # ports:
-    #   - "80:80"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
-      - static_volume:/app/staticfiles
-    depends_on:
-      - app
-    restart: always
-
   app:
     build: .
+    ports:
+      - "8000:8000"
     environment:
       - PORT=8000
+      - USE_SQLITE=False
+      - DB_NAME=forex_db
+      - DB_USER=postgres
+      - DB_PASSWORD=MonMotDePasseFort2026!
       - DB_HOST=db
       - DB_PORT=5432
       - REDIS_URL=redis://redis:6379/0
       - USE_REDIS=True
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672//
-    env_file:
-      - .env
     volumes:
       - static_volume:/app/forex_platform/staticfiles
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
     restart: always
 
   db:
-    image: postgres:15
+    image: postgres:15-alpine
     environment:
       POSTGRES_DB: forex_db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: MonMotDePasseFort2026!
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d forex_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     restart: always
 
   redis:
@@ -52,33 +55,45 @@ services:
   celery_worker:
     build: .
     command: sh -c "cd /app/forex_platform && celery -A forex_platform worker --loglevel=info"
-    env_file:
-      - .env
     environment:
+      - USE_SQLITE=False
+      - DB_NAME=forex_db
+      - DB_USER=postgres
+      - DB_PASSWORD=MonMotDePasseFort2026!
       - DB_HOST=db
+      - DB_PORT=5432
       - REDIS_URL=redis://redis:6379/0
       - USE_REDIS=True
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672//
     depends_on:
-      - db
-      - redis
-      - rabbitmq
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
     restart: always
 
   celery_beat:
     build: .
     command: sh -c "cd /app/forex_platform && celery -A forex_platform beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler"
-    env_file:
-      - .env
     environment:
+      - USE_SQLITE=False
+      - DB_NAME=forex_db
+      - DB_USER=postgres
+      - DB_PASSWORD=MonMotDePasseFort2026!
       - DB_HOST=db
+      - DB_PORT=5432
       - REDIS_URL=redis://redis:6379/0
       - USE_REDIS=True
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672//
     depends_on:
-      - db
-      - redis
-      - rabbitmq
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
     restart: always
 
   flower:
@@ -86,9 +101,13 @@ services:
     command: sh -c "cd /app/forex_platform && celery -A forex_platform flower --port=5555"
     ports:
       - "5555:5555"
-    env_file:
-      - .env
     environment:
+      - USE_SQLITE=False
+      - DB_NAME=forex_db
+      - DB_USER=postgres
+      - DB_PASSWORD=MonMotDePasseFort2026!
+      - DB_HOST=db
+      - DB_PORT=5432
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672//
     depends_on:
       - celery_worker
