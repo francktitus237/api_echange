@@ -36,6 +36,7 @@ ALLOWED_HOSTS += [
     '.onrender.com',
     'api-echange.onrender.com',
     '.up.railway.app',
+    '.sslip.io',
 ]
 
 CSRF_TRUSTED_ORIGINS = [

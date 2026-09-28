@@ -1,13 +1,4 @@
 services:
-  nginx:
-    image: nginx:alpine
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
-      - static_volume:/app/staticfiles
-    depends_on:
-      - app
-    restart: always
-
   app:
     build: .
     environment:
@@ -22,8 +13,6 @@ services:
       - USE_REDIS=True
       - CELERY_RESULT_BACKEND=redis://redis:6379/1
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672//
-    volumes:
-      - static_volume:/app/staticfiles
     depends_on:
       db:
         condition: service_healthy
@@ -106,8 +95,6 @@ services:
   flower:
     build: .
     command: sh -c "cd /app/forex_platform && celery -A forex_platform flower --port=5555"
-    ports:
-      - "5555:5555"
     environment:
       - USE_SQLITE=False
       - DB_NAME=forex_db
@@ -122,4 +109,3 @@ services:
 
 volumes:
   postgres_data_v2:
-  static_volume:
