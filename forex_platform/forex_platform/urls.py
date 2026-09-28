@@ -3,6 +3,7 @@ URL configuration for forex_platform project.
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.views.generic import RedirectView
 from drf_spectacular.views import (
     SpectacularAPIView,
     SpectacularRedocView,
@@ -11,6 +12,7 @@ from drf_spectacular.views import (
 from apps.api_gateway import views as api_gateway_views
 
 urlpatterns = [
+    path('', RedirectView.as_view(url='/register/', permanent=False), name='home'),
     path('admin/', admin.site.urls),
     # User Interface
     path('register/', api_gateway_views.register_view, name='register'),
