@@ -31,9 +31,9 @@ services:
   db:
     image: postgres:15
     environment:
-      POSTGRES_DB: ${DB_NAME:-forex_db}
-      POSTGRES_USER: ${DB_USER:-postgres}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: forex_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: MonMotDePasseFort2026!
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: always
