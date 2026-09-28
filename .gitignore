@@ -34,3 +34,14 @@ Thumbs.db
 # Celery
 celerybeat-schedule
 celerybeat.pid
+
+# Documentation and configs
+*.md
+*.html
+ForexPlatform.postman_collection.json
+Procfile
+nixpacks.toml
+railway.toml
+render.yaml
+docker-compose.dokploy.yml
+test_api.ps1
