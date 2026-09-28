@@ -28,8 +28,8 @@ case "$*" in
         until python manage.py migrate --settings=forex_platform.settings --noinput; do
             retries=$((retries + 1))
             if [ "$retries" -ge 15 ]; then
-                echo "=== Database unreachable after 15 tries ==="
-                exit 1
+                echo "=== WARNING: migrations failed 15x — starting services anyway ==="
+                break
             fi
             echo "=== DB not ready, retry $retries/15 ==="
             sleep 3

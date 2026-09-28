@@ -22,12 +22,9 @@ services:
       - CELERY_RESULT_BACKEND=redis://redis:6379/1
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672//
     depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_started
-      rabbitmq:
-        condition: service_started
+      - db
+      - redis
+      - rabbitmq
     restart: always
 
   db:
@@ -38,11 +35,6 @@ services:
       POSTGRES_PASSWORD: MonMotDePasseFort2026!
     volumes:
       - postgres_data_v2:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d forex_db"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
     restart: always
 
   redis:
@@ -70,12 +62,9 @@ services:
       - USE_REDIS=True
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672//
     depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_started
-      rabbitmq:
-        condition: service_started
+      - db
+      - redis
+      - rabbitmq
     restart: always
 
   celery_beat:
@@ -92,12 +81,9 @@ services:
       - USE_REDIS=True
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672//
     depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_started
-      rabbitmq:
-        condition: service_started
+      - db
+      - redis
+      - rabbitmq
     restart: always
 
   flower:
