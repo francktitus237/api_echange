@@ -19,11 +19,20 @@ else
     unset DB_HOST DB_NAME DB_USER DB_PASSWORD DB_PORT
 fi
 
-echo "=== Applying migrations ==="
-python manage.py migrate --settings=forex_platform.settings --noinput
+# Only the main app container (supervisord) runs migrations — celery services
+# share this entrypoint but must not run migrate concurrently.
+case "$*" in
+    *supervisord*)
+        echo "=== Applying migrations ==="
+        python manage.py migrate --settings=forex_platform.settings --noinput
 
-echo "=== Loading currencies fixture ==="
-python manage.py loaddata currencies --settings=forex_platform.settings 2>/dev/null || true
+        echo "=== Loading currencies fixture ==="
+        python manage.py loaddata currencies --settings=forex_platform.settings 2>/dev/null || true
+        ;;
+    *)
+        echo "=== Skipping migrations (worker service) ==="
+        ;;
+esac
 
 echo "=== Starting services ==="
 exec "$@"
