@@ -35,10 +35,7 @@ Thumbs.db
 celerybeat-schedule
 celerybeat.pid
 
-# Documentation and configs (keep README_PRODUCTION.md)
-*.md
-*.html
-!README_PRODUCTION.md
+# Deployment configs
 ForexPlatform.postman_collection.json
 Procfile
 nixpacks.toml

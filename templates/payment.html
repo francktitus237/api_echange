@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paiement - ForexPlatform API</title>
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: linear-gradient(135deg, #1e3a8a, #2563eb); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .container { background: white; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); max-width: 600px; width: 100%; padding: 40px; }
+        h1 { color: #1e293b; margin-bottom: 8px; font-size: 28px; }
+        p.subtitle { color: #64748b; margin-bottom: 32px; font-size: 15px; }
+        .plan-selector { margin-bottom: 24px; }
+        .plan-option { border: 2px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 12px; cursor: pointer; transition: all 0.2s; }
+        .plan-option:hover { border-color: #2563eb; }
+        .plan-option.selected { border-color: #2563eb; background: #eff6ff; }
+        .plan-name { font-weight: 700; color: #1e293b; }
+        .plan-price { color: #2563eb; font-weight: 800; font-size: 18px; }
+        .payment-methods { margin-bottom: 24px; }
+        .payment-method { border: 2px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 12px; cursor: pointer; transition: all 0.2s; }
+        .payment-method:hover { border-color: #2563eb; }
+        .payment-method.selected { border-color: #2563eb; background: #eff6ff; }
+        .payment-icon { font-size: 24px; margin-right: 12px; }
+        button { width: 100%; padding: 14px; background: #2563eb; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        button:hover { background: #1d4ed8; }
+        button:disabled { background: #94a3b8; cursor: not-allowed; }
+        .error { background: #fee2e2; color: #dc2626; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; }
+        .success { background: #dcfce7; color: #166534; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; }
+        .manual-payment-info { background: #f1f5f9; padding: 16px; border-radius: 8px; margin-top: 16px; font-size: 14px; color: #475569; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💳 Choisissez votre abonnement</h1>
+        <p class="subtitle">Sélectionnez un plan et une méthode de paiement pour activer votre compte</p>
+        
+        {% if error %}
+        <div class="error">{{ error }}</div>
+        {% endif %}
+        
+        {% if success %}
+        <div class="success">{{ success }}</div>
+        {% endif %}
+        
+        <form method="post" id="payment-form">
+            {% csrf_token %}
+            
+            <div class="plan-selector">
+                <h3 style="margin-bottom: 12px; color: #1e293b;">Plan d'abonnement</h3>
+                
+                <div class="plan-option" onclick="selectPlan('free')" id="plan-free">
+                    <div class="plan-name">Free</div>
+                    <div class="plan-price">0€/mois</div>
+                    <div style="font-size: 12px; color: #64748b;">100 requêtes/heure</div>
+                </div>
+                
+                <div class="plan-option" onclick="selectPlan('standard')" id="plan-standard">
+                    <div class="plan-name">Standard</div>
+                    <div class="plan-price">9.99€/mois</div>
+                    <div style="font-size: 12px; color: #64748b;">1 000 requêtes/heure</div>
+                </div>
+                
+                <div class="plan-option" onclick="selectPlan('premium')" id="plan-premium">
+                    <div class="plan-name">Premium</div>
+                    <div class="plan-price">29.99€/mois</div>
+                    <div style="font-size: 12px; color: #64748b;">5 000 requêtes/heure</div>
+                </div>
+                
+                <div class="plan-option" onclick="selectPlan('partner')" id="plan-partner">
+                    <div class="plan-name">Partner</div>
+                    <div class="plan-price">99.99€/mois</div>
+                    <div style="font-size: 12px; color: #64748b;">50 000 requêtes/heure</div>
+                </div>
+            </div>
+            
+            <input type="hidden" name="plan" id="selected-plan" value="free">
+            
+            <div class="payment-methods">
+                <h3 style="margin-bottom: 12px; color: #1e293b;">Méthode de paiement</h3>
+                
+                <div class="payment-method" onclick="selectPayment('stripe')" id="payment-stripe">
+                    <span class="payment-icon">💳</span>
+                    <span>Carte bancaire (Stripe)</span>
+                </div>
+                
+                <div class="payment-method" onclick="selectPayment('paypal')" id="payment-paypal">
+                    <span class="payment-icon">🅿️</span>
+                    <span>PayPal</span>
+                </div>
+                
+                <div class="payment-method" onclick="selectPayment('manual')" id="payment-manual">
+                    <span class="payment-icon">📧</span>
+                    <span>Paiement manuel (contactez le support)</span>
+                </div>
+            </div>
+            
+            <input type="hidden" name="payment_method" id="selected-payment" value="stripe">
+            
+            <div id="manual-payment-info" class="manual-payment-info" style="display: none;">
+                <strong>Instructions pour paiement manuel :</strong><br>
+                Contactez notre support à support@forexplatform.com pour organiser le paiement par virement bancaire ou autre méthode. Une fois le paiement reçu, votre compte sera activé manuellement par notre équipe.
+            </div>
+            
+            <button type="submit" id="submit-btn" disabled>Continuer vers le paiement</button>
+        </form>
+    </div>
+    
+    <script>
+        let selectedPlan = 'free';
+        let selectedPayment = 'stripe';
+        
+        function selectPlan(plan) {
+            selectedPlan = plan;
+            document.getElementById('selected-plan').value = plan;
+            
+            // Remove selected class from all plans
+            document.querySelectorAll('.plan-option').forEach(el => el.classList.remove('selected'));
+            // Add selected class to chosen plan
+            document.getElementById('plan-' + plan).classList.add('selected');
+            
+            updateSubmitButton();
+        }
+        
+        function selectPayment(method) {
+            selectedPayment = method;
+            document.getElementById('selected-payment').value = method;
+            
+            // Remove selected class from all payment methods
+            document.querySelectorAll('.payment-method').forEach(el => el.classList.remove('selected'));
+            // Add selected class to chosen payment method
+            document.getElementById('payment-' + method).classList.add('selected');
+            
+            // Show/hide manual payment info
+            document.getElementById('manual-payment-info').style.display = 
+                method === 'manual' ? 'block' : 'none';
+            
+            updateSubmitButton();
+        }
+        
+        function updateSubmitButton() {
+            const btn = document.getElementById('submit-btn');
+            if (selectedPlan && selectedPayment) {
+                btn.disabled = false;
+                if (selectedPayment === 'manual') {
+                    btn.textContent = 'Demander un paiement manuel';
+                } else {
+                    btn.textContent = 'Continuer vers le paiement';
+                }
+            } else {
+                btn.disabled = true;
+            }
+        }
+        
+        // Initialize with default selections
+        selectPlan('free');
+        selectPayment('stripe');
+    </script>
+</body>
+</html>
