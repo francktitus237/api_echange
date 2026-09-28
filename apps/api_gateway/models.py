@@ -2,6 +2,7 @@ import hashlib
 import secrets
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 
 class APIClient(models.Model):
@@ -63,3 +64,56 @@ class AuditLog(models.Model):
 
     def __str__(self):
         return f"{self.method} {self.path} - {self.status_code}"
+
+
+class Subscription(models.Model):
+    PLAN_CHOICES = [
+        ('free', 'Free - 100 req/h'),
+        ('standard', 'Standard - 1000 req/h - 9.99€/mois'),
+        ('premium', 'Premium - 5000 req/h - 29.99€/mois'),
+        ('partner', 'Partner - 50000 req/h - 99.99€/mois'),
+    ]
+    
+    STATUS_CHOICES = [
+        ('active', 'Active'),
+        ('trial', 'Trial'),
+        ('past_due', 'Past Due'),
+        ('cancelled', 'Cancelled'),
+        ('expired', 'Expired'),
+    ]
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='subscription')
+    plan = models.CharField(max_length=20, choices=PLAN_CHOICES, default='free')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
+    start_date = models.DateTimeField(auto_now_add=True)
+    end_date = models.DateTimeField(null=True, blank=True)
+    auto_renew = models.BooleanField(default=True)
+    stripe_customer_id = models.CharField(max_length=100, blank=True, null=True)
+    stripe_subscription_id = models.CharField(max_length=100, blank=True, null=True)
+    
+    class Meta:
+        verbose_name = "Subscription"
+        verbose_name_plural = "Subscriptions"
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.plan} ({self.status})"
+    
+    def is_active(self):
+        return self.status == 'active' and (self.end_date is None or self.end_date > timezone.now())
+    
+    def get_tier_from_plan(self):
+        plan_to_tier = {
+            'free': 'free',
+            'standard': 'standard',
+            'premium': 'premium',
+            'partner': 'partner',
+        }
+        return plan_to_tier.get(self.plan, 'free')
+    
+    def update_api_client_tier(self):
+        tier = self.get_tier_from_plan()
+        api_client = self.user.api_clients.first()
+        if api_client:
+            api_client.tier = tier
+            api_client.quota_requests_per_hour = APIClient.QUOTA_MAP.get(tier, 100)
+            api_client.save()

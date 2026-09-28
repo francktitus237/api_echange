@@ -35,13 +35,13 @@ Thumbs.db
 celerybeat-schedule
 celerybeat.pid
 
-# Documentation and configs
+# Documentation and configs (keep README_PRODUCTION.md)
 *.md
 *.html
+!README_PRODUCTION.md
 ForexPlatform.postman_collection.json
 Procfile
 nixpacks.toml
 railway.toml
 render.yaml
-docker-compose.dokploy.yml
 test_api.ps1

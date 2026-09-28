@@ -8,9 +8,13 @@ from drf_spectacular.views import (
     SpectacularRedocView,
     SpectacularSwaggerView,
 )
+from apps.api_gateway import views as api_gateway_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    # User Interface
+    path('register/', api_gateway_views.register_view, name='register'),
+    path('subscription/', api_gateway_views.subscription_view, name='subscription'),
     # API Documentation
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),

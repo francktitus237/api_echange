@@ -1,14 +1,16 @@
 import os
 from django.utils.timezone import now
 from django.http import HttpResponse
+from django.shortcuts import render, redirect
+from django.contrib.auth import login
+from django.contrib.auth.models import User
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework import status
 from django.db import connection
 from django.core.cache import cache
-from django.contrib.auth.models import User
-from .models import APIClient
+from .models import APIClient, Subscription
 
 
 class DocsHTMLView(APIView):
@@ -461,3 +463,67 @@ class APIKeyDeleteView(APIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
         except APIClient.DoesNotExist:
             return Response({'success': False, 'error': 'API key not found.'}, status=404)
+
+
+# Vues pour l'interface utilisateur
+def register_view(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        password_confirm = request.POST.get('password_confirm')
+        
+        if password != password_confirm:
+            return render(request, 'register.html', {'error': 'Les mots de passe ne correspondent pas.'})
+        
+        if User.objects.filter(username=username).exists():
+            return render(request, 'register.html', {'error': 'Ce nom d\'utilisateur existe déjà.'})
+        
+        if User.objects.filter(email=email).exists():
+            return render(request, 'register.html', {'error': 'Cet email est déjà utilisé.'})
+        
+        user = User.objects.create_user(username=username, email=email, password=password)
+        
+        # Créer un abonnement free par défaut
+        Subscription.objects.create(user=user, plan='free', status='active')
+        
+        # Créer une clé API par défaut
+        raw_key, key_hash, prefix = APIClient.generate_key()
+        APIClient.objects.create(
+            user=user,
+            name='Default API Key',
+            api_key_prefix=prefix,
+            api_key_hash=key_hash,
+            tier='free',
+            quota_requests_per_hour=100,
+        )
+        
+        login(request, user)
+        return redirect('/subscription/')
+    
+    return render(request, 'register.html')
+
+
+def subscription_view(request):
+    if not request.user.is_authenticated:
+        return redirect('/register/')
+    
+    try:
+        subscription = Subscription.objects.get(user=request.user)
+        current_plan = subscription.plan
+    except Subscription.DoesNotExist:
+        subscription = Subscription.objects.create(user=request.user, plan='free', status='active')
+        current_plan = 'free'
+    
+    # Récupérer la clé API active
+    api_client = APIClient.objects.filter(user=request.user, is_active=True).first()
+    api_key = None
+    if api_client:
+        # Pour des raisons de sécurité, on ne montre que le préfixe
+        api_key = f"{api_client.api_key_prefix}... (utilisez votre clé complète)"
+    
+    return render(request, 'subscription.html', {
+        'current_plan': current_plan,
+        'api_key': api_key,
+        'subscription': subscription,
+    })
