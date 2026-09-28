@@ -8,12 +8,8 @@ services:
       - SECRET_KEY=${SECRET_KEY}
       - DEBUG=False
       - ALLOWED_HOSTS=${ALLOWED_HOSTS}
-      - DB_NAME=forex_db
-      - DB_USER=postgres
-      - DB_PASSWORD=cqd7z3iiy6ib8yfc
-      - DB_HOST=db
-      - DB_PORT=5432
-      - USE_SQLITE=False
+      - DATABASE_URL=${DATABASE_URL}
+      - USE_SQLITE=${USE_SQLITE:-False}
       - REDIS_URL=redis://redis:6379/0
       - USE_REDIS=True
       - CELERY_RESULT_BACKEND=redis://redis:6379/1
@@ -21,69 +17,51 @@ services:
       - SETUP_SECRET=${SETUP_SECRET:-changeme123}
       - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-http://localhost:3000}
     depends_on:
-      db:
-        condition: service_healthy
       redis:
         condition: service_started
       rabbitmq:
         condition: service_started
     restart: always
     command: sh -c "cd /app/forex_platform && python manage.py migrate && gunicorn forex_platform.wsgi:application --bind 0.0.0.0:8000"
+    networks:
+      - default
+      - dokploy-network
 
   celery_worker:
     build: .
     environment:
-      - DB_NAME=forex_db
-      - DB_USER=postgres
-      - DB_PASSWORD=cqd7z3iiy6ib8yfc
-      - DB_HOST=db
-      - DB_PORT=5432
-      - USE_SQLITE=False
+      - DATABASE_URL=${DATABASE_URL}
+      - USE_SQLITE=${USE_SQLITE:-False}
       - REDIS_URL=redis://redis:6379/0
       - USE_REDIS=True
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672//
       - SECRET_KEY=${SECRET_KEY}
     depends_on:
-      - db
       - redis
       - rabbitmq
     restart: always
     command: sh -c "cd /app/forex_platform && celery -A forex_platform worker --loglevel=info"
+    networks:
+      - default
+      - dokploy-network
 
   celery_beat:
     build: .
     environment:
-      - DB_NAME=forex_db
-      - DB_USER=postgres
-      - DB_PASSWORD=cqd7z3iiy6ib8yfc
-      - DB_HOST=db
-      - DB_PORT=5432
-      - USE_SQLITE=False
+      - DATABASE_URL=${DATABASE_URL}
+      - USE_SQLITE=${USE_SQLITE:-False}
       - REDIS_URL=redis://redis:6379/0
       - USE_REDIS=True
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672//
       - SECRET_KEY=${SECRET_KEY}
     depends_on:
-      - db
       - redis
       - rabbitmq
     restart: always
     command: sh -c "cd /app/forex_platform && celery -A forex_platform beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler"
-
-  db:
-    image: postgres:15-alpine
-    environment:
-      POSTGRES_DB: forex_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: cqd7z3iiy6ib8yfc
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    restart: always
+    networks:
+      - default
+      - dokploy-network
 
   redis:
     image: redis:7-alpine
@@ -96,5 +74,6 @@ services:
       RABBITMQ_DEFAULT_PASS: guest
     restart: always
 
-volumes:
-  postgres_data:
+networks:
+  dokploy-network:
+    external: true
