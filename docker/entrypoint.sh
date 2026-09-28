@@ -19,15 +19,44 @@ else
     unset DB_HOST DB_NAME DB_USER DB_PASSWORD DB_PORT
 fi
 
-# Only the main app container (supervisord) runs migrations — celery services
-# share this entrypoint but must not run migrate concurrently.
+# Only the main app container (supervisord) performs the deploy-time setup.
+# Celery services share this entrypoint but must not run migrate concurrently.
 case "$*" in
     *supervisord*)
+        echo "=== Waiting for database ==="
+        python - <<'PYEOF'
+import os, sys, time
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'forex_platform.settings')
+import django
+django.setup()
+from django.db import connection
+for i in range(30):
+    try:
+        connection.ensure_connection()
+        print('Database ready')
+        break
+    except Exception as e:
+        print(f'DB not ready ({e}); retry {i + 1}/30')
+        time.sleep(2)
+        connection.close()
+else:
+    sys.exit(1)
+PYEOF
+
         echo "=== Applying migrations ==="
         python manage.py migrate --settings=forex_platform.settings --noinput
 
+        echo "=== Collecting static files ==="
+        python manage.py collectstatic --settings=forex_platform.settings --noinput || true
+
         echo "=== Loading currencies fixture ==="
         python manage.py loaddata currencies --settings=forex_platform.settings 2>/dev/null || true
+
+        # Optional: auto-create superuser when env vars are provided
+        if [ -n "$DJANGO_SUPERUSER_USERNAME" ] && [ -n "$DJANGO_SUPERUSER_PASSWORD" ]; then
+            echo "=== Creating superuser ==="
+            python manage.py createsuperuser --settings=forex_platform.settings --noinput || true
+        fi
         ;;
     *)
         echo "=== Skipping migrations (worker service) ==="
