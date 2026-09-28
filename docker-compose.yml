@@ -48,58 +48,5 @@ services:
       RABBITMQ_DEFAULT_PASS: guest
     restart: always
 
-  celery_worker:
-    build: .
-    command: sh -c "cd /app/forex_platform && celery -A forex_platform worker --loglevel=info"
-    environment:
-      - USE_SQLITE=False
-      - DB_NAME=forex_db
-      - DB_USER=postgres
-      - DB_PASSWORD=MonMotDePasseFort2026!
-      - DB_HOST=db
-      - DB_PORT=5432
-      - REDIS_URL=redis://redis:6379/0
-      - USE_REDIS=True
-      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672//
-    depends_on:
-      - db
-      - redis
-      - rabbitmq
-    restart: always
-
-  celery_beat:
-    build: .
-    command: sh -c "cd /app/forex_platform && celery -A forex_platform beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler"
-    environment:
-      - USE_SQLITE=False
-      - DB_NAME=forex_db
-      - DB_USER=postgres
-      - DB_PASSWORD=MonMotDePasseFort2026!
-      - DB_HOST=db
-      - DB_PORT=5432
-      - REDIS_URL=redis://redis:6379/0
-      - USE_REDIS=True
-      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672//
-    depends_on:
-      - db
-      - redis
-      - rabbitmq
-    restart: always
-
-  flower:
-    build: .
-    command: sh -c "cd /app/forex_platform && celery -A forex_platform flower --port=5555"
-    environment:
-      - USE_SQLITE=False
-      - DB_NAME=forex_db
-      - DB_USER=postgres
-      - DB_PASSWORD=MonMotDePasseFort2026!
-      - DB_HOST=db
-      - DB_PORT=5432
-      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672//
-    depends_on:
-      - celery_worker
-    restart: always
-
 volumes:
   postgres_data_v2:
