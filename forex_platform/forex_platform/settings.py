@@ -37,15 +37,20 @@ ALLOWED_HOSTS += [
     'api-echange.onrender.com',
     '.up.railway.app',
     '.sslip.io',
+    '.sendbid.app',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     'https://*.onrender.com',
     'https://api-echange.onrender.com',
     'https://*.up.railway.app',
+    'https://*.sslip.io',
+    'https://*.sendbid.app',
     'http://localhost:8000',
     'http://127.0.0.1:8000',
 ]
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 
 # Application definition
