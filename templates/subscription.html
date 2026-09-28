@@ -37,12 +37,12 @@
 </head>
 <body>
     <div class="container">
-        <h1>💱 Choisissez votre abonnement</h1>
+        <h1>Choisissez votre abonnement</h1>
         <p class="subtitle">Accédez aux taux de change en temps réel avec un plan adapté à vos besoins</p>
         
         {% if subscription.status == 'pending' %}
         <div style="background: #fef3c7; border: 2px solid #f59e0b; border-radius: 8px; padding: 16px; margin-bottom: 24px;">
-            <strong>⏳ Abonnement en attente de paiement</strong><br>
+            <strong>Abonnement en attente de paiement</strong><br>
             Veuillez effectuer le paiement pour activer votre compte et générer votre clé API.
         </div>
         {% endif %}
@@ -125,7 +125,7 @@
         
         {% if api_key %}
         <div class="api-key-section">
-            <h2>🔑 Votre clé API</h2>
+            <h2>Votre clé API</h2>
             <div class="api-key-box">{{ api_key }}</div>
             <div class="api-key-instructions">
                 <strong>Comment utiliser votre clé :</strong><br>
@@ -135,7 +135,7 @@
         </div>
         {% else %}
         <div class="api-key-section" style="background: #fee2e2; border-color: #dc2626;">
-            <h2>⚠️ Paiement requis</h2>
+            <h2>Paiement requis</h2>
             <p style="color: #dc2626; margin-bottom: 16px;">Votre abonnement n'est pas encore actif. Complétez le paiement pour générer votre clé API.</p>
             <button class="plan-button primary" onclick="window.location.href='/payment/'">Effectuer le paiement</button>
         </div>

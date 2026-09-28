@@ -21,7 +21,7 @@
         .payment-method { border: 2px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 12px; cursor: pointer; transition: all 0.2s; }
         .payment-method:hover { border-color: #2563eb; }
         .payment-method.selected { border-color: #2563eb; background: #eff6ff; }
-        .payment-icon { font-size: 24px; margin-right: 12px; }
+        .payment-icon { display: inline-block; width: 28px; height: 28px; border-radius: 6px; background: #eff6ff; color: #2563eb; font-weight: 800; text-align: center; line-height: 28px; margin-right: 12px; font-size: 14px; }
         button { width: 100%; padding: 14px; background: #2563eb; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
         button:hover { background: #1d4ed8; }
         button:disabled { background: #94a3b8; cursor: not-allowed; }
@@ -32,7 +32,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>💳 Choisissez votre abonnement</h1>
+        <h1>Choisissez votre abonnement</h1>
         <p class="subtitle">Sélectionnez un plan et une méthode de paiement pour activer votre compte</p>
         
         {% if error %}
@@ -80,17 +80,17 @@
                 <h3 style="margin-bottom: 12px; color: #1e293b;">Méthode de paiement</h3>
                 
                 <div class="payment-method" onclick="selectPayment('stripe')" id="payment-stripe">
-                    <span class="payment-icon">💳</span>
+                    <span class="payment-icon">S</span>
                     <span>Carte bancaire (Stripe)</span>
                 </div>
-                
+
                 <div class="payment-method" onclick="selectPayment('paypal')" id="payment-paypal">
-                    <span class="payment-icon">🅿️</span>
+                    <span class="payment-icon">P</span>
                     <span>PayPal</span>
                 </div>
-                
+
                 <div class="payment-method" onclick="selectPayment('manual')" id="payment-manual">
-                    <span class="payment-icon">📧</span>
+                    <span class="payment-icon">M</span>
                     <span>Paiement manuel (contactez le support)</span>
                 </div>
             </div>

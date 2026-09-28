@@ -10,7 +10,8 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework import status
 from django.db import connection
 from django.core.cache import cache
-from .models import APIClient, Subscription
+from .models import APIClient, Subscription, Payment
+from apps.forex.models import ExchangeRate
 
 
 class DocsHTMLView(APIView):
@@ -589,4 +590,75 @@ def payment_view(request):
     return render(request, 'payment.html', {
         'subscription': subscription,
         'plan_prices': plan_prices,
+    })
+
+
+def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('/dashboard/')
+    if request.method == 'POST':
+        from django.contrib.auth import authenticate
+        user = authenticate(
+            request,
+            username=request.POST.get('username'),
+            password=request.POST.get('password'),
+        )
+        if user is not None:
+            login(request, user)
+            return redirect('/dashboard/')
+        return render(request, 'login.html', {'error': "Nom d'utilisateur ou mot de passe incorrect."})
+    return render(request, 'login.html')
+
+
+def logout_view(request):
+    from django.contrib.auth import logout
+    logout(request)
+    return redirect('/')
+
+
+def home_view(request):
+    lang = request.GET.get('lang', 'fr')
+    return render(request, 'home_en.html' if lang == 'en' else 'home.html')
+
+
+def dashboard_view(request):
+    if not request.user.is_authenticated:
+        return redirect('/login/')
+
+    subscription, _ = Subscription.objects.get_or_create(
+        user=request.user, defaults={'plan': 'free', 'status': 'pending'}
+    )
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'generate_key' and subscription.is_active():
+            raw_key, key_hash, prefix = APIClient.generate_key()
+            tier = subscription.get_tier_from_plan()
+            APIClient.objects.create(
+                user=request.user,
+                name=request.POST.get('key_name', 'Default Key')[:100],
+                api_key_prefix=prefix,
+                api_key_hash=key_hash,
+                tier=tier,
+                quota_requests_per_hour=APIClient.QUOTA_MAP.get(tier, 100),
+            )
+            request.session['new_api_key'] = raw_key  # shown once, never again
+        elif action == 'revoke_key':
+            APIClient.objects.filter(
+                pk=request.POST.get('key_id'), user=request.user
+            ).update(is_active=False)
+        return redirect('/dashboard/')
+
+    new_api_key = request.session.pop('new_api_key', None)
+    api_keys = APIClient.objects.filter(user=request.user).order_by('-created_at')
+    payments = Payment.objects.filter(user=request.user).order_by('-created_at')[:10]
+    rates = ExchangeRate.objects.select_related('from_currency', 'to_currency').order_by('-fetched_at')[:20]
+
+    return render(request, 'dashboard.html', {
+        'subscription': subscription,
+        'api_keys': api_keys,
+        'api_client': api_keys.filter(is_active=True).first(),
+        'new_api_key': new_api_key,
+        'payments': payments,
+        'rates': rates,
     })
