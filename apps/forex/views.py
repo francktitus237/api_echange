@@ -40,17 +40,41 @@ class RateListView(APIView):
 
         if not cached:
             rates_qs = ExchangeRate.objects.filter(from_currency=base).select_related('to_currency')
-            if not rates_qs.exists():
-                return Response({'success': False, 'error': f'No rates found for base {base}.'}, status=404)
-            cached = {
-                r.to_currency_id: {
-                    'market_rate': str(r.market_rate),
-                    'business_rate': str(r.business_rate),
-                    'spread': str(r.spread),
-                    'fetched_at': r.fetched_at.isoformat(),
-                    'is_stale': r.is_stale,
-                } for r in rates_qs
-            }
+            if rates_qs.exists():
+                cached = {
+                    r.to_currency_id: {
+                        'market_rate': str(r.market_rate),
+                        'business_rate': str(r.business_rate),
+                        'spread': str(r.spread),
+                        'fetched_at': r.fetched_at.isoformat(),
+                        'is_stale': r.is_stale,
+                    } for r in rates_qs
+                }
+            else:
+                # Cross-rate computation: base/Y = anchor/Y ÷ anchor/base
+                # (ECB stores EUR→X; USD→Y = EUR→Y / EUR→USD)
+                base_rate = ExchangeRate.objects.filter(to_currency=base).first()
+                if not base_rate:
+                    return Response({'success': False, 'error': f'No rates found for base {base}.'}, status=404)
+                anchor = base_rate.from_currency_id
+                anchor_qs = ExchangeRate.objects.filter(from_currency=anchor)
+                inv = Decimal(1) / base_rate.market_rate
+                cached = {
+                    r.to_currency_id: {
+                        'market_rate': str(round(r.market_rate * inv, 8)),
+                        'business_rate': str(round(r.business_rate * inv, 8)),
+                        'spread': str(r.spread),
+                        'fetched_at': r.fetched_at.isoformat(),
+                        'is_stale': r.is_stale,
+                    } for r in anchor_qs
+                }
+                cached[anchor] = {
+                    'market_rate': str(round(inv, 8)),
+                    'business_rate': str(round(inv, 8)),
+                    'spread': '0',
+                    'fetched_at': base_rate.fetched_at.isoformat(),
+                    'is_stale': base_rate.is_stale,
+                }
             cache.set(cache_key, cached, timeout=getattr(settings, 'FOREX_CACHE_TTL', 300))
 
         return Response({
