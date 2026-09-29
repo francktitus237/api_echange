@@ -1,122 +1,103 @@
-# Configuration Dokploy pour ForexPlatform API
+# Configuration Dokploy — ForexPlatform API
 
-## Variables d'environnement requises
+## Architecture déployée
 
-Dans l'interface Dokploy, configurez ces variables d'environnement :
+`docker-compose.yml` contient tout : `app` (Gunicorn + Celery via supervisord), `db` (PostgreSQL 15), `redis`, `rabbitmq`, `nginx`.
 
-### Sécurité
-- `SECRET_KEY` : Clé secrète Django (générez une clé aléatoire longue)
-- `DEBUG` : `False` (important pour la production)
-- `SETUP_SECRET` : Secret pour la création de clés API automatique
+```
+Domaine → Traefik Dokploy → app:8000 → Django
+```
 
-### Paiement Stripe
-- `STRIPE_PUBLIC_KEY` : Clé publique Stripe (pk_live_...)
-- `STRIPE_SECRET_KEY` : Clé secrète Stripe (sk_live_...)
-- `STRIPE_WEBHOOK_SECRET` : Secret webhook Stripe (whsec_...)
+## Variables d'environnement (Dokploy → Environment)
 
-### Paiement PayPal
-- `PAYPAL_CLIENT_ID` : Client ID PayPal
-- `PAYPAL_CLIENT_SECRET` : Secret client PayPal
-- `PAYPAL_MODE` : `sandbox` (test) ou `live` (production)
+### Obligatoires
 
-### Base de données (IMPORTANT - utilisez la base de données Dokploy)
-- `DATABASE_URL` : **L'URL fournie par Dokploy** après création de la base de données PostgreSQL
-  - Format : `postgresql://username:password@host:port/database`
-  - Exemple : `postgresql://forex_user:password123@postgres-dokploy:5432/forex_db`
+| Variable | Valeur |
+|---|---|
+| `SECRET_KEY` | Chaîne aléatoire 50+ caractères (`python -c "import secrets; print(secrets.token_urlsafe(50))"`) |
+| `DEBUG` | `False` |
+| `SITE_URL` | `https://api-forexplatform.sendbid.app` |
 
-**Pour créer la base de données dans Dokploy :**
-1. Allez dans la section "Databases" de Dokploy
-2. Cliquez sur "Create Database" → "PostgreSQL"
-3. Choisissez la version 15
-4. Nommez-la `forex_db`
-5. Dokploy vous fournira l'URL de connexion complète
-6. Copiez cette URL dans la variable `DATABASE_URL`
+### Paiements (optionnel — sans clés, seul le paiement manuel fonctionne)
 
-### Configuration serveur
-- `ALLOWED_HOSTS` : Votre domaine (ex: `api.votre-entreprise.com`)
-- `PORT` : `8000`
+| Variable | Source |
+|---|---|
+| `STRIPE_SECRET_KEY` | dashboard.stripe.com → API keys (`sk_live_...`) |
+| `STRIPE_PUBLISHABLE_KEY` | idem (`pk_live_...`) |
+| `STRIPE_WEBHOOK_SECRET` | Stripe → Webhooks → après création (`whsec_...`) |
+| `PAYPAL_CLIENT_ID` | developer.paypal.com → app REST |
+| `PAYPAL_CLIENT_SECRET` | idem |
+| `PAYPAL_SANDBOX` | `True` pour tester, `False` en production |
 
-### Cache et files d'attente
-- `REDIS_URL` : `redis://redis:6379/0`
-- `USE_REDIS` : `True`
-- `CELERY_RESULT_BACKEND` : `redis://redis:6379/1`
-- `RABBITMQ_URL` : `amqp://guest:guest@rabbitmq:5672//`
+### Forex (optionnel — la BCE est gratuite sans clé)
 
-### CORS
-- `CORS_ALLOWED_ORIGINS` : `https://votre-domaine.com`
+| Variable | Effet |
+|---|---|
+| `EXCHANGERATE_API_KEY` | Taux plus fréquents (compte gratuit sur exchangerate-api.com) |
+| `OPENEXCHANGERATES_APP_ID` | Provider supplémentaire |
+| `FIXER_API_KEY` | Provider supplémentaire |
 
-## Services à déployer
+### Emails (optionnel — notifications bienvenue/paiement)
 
-### 1. Service principal (app)
-- **Type** : Web service
-- **Port** : 8000
-- **Health check** : `/api/v1/health/`
-- **Commande de démarrage** : `gunicorn forex_platform.wsgi:application --bind 0.0.0.0:8000`
+`EMAIL_HOST`, `EMAIL_PORT` (587), `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`, `DEFAULT_FROM_EMAIL`
 
-### 2. Service Celery Worker
-- **Type** : Worker service
-- **Commande** : `celery -A forex_platform worker --loglevel=info`
+### Admin (optionnel)
 
-### 3. Service Celery Beat
-- **Type** : Worker service
-- **Commande** : `celery -A forex_platform beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler`
+`DJANGO_SUPERUSER_USERNAME` + `DJANGO_SUPERUSER_PASSWORD` + `DJANGO_SUPERUSER_EMAIL`
+→ crée ou promeut ce compte en superuser à chaque déploiement.
+**Sans ces variables** : le premier utilisateur inscrit via `/register/` devient admin automatiquement.
 
-## Bases de données
+## Domaine
 
-### PostgreSQL
-- **Type** : PostgreSQL
-- **Version** : 15
-- **Nom** : db
+Dans Dokploy → Domains :
 
-### Redis
-- **Type** : Redis
-- **Version** : 7
-- **Nom** : redis
+| Champ | Valeur |
+|---|---|
+| Service | `app` |
+| Port | `8000` |
+| Path | `/` |
+| HTTPS | activé |
 
-## Configuration du domaine
+## Webhook Stripe
 
-1. Ajoutez votre domaine dans Dokploy
-2. Configurez le SSL (Let's Encrypt)
-3. Pointez le domaine vers le service principal (port 8000)
+Dans dashboard.stripe.com → Developers → Webhooks :
 
-## Premiers pas après déploiement
+- **URL** : `https://api-forexplatform.sendbid.app/api/v1/webhooks/stripe/`
+- **Événement** : `checkout.session.completed`
+- Copier le "Signing secret" → `STRIPE_WEBHOOK_SECRET`
 
-1. **Accéder au dashboard admin** :
-   - URL : `https://votre-domaine.com/admin/`
-   - Créez un superutilisateur : `docker exec -it <container> python manage.py createsuperuser`
+## Vérification post-déploiement
 
-2. **Créer un compte utilisateur** :
-   - URL : `https://votre-domaine.com/register/`
-   - L'utilisateur recevra automatiquement un abonnement Free et une clé API
+```bash
+# Santé
+curl https://api-forexplatform.sendbid.app/api/v1/health/
 
-3. **Obtenir une clé API via setup** :
-   - URL : `https://votre-domaine.com/api/v1/setup/create-key/?secret=VOTRE_SETUP_SECRET`
-   - Conservez la clé générée
+# Taux réels (public)
+curl https://api-forexplatform.sendbid.app/api/v1/demo/
+```
 
-4. **Documentation API** :
-   - URL : `https://votre-domaine.com/api/v1/docs/`
+Logs `app` attendus :
+```
+=== Using bundled PostgreSQL (db) ===
+=== Applying migrations ===
+=== Seeding forex providers & schedules ===
+=== Superuser setup ===
+[INFO] Listening at: http://0.0.0.0:8000
+```
 
-## Gestion des abonnements et paiements
+## Flux de paiement
 
-Via le dashboard admin Django :
-- Gérez les utilisateurs
-- Modifiez les abonnements (Free → Standard → Premium → Partner)
-- Activez/désactivez les clés API
-- **Gérez les paiements manuels** : Marquez les paiements comme complétés pour activer les comptes
-- Surveillez les logs d'audit
-
-### Flux de paiement manuel (admin)
-1. L'utilisateur choisit "Paiement manuel" sur la page de paiement
-2. Un paiement en statut "pending" est créé
-3. L'admin voit le paiement dans le dashboard
-4. L'admin marque le paiement comme "complété"
-5. L'abonnement est automatiquement activé
-6. La clé API est générée automatiquement
+| Méthode | Flux |
+|---|---|
+| **Stripe** | Client → Checkout Stripe → webhook/return → `mark_completed()` → abonnement actif + clé API + email |
+| **PayPal** | Client → approbation PayPal → capture au retour → idem |
+| **Manuel** | Client demande → admin valide dans `/admin/` (action "compléter") → idem |
+| **Free** | Activation immédiate, aucun paiement |
 
 ## Sécurité
 
-- Changez tous les mots de passe par défaut
-- Utilisez des clés fortes pour SECRET_KEY et SETUP_SECRET
-- Activez le SSL
-- Configurez les règles de pare-feu
-- Surveillez les logs d'audit
+- Clés API hashées SHA-256, affichées une seule fois
+- Quota horaire par plan, appliqué côté serveur
+- Rate limiting : 20 req/h anonyme, quota du plan pour les clés
+- Webhook Stripe vérifié par signature
+- Changez les mots de passe par défaut dans le compose pour la production

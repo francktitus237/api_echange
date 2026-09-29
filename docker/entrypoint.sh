@@ -5,6 +5,14 @@ set -e
 # pointing to an external host that is not reachable from this network).
 unset DATABASE_URL
 
+# Django refuses to boot with an empty SECRET_KEY when DEBUG=False.
+# Generate an ephemeral one if the platform didn't provide it (sessions are
+# invalidated on restart — set a fixed SECRET_KEY in Dokploy to avoid this).
+if [ -z "$SECRET_KEY" ]; then
+    export SECRET_KEY="$(python -c 'import secrets; print(secrets.token_urlsafe(50))')"
+    echo "=== WARNING: SECRET_KEY not set — generated ephemeral key ==="
+fi
+
 if getent hosts db >/dev/null 2>&1; then
     echo "=== Using bundled PostgreSQL (db) ==="
     export USE_SQLITE=False

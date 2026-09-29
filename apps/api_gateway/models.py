@@ -158,6 +158,12 @@ class Payment(models.Model):
     def mark_completed(self):
         self.status = 'completed'
         self.save()
+        # Notifier le client (no-op si EMAIL_HOST non configuré)
+        try:
+            from apps.api_gateway.emails import send_payment_received
+            send_payment_received(self)
+        except Exception:
+            pass
         # Activer l'abonnement
         self.subscription.status = 'active'
         self.subscription.start_date = timezone.now()

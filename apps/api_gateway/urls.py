@@ -9,6 +9,8 @@ urlpatterns = [
     path('auth/token/blacklist/', TokenBlacklistView.as_view(), name='token_blacklist'),
     # Health
     path('health/', views.HealthView.as_view(), name='health'),
+    # Stripe webhook (signature-verified, no auth)
+    path('webhooks/stripe/', views.StripeWebhookView.as_view(), name='stripe_webhook'),
     # Documentation HTML
     path('docs/', views.DocsHTMLView.as_view(), name='docs_html'),
 

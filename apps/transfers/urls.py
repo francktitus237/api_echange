@@ -7,4 +7,5 @@ urlpatterns = [
     path('transfers/', views.TransferListView.as_view(), name='transfers'),
     path('transfers/create/', views.TransferCreateView.as_view(), name='transfer_create'),
     path('transfers/<str:reference>/', views.TransferDetailView.as_view(), name='transfer_detail'),
+    path('wallets/credit/', views.WalletCreditView.as_view(), name='wallet_credit'),
 ]

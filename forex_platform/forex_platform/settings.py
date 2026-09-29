@@ -208,10 +208,12 @@ SIMPLE_JWT = {
 }
 
 # CORS Configuration
-CORS_ALLOWED_ORIGINS = os.getenv(
-    'CORS_ALLOWED_ORIGINS',
-    'http://localhost:3000,http://localhost:8080'
-).split(',')
+CORS_ALLOWED_ORIGINS = [
+    o for o in os.getenv(
+        'CORS_ALLOWED_ORIGINS',
+        'http://localhost:3000,http://localhost:8080'
+    ).split(',') if o
+]
 
 # Static files
 STATIC_URL = '/static/'
@@ -255,3 +257,26 @@ FOREX_CACHE_TTL = int(os.getenv('FOREX_CACHE_TTL', '300'))
 FOREX_SPREAD_DEFAULT = float(os.getenv('FOREX_SPREAD_DEFAULT', '0.015'))
 FOREX_MARGIN_DEFAULT = float(os.getenv('FOREX_MARGIN_DEFAULT', '0.005'))
 FOREX_ANOMALY_THRESHOLD = float(os.getenv('FOREX_ANOMALY_THRESHOLD', '0.20'))
+
+# Payments — Stripe / PayPal (read from env; empty = provider disabled)
+STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY', '')
+STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_PUBLISHABLE_KEY', '')
+STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET', '')
+PAYPAL_CLIENT_ID = os.getenv('PAYPAL_CLIENT_ID', '')
+PAYPAL_CLIENT_SECRET = os.getenv('PAYPAL_CLIENT_SECRET', '')
+PAYPAL_SANDBOX = os.getenv('PAYPAL_SANDBOX', 'False').lower() == 'true'
+SITE_URL = os.getenv('SITE_URL', 'https://api-forexplatform.sendbid.app')
+
+# Forex providers (optional API keys for fresher-than-ECB data)
+EXCHANGERATE_API_KEY = os.getenv('EXCHANGERATE_API_KEY', '')
+OPENEXCHANGERATES_APP_ID = os.getenv('OPENEXCHANGERATES_APP_ID', '')
+FIXER_API_KEY = os.getenv('FIXER_API_KEY', '')
+
+# Email notifications — works only when EMAIL_HOST is configured;
+# otherwise silently skipped (never breaks the request).
+EMAIL_HOST = os.getenv('EMAIL_HOST', '')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True').lower() == 'true'
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'no-reply@sendbid.app')

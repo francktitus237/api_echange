@@ -4,7 +4,7 @@ from django.utils.timezone import now
 from django.db import transaction as db_transaction
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from django.contrib.auth.models import User
 
 from apps.forex.models import ExchangeRate
@@ -203,3 +203,43 @@ class TransferDetailView(APIView):
             'initiated_at': t.initiated_at.isoformat(),
             'completed_at': t.completed_at.isoformat() if t.completed_at else None,
         }})
+
+
+class WalletCreditView(APIView):
+    """Admin-only: credit a user's wallet (after receiving real funds)."""
+    permission_classes = [IsAdminUser]
+
+    def post(self, request):
+        username = request.data.get('username', '').strip()
+        currency_code = request.data.get('currency', '').upper()
+        amount = request.data.get('amount')
+        note = request.data.get('note', '')
+
+        if not all([username, currency_code, amount]):
+            return Response({'success': False, 'error': 'username, currency and amount are required.'}, status=400)
+        try:
+            amount = Decimal(str(amount))
+            if amount <= 0:
+                raise ValueError
+        except Exception:
+            return Response({'success': False, 'error': 'Invalid amount.'}, status=400)
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return Response({'success': False, 'error': 'User not found.'}, status=404)
+
+        wallet, _ = Wallet.objects.get_or_create(
+            user=user, currency_id=currency_code, defaults={'is_active': True}
+        )
+        reference = f"DEP{secrets.token_hex(5).upper()}"
+        with db_transaction.atomic():
+            before = wallet.balance
+            wallet.balance += amount
+            wallet.save()
+            Transaction.objects.create(
+                wallet=wallet, transaction_type='credit', amount=amount,
+                balance_before=before, balance_after=wallet.balance,
+                status='completed', reference=reference,
+            )
+        return Response({'success': True, 'reference': reference,
+                         'new_balance': str(wallet.balance)})

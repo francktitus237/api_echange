@@ -20,6 +20,9 @@ urlpatterns = [
     path('logout/', api_gateway_views.logout_view, name='logout'),
     path('dashboard/', api_gateway_views.dashboard_view, name='dashboard'),
     path('payment/', api_gateway_views.payment_view, name='payment'),
+    path('payment/success/', api_gateway_views.payment_success_view, name='payment_success'),
+    path('payment/cancel/', api_gateway_views.payment_cancel_view, name='payment_cancel'),
+    path('payment/paypal/return/', api_gateway_views.payment_paypal_return_view, name='payment_paypal_return'),
     path('subscription/', api_gateway_views.subscription_view, name='subscription'),
     path('docs/', api_gateway_views.docs_view, name='docs'),
     # API Documentation

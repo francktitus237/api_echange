@@ -16,18 +16,24 @@ ForexPlatform API est une solution complète pour les taux de change en temps r�
 Configurez ces variables dans l'interface Dokploy :
 
 ```bash
-# Sécurité
+# Sécurité (obligatoire)
 SECRET_KEY=votre_clé_secrète_django_ici
 DEBUG=False
-SETUP_SECRET=votre_secret_pour_setup_api
+SITE_URL=https://votre-domaine.com
 
-# Base de données
-DB_NAME=forex_db
-DB_USER=postgres
-DB_PASSWORD=votre_mot_de_passe_postgres
-DB_HOST=db
-DB_PORT=5432
-USE_SQLITE=False
+# Paiements (optionnel — sans clés, paiement manuel uniquement)
+STRIPE_SECRET_KEY=sk_live_...
+STRIPE_PUBLISHABLE_KEY=pk_live_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+PAYPAL_CLIENT_ID=...
+PAYPAL_CLIENT_SECRET=...
+PAYPAL_SANDBOX=False
+
+# Emails (optionnel)
+EMAIL_HOST=smtp.example.com
+EMAIL_HOST_USER=no-reply@...
+EMAIL_HOST_PASSWORD=...
+DEFAULT_FROM_EMAIL=no-reply@...
 
 # Serveur
 ALLOWED_HOSTS=votre-domaine.com
@@ -45,13 +51,12 @@ CORS_ALLOWED_ORIGINS=https://votre-domaine.com
 
 ### Services Docker
 
-Utilisez le fichier `docker-compose.dokploy.yml` qui inclut :
-- **app** : Application Django principale
-- **celery_worker** : Worker pour les tâches asynchrones
-- **celery_beat** : Planificateur de tâches
-- **db** : PostgreSQL 15
-- **redis** : Redis 7
-- **rabbitmq** : RabbitMQ pour la messagerie
+Utilisez le fichier `docker-compose.yml` qui inclut :
+- **app** : Django + Gunicorn + Celery worker + Celery beat (via supervisord)
+- **db** : PostgreSQL 15 (bundled, pas de DATABASE_URL externe nécessaire)
+- **redis** : Redis 7 (cache + résultats Celery)
+- **rabbitmq** : RabbitMQ 3 (broker Celery)
+- **nginx** : Reverse proxy vers app:8000
 
 ## 👥 Gestion des utilisateurs
 
@@ -158,17 +163,24 @@ Surveillez via le dashboard admin :
 
 ## 🔄 Mises à jour
 
-### Pour appliquer les migrations après les changements :
+### Migrations et démarrage
 
-```bash
-docker-compose exec app python manage.py migrate
-```
+Les migrations, fixtures devises, seed des providers forex et la configuration du superutilisateur sont **automatiques** à chaque déploiement via `docker/entrypoint.sh` :
 
-### Pour créer un superutilisateur admin :
+- `python manage.py migrate`
+- `python manage.py loaddata currencies`
+- `python manage.py seed_forex` (providers + crons Celery)
+- `python manage.py setup_admin` (crée/promeut le superadmin)
+
+### Pour créer un superutilisateur manuellement :
 
 ```bash
 docker-compose exec app python manage.py createsuperuser
 ```
+
+### Clé compromise ?
+
+Révoquez-la via `/admin/` ou dashboard client (générer une nouvelle clé révoque l'ancienne automatiquement).
 
 ## 🆘 Support
 
@@ -180,8 +192,10 @@ En cas de problème :
 
 ## 📝 Fichiers importants
 
-- `docker-compose.dokploy.yml` : Configuration Docker pour Dokploy
+- `README.md` : Documentation complète (architecture, API, déploiement)
+- `docker-compose.yml` : Configuration Docker pour Dokploy
 - `DOKPLOY_CONFIG.md` : Guide détaillé de configuration Dokploy
+- `postman_collection.json` : Collection Postman pour tester l'API
 - `.env` : Variables d'environnement locales
 - `.dockerignore` : Fichiers exclus de l'image Docker
 - `.gitignore` : Fichiers exclus du versioning

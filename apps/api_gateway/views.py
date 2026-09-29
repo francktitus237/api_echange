@@ -1,4 +1,3 @@
-import os
 from django.utils.timezone import now
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
@@ -411,6 +410,28 @@ class APIKeyDeleteView(APIView):
             return Response({'success': False, 'error': 'API key not found.'}, status=404)
 
 
+class StripeWebhookView(APIView):
+    """Stripe → server-side confirmation. Signature verified."""
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
+    def post(self, request):
+        from .payments import handle_stripe_webhook
+        session = handle_stripe_webhook(
+            request.body,
+            request.META.get('HTTP_STRIPE_SIGNATURE', ''),
+        )
+        if not session:
+            return Response({'error': 'unhandled'}, status=400)
+        payment = Payment.objects.filter(
+            stripe_payment_intent_id=session.get('id')
+        ).first()
+        if payment and payment.status != 'completed':
+            payment.transaction_id = session.get('payment_intent', '')
+            payment.mark_completed()
+        return Response({'received': True})
+
+
 # Vues pour l'interface utilisateur
 def register_view(request):
     if request.method == 'POST':
@@ -429,10 +450,13 @@ def register_view(request):
             return render(request, 'register.html', {'error': 'Cet email est déjà utilisé.'})
         
         user = User.objects.create_user(username=username, email=email, password=password)
-        
+
         # Créer un abonnement en attente de paiement
         subscription = Subscription.objects.create(user=user, plan='free', status='pending')
-        
+
+        from .emails import send_welcome
+        send_welcome(user)
+
         login(request, user)
         return redirect('/payment/')
     
@@ -529,25 +553,36 @@ def payment_view(request):
         )
         
         if payment_method == 'manual':
-            # Pour paiement manuel, informer l'utilisateur
+            from .emails import send_manual_payment_request
+            send_manual_payment_request(payment)
             return render(request, 'payment.html', {
                 'subscription': subscription,
                 'plan_prices': plan_prices,
                 'success': f'Demande de paiement manuel envoyée. Contactez le support pour finaliser le paiement de {plan_prices.get(plan, 0)}€. Votre référence : {payment.id}'
             })
         elif payment_method == 'stripe':
-            # Rediriger vers Stripe (à implémenter avec Stripe SDK)
+            from .payments import create_stripe_checkout
+            checkout_url = create_stripe_checkout(payment, plan.capitalize())
+            if checkout_url:
+                return redirect(checkout_url)
+            payment.status = 'failed'
+            payment.save(update_fields=['status'])
             return render(request, 'payment.html', {
                 'subscription': subscription,
                 'plan_prices': plan_prices,
-                'error': 'Intégration Stripe à configurer. Utilisez le paiement manuel pour le moment.'
+                'error': 'Paiement par carte momentanément indisponible. Utilisez le paiement manuel ou réessayez plus tard.'
             })
         elif payment_method == 'paypal':
-            # Rediriger vers PayPal (à implémenter avec PayPal SDK)
+            from .payments import create_paypal_order
+            approve_url = create_paypal_order(payment, plan.capitalize())
+            if approve_url:
+                return redirect(approve_url)
+            payment.status = 'failed'
+            payment.save(update_fields=['status'])
             return render(request, 'payment.html', {
                 'subscription': subscription,
                 'plan_prices': plan_prices,
-                'error': 'Intégration PayPal à configurer. Utilisez le paiement manuel pour le moment.'
+                'error': 'PayPal momentanément indisponible. Utilisez le paiement manuel ou réessayez plus tard.'
             })
     
     # Récupérer les prix des plans
@@ -561,6 +596,45 @@ def payment_view(request):
     return render(request, 'payment.html', {
         'subscription': subscription,
         'plan_prices': plan_prices,
+    })
+
+
+def payment_success_view(request):
+    """Return URL after Stripe Checkout — verifies the session is paid."""
+    session_id = request.GET.get('session_id', '')
+    from .payments import verify_stripe_session
+    payment = Payment.objects.filter(
+        stripe_payment_intent_id=session_id
+    ).first()
+    if payment and verify_stripe_session(session_id):
+        if payment.status != 'completed':
+            payment.mark_completed()
+        return redirect('/dashboard/')
+    return render(request, 'payment.html', {
+        'error': "Paiement non confirmé. Si vous avez été débité, contactez le support.",
+        'plan_prices': {'free': 0, 'standard': 9.99, 'premium': 29.99, 'partner': 99.99},
+    })
+
+
+def payment_paypal_return_view(request):
+    """Return URL after PayPal approval — captures the order."""
+    order_id = request.GET.get('token', '')
+    from .payments import capture_paypal_order
+    payment = Payment.objects.filter(paypal_order_id=order_id).first()
+    if payment and capture_paypal_order(order_id):
+        if payment.status != 'completed':
+            payment.mark_completed()
+        return redirect('/dashboard/')
+    return render(request, 'payment.html', {
+        'error': "Paiement PayPal non confirmé. Si vous avez été débité, contactez le support.",
+        'plan_prices': {'free': 0, 'standard': 9.99, 'premium': 29.99, 'partner': 99.99},
+    })
+
+
+def payment_cancel_view(request):
+    return render(request, 'payment.html', {
+        'error': 'Paiement annulé. Vous pouvez réessayer quand vous voulez.',
+        'plan_prices': {'free': 0, 'standard': 9.99, 'premium': 29.99, 'partner': 99.99},
     })
 
 
