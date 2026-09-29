@@ -1,0 +1,102 @@
+{
+	"info": {
+		"name": "ForexPlatform API",
+		"description": "Collection de test pour https://api-forexplatform.sendbid.app — définir les variables base_url et api_key dans les variables de la collection.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{ "key": "base_url", "value": "https://api-forexplatform.sendbid.app/api/v1" },
+		{ "key": "api_key", "value": "fxp_VOTRE_CLE_ICI" },
+		{ "key": "username", "value": "votre_username" },
+		{ "key": "password", "value": "votre_mot_de_passe" }
+	],
+	"item": [
+		{
+			"name": "1. Public — sans authentification",
+			"item": [
+				{
+					"name": "Health check",
+					"request": { "method": "GET", "url": "{{base_url}}/health/" }
+				},
+				{
+					"name": "Demo — taux réels (landing page)",
+					"request": { "method": "GET", "url": "{{base_url}}/demo/" }
+				},
+				{
+					"name": "Liste des devises",
+					"request": { "method": "GET", "url": "{{base_url}}/currencies/" }
+				}
+			]
+		},
+		{
+			"name": "2. Sans clé — doit renvoyer 401/403",
+			"item": [
+				{
+					"name": "Rates sans clé (test sécurité)",
+					"request": { "method": "GET", "url": "{{base_url}}/rates/?base=USD" }
+				}
+			]
+		},
+		{
+			"name": "3. Avec clé API (X-API-KEY)",
+			"item": [
+				{
+					"name": "Tous les taux (base USD)",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "X-API-KEY", "value": "{{api_key}}" }],
+						"url": "{{base_url}}/rates/?base=USD"
+					}
+				},
+				{
+					"name": "Taux d'une paire USD/EUR",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "X-API-KEY", "value": "{{api_key}}" }],
+						"url": "{{base_url}}/rates/USD/EUR/"
+					}
+				},
+				{
+					"name": "Conversion 100 USD → EUR",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "X-API-KEY", "value": "{{api_key}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"from_currency\": \"USD\",\n    \"to_currency\": \"EUR\",\n    \"amount\": 100\n}"
+						},
+						"url": "{{base_url}}/convert/"
+					}
+				},
+				{
+					"name": "Historique USD/EUR",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "X-API-KEY", "value": "{{api_key}}" }],
+						"url": "{{base_url}}/history/USD/EUR/"
+					}
+				}
+			]
+		},
+		{
+			"name": "4. JWT (sessions utilisateur)",
+			"item": [
+				{
+					"name": "Obtenir token JWT",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"{{username}}\",\n    \"password\": \"{{password}}\"\n}"
+						},
+						"url": "{{base_url}}/auth/token/"
+					}
+				}
+			]
+		}
+	]
+}
