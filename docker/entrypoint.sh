@@ -47,11 +47,8 @@ case "$*" in
         echo "=== First rates sync ==="
         echo "from apps.forex.tasks import sync_all_rates; sync_all_rates()" | python manage.py shell --settings=forex_platform.settings 2>/dev/null || true
 
-        # Optional: auto-create superuser when env vars are provided
-        if [ -n "$DJANGO_SUPERUSER_USERNAME" ] && [ -n "$DJANGO_SUPERUSER_PASSWORD" ]; then
-            echo "=== Creating superuser ==="
-            python manage.py createsuperuser --settings=forex_platform.settings --noinput || true
-        fi
+        echo "=== Superuser setup (create or promote) ==="
+        python manage.py setup_admin --settings=forex_platform.settings || true
         ;;
     *)
         echo "=== Skipping migrations (worker service) ==="

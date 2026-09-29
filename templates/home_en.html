@@ -71,6 +71,25 @@
         .plan ul { list-style: none; margin: 20px 0 28px; color: var(--gray); font-size: 14px; }
         .plan ul li { padding: 6px 0; }
 
+        .live { background: var(--dark); color: white; padding: 28px 0; }
+        .live-label { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #93c5fd; margin-bottom: 16px; }
+        .live-dot { width: 9px; height: 9px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 4px rgba(34,197,94,.2); animation: pulse 1.6s infinite; }
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
+        .rates-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; }
+        .rate-card { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 10px; padding: 14px 16px; }
+        .rate-card .pair { font-size: 13px; color: #93c5fd; font-weight: 700; }
+        .rate-card .val { font-size: 21px; font-weight: 800; margin-top: 4px; font-variant-numeric: tabular-nums; }
+        .rate-card .src { font-size: 11px; color: #64748b; margin-top: 4px; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 24px; text-align: center; }
+        .stat .num { font-size: 40px; font-weight: 800; color: var(--blue); }
+        .stat .lbl { color: var(--gray); font-size: 14px; font-weight: 600; margin-top: 4px; }
+        .faq { max-width: 720px; margin: 0 auto; }
+        .faq details { background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px 22px; margin-bottom: 12px; }
+        .faq summary { font-weight: 700; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+        .faq summary::after { content: '+'; font-size: 22px; color: var(--blue); font-weight: 400; }
+        .faq details[open] summary::after { content: '–'; }
+        .faq details p { color: var(--gray); font-size: 15px; margin-top: 12px; }
+
         footer { background: var(--dark); color: #94a3b8; padding: 40px 0; text-align: center; font-size: 14px; }
         footer a { color: #93c5fd; text-decoration: none; }
     </style>
@@ -102,6 +121,24 @@
         <a class="btn btn-outline" href="/api/docs/">Documentation</a>
     </div>
 </header>
+
+<section class="live" id="live">
+    <div class="container">
+        <div class="live-label"><span class="live-dot"></span> Live rates served by the API — continuously updated</div>
+        <div class="rates-grid" id="live-rates"><p style="color:#94a3b8;">Loading rates…</p></div>
+    </div>
+</section>
+
+<section>
+    <div class="container">
+        <div class="stats">
+            <div class="stat"><div class="num">33+</div><div class="lbl">World currencies</div></div>
+            <div class="stat"><div class="num">15 min</div><div class="lbl">Sync frequency</div></div>
+            <div class="stat"><div class="num">SHA-256</div><div class="lbl">Hashed API keys</div></div>
+            <div class="stat"><div class="num">50,000</div><div class="lbl">Max requests/hour</div></div>
+        </div>
+    </div>
+</section>
 
 <section id="features">
     <div class="container">
@@ -220,12 +257,71 @@ r = requests.get(<span class="s">"https://api-forexplatform.sendbid.app/api/v1/r
     </div>
 </section>
 
+<section id="faq">
+    <div class="container">
+        <h2 class="section-title">Frequently asked questions</h2>
+        <p class="section-sub">Everything you need to know before getting started.</p>
+        <div class="faq">
+            <details>
+                <summary>Where do the exchange rates come from?</summary>
+                <p>From multiple official sources synced automatically: the European Central Bank (ECB, official daily fixings) plus market providers for fresher data. Every rate includes its last sync timestamp.</p>
+            </details>
+            <details>
+                <summary>How do I get my API key?</summary>
+                <p>Create an account, pick your plan. Once your subscription is activated, an <code>fxp_...</code> key is generated automatically. You can then create additional keys (one per app) from your dashboard.</p>
+            </details>
+            <details>
+                <summary>How do I integrate the API in my app?</summary>
+                <p>A single header: <code>X-API-KEY: fxp_your_key</code>. Works from any language or framework — mobile apps (Swift, Kotlin, Flutter), websites (JavaScript), backends (Python, PHP, Node.js). See full examples in the documentation.</p>
+            </details>
+            <details>
+                <summary>What happens if I exceed my quota?</summary>
+                <p>Requests beyond your hourly quota get a <code>429</code> response with the reset time. You can upgrade to a higher plan anytime from your dashboard.</p>
+            </details>
+            <details>
+                <summary>Is my data secure?</summary>
+                <p>Your API keys are stored hashed (SHA-256) — even we cannot read them back. Every API request is logged in an audit trail. The full key is displayed only once at creation.</p>
+            </details>
+        </div>
+    </div>
+</section>
+
+<section style="background: linear-gradient(135deg, #1e3a8a, #2563eb); color: white; text-align:center;">
+    <div class="container">
+        <h2 class="section-title" style="color:white;">Ready to add forex to your app?</h2>
+        <p style="opacity:.85; max-width:520px; margin:0 auto 32px;">Free account in 2 minutes. Instant API key. Full documentation.</p>
+        <a class="btn" style="background:white; color:var(--blue);" href="/register/">Create my free account</a>
+    </div>
+</section>
+
 <footer>
     <div class="container">
-        <p>ForexPlatform API — Real-time exchange rates</p>
-        <p style="margin-top:8px;"><a href="/api/docs/">Documentation</a> · <a href="/register/">Sign up</a> · <a href="/login/">Sign in</a> · <a href="/admin/">Admin</a></p>
+        <p>ForexPlatform API — Reliable exchange rate data for your applications</p>
+        <p style="margin-top:8px;"><a href="/api/docs/">Documentation</a> · <a href="/register/">Sign up</a> · <a href="/login/">Sign in</a> · <a href="/?lang=fr">Français</a></p>
     </div>
 </footer>
+
+<script>
+fetch('/api/v1/demo/')
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+        var box = document.getElementById('live-rates');
+        if (!d.success || !d.rates || !d.rates.length) {
+            box.innerHTML = '<p style="color:#94a3b8;">Syncing rates…</p>';
+            return;
+        }
+        box.innerHTML = d.rates.map(function(r) {
+            var t = new Date(r.updated_at);
+            var hh = ('0' + t.getHours()).slice(-2) + ':' + ('0' + t.getMinutes()).slice(-2);
+            return '<div class="rate-card"><div class="pair">' + r.pair + '</div>' +
+                   '<div class="val">' + r.rate + '</div>' +
+                   '<div class="src">Updated ' + hh + '</div></div>';
+        }).join('');
+    })
+    .catch(function() {
+        document.getElementById('live-rates').innerHTML = '<p style="color:#94a3b8;">Rates available via the API — see the docs.</p>';
+    });
+</script>
 
 </body>
 </html>

@@ -188,3 +188,28 @@ class ForexSyncView(APIView):
             return Response({'success': True, 'task_id': str(task.id)})
         except Exception as e:
             return Response({'success': False, 'error': str(e)}, status=500)
+
+
+class DemoRatesView(APIView):
+    """Public sample of real rates for the landing page — no auth required."""
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        rates = (
+            ExchangeRate.objects
+            .filter(is_stale=False)
+            .select_related('from_currency', 'to_currency')
+            .order_by('-fetched_at')[:10]
+        )
+        return Response({
+            'success': True,
+            'rates': [
+                {
+                    'pair': f"{r.from_currency.code}/{r.to_currency.code}",
+                    'rate': str(round(r.market_rate, 6)),
+                    'updated_at': r.fetched_at.isoformat(),
+                    'stale': r.is_stale,
+                }
+                for r in rates
+            ],
+        })

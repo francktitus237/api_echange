@@ -79,6 +79,30 @@
         .plan ul { list-style: none; margin: 20px 0 28px; color: var(--gray); font-size: 14px; }
         .plan ul li { padding: 6px 0; }
 
+        /* Live rates ticker */
+        .live { background: var(--dark); color: white; padding: 28px 0; }
+        .live-label { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #93c5fd; margin-bottom: 16px; }
+        .live-dot { width: 9px; height: 9px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 4px rgba(34,197,94,.2); animation: pulse 1.6s infinite; }
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
+        .rates-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; }
+        .rate-card { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 10px; padding: 14px 16px; }
+        .rate-card .pair { font-size: 13px; color: #93c5fd; font-weight: 700; }
+        .rate-card .val { font-size: 21px; font-weight: 800; margin-top: 4px; font-variant-numeric: tabular-nums; }
+        .rate-card .src { font-size: 11px; color: #64748b; margin-top: 4px; }
+
+        /* Trust stats */
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 24px; text-align: center; }
+        .stat .num { font-size: 40px; font-weight: 800; color: var(--blue); }
+        .stat .lbl { color: var(--gray); font-size: 14px; font-weight: 600; margin-top: 4px; }
+
+        /* FAQ */
+        .faq { max-width: 720px; margin: 0 auto; }
+        .faq details { background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px 22px; margin-bottom: 12px; }
+        .faq summary { font-weight: 700; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+        .faq summary::after { content: '+'; font-size: 22px; color: var(--blue); font-weight: 400; }
+        .faq details[open] summary::after { content: '–'; }
+        .faq details p { color: var(--gray); font-size: 15px; margin-top: 12px; }
+
         /* Footer */
         footer { background: var(--dark); color: #94a3b8; padding: 40px 0; text-align: center; font-size: 14px; }
         footer a { color: #93c5fd; text-decoration: none; }
@@ -111,6 +135,24 @@
         <a class="btn btn-outline" href="/api/docs/">Documentation</a>
     </div>
 </header>
+
+<section class="live" id="live">
+    <div class="container">
+        <div class="live-label"><span class="live-dot"></span> Taux réels servis par l'API — mis à jour en continu</div>
+        <div class="rates-grid" id="live-rates"><p style="color:#94a3b8;">Chargement des taux…</p></div>
+    </div>
+</section>
+
+<section>
+    <div class="container">
+        <div class="stats">
+            <div class="stat"><div class="num">33+</div><div class="lbl">Devises mondiales</div></div>
+            <div class="stat"><div class="num">15 min</div><div class="lbl">Fréquence de synchronisation</div></div>
+            <div class="stat"><div class="num">SHA-256</div><div class="lbl">Clés API hashées</div></div>
+            <div class="stat"><div class="num">50 000</div><div class="lbl">Requêtes/heure max</div></div>
+        </div>
+    </div>
+</section>
 
 <section id="features">
     <div class="container">
@@ -229,12 +271,71 @@ r = requests.get(<span class="s">"https://api-forexplatform.sendbid.app/api/v1/r
     </div>
 </section>
 
+<section id="faq">
+    <div class="container">
+        <h2 class="section-title">Questions fréquentes</h2>
+        <p class="section-sub">Tout ce qu'il faut savoir avant de commencer.</p>
+        <div class="faq">
+            <details>
+                <summary>D'où viennent les taux de change ?</summary>
+                <p>De plusieurs sources officielles synchronisées automatiquement : la Banque Centrale Européenne (BCE, mise à jour quotidienne officielle) et des providers de marché pour une fraîcheur accrue. Chaque taux indique sa date de dernière synchronisation.</p>
+            </details>
+            <details>
+                <summary>Comment obtenir ma clé API ?</summary>
+                <p>Créez un compte, choisissez votre plan. Dès l'activation de votre abonnement, une clé <code>fxp_...</code> est générée automatiquement. Vous pouvez ensuite créer des clés supplémentaires (une par application) depuis votre tableau de bord.</p>
+            </details>
+            <details>
+                <summary>Comment intégrer l'API dans mon application ?</summary>
+                <p>Un seul header : <code>X-API-KEY: fxp_votre_cle</code>. Fonctionne depuis n'importe quel langage ou framework — app mobile (Swift, Kotlin, Flutter), site web (JavaScript), backend (Python, PHP, Node.js). Voir les exemples complets dans la documentation.</p>
+            </details>
+            <details>
+                <summary>Que se passe-t-il si je dépasse mon quota ?</summary>
+                <p>Les requêtes au-delà de votre quota horaire reçoivent une réponse <code>429</code> avec l'heure de réinitialisation. Vous pouvez passer à un plan supérieur à tout moment depuis votre tableau de bord.</p>
+            </details>
+            <details>
+                <summary>Mes données sont-elles sécurisées ?</summary>
+                <p>Vos clés API sont stockées hashées (SHA-256) — même nous ne pouvons pas les relire. Chaque requête API est journalisée dans un audit log. La clé complète n'est affichée qu'une seule fois à sa création.</p>
+            </details>
+        </div>
+    </div>
+</section>
+
+<section style="background: linear-gradient(135deg, #1e3a8a, #2563eb); color: white; text-align:center;">
+    <div class="container">
+        <h2 class="section-title" style="color:white;">Prêt à intégrer le forex dans votre app ?</h2>
+        <p style="opacity:.85; max-width:520px; margin:0 auto 32px;">Compte gratuit en 2 minutes. Clé API instantanée. Documentation complète.</p>
+        <a class="btn" style="background:white; color:var(--blue);" href="/register/">Créer mon compte gratuitement</a>
+    </div>
+</section>
+
 <footer>
     <div class="container">
-        <p>ForexPlatform API — Taux de change en temps réel</p>
-        <p style="margin-top:8px;"><a href="/api/docs/">Documentation</a> · <a href="/register/">Inscription</a> · <a href="/admin/">Admin</a></p>
+        <p>ForexPlatform API — Données de change fiables pour vos applications</p>
+        <p style="margin-top:8px;"><a href="/api/docs/">Documentation</a> · <a href="/register/">Inscription</a> · <a href="/login/">Connexion</a> · <a href="/?lang=en">English</a></p>
     </div>
 </footer>
+
+<script>
+fetch('/api/v1/demo/')
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+        var box = document.getElementById('live-rates');
+        if (!d.success || !d.rates || !d.rates.length) {
+            box.innerHTML = '<p style="color:#94a3b8;">Synchronisation des taux en cours…</p>';
+            return;
+        }
+        box.innerHTML = d.rates.map(function(r) {
+            var t = new Date(r.updated_at);
+            var hh = ('0' + t.getHours()).slice(-2) + ':' + ('0' + t.getMinutes()).slice(-2);
+            return '<div class="rate-card"><div class="pair">' + r.pair + '</div>' +
+                   '<div class="val">' + r.rate + '</div>' +
+                   '<div class="src">Mis à jour ' + hh + '</div></div>';
+        }).join('');
+    })
+    .catch(function() {
+        document.getElementById('live-rates').innerHTML = '<p style="color:#94a3b8;">Taux disponibles via l\'API — voir la documentation.</p>';
+    });
+</script>
 
 </body>
 </html>
