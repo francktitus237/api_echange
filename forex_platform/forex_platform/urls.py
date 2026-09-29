@@ -21,6 +21,7 @@ urlpatterns = [
     path('dashboard/', api_gateway_views.dashboard_view, name='dashboard'),
     path('payment/', api_gateway_views.payment_view, name='payment'),
     path('subscription/', api_gateway_views.subscription_view, name='subscription'),
+    path('docs/', api_gateway_views.docs_view, name='docs'),
     # API Documentation
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),

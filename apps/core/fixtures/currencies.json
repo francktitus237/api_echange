@@ -1,35 +1,362 @@
 [
-  {"model": "core.currency", "pk": "USD", "fields": {"name": "US Dollar", "symbol": "$", "flag": "🇺🇸", "is_active": true}},
-  {"model": "core.currency", "pk": "EUR", "fields": {"name": "Euro", "symbol": "€", "flag": "🇪🇺", "is_active": true}},
-  {"model": "core.currency", "pk": "GBP", "fields": {"name": "British Pound", "symbol": "£", "flag": "🇬🇧", "is_active": true}},
-  {"model": "core.currency", "pk": "JPY", "fields": {"name": "Japanese Yen", "symbol": "¥", "flag": "🇯🇵", "is_active": true}},
-  {"model": "core.currency", "pk": "CHF", "fields": {"name": "Swiss Franc", "symbol": "Fr", "flag": "🇨🇭", "is_active": true}},
-  {"model": "core.currency", "pk": "CAD", "fields": {"name": "Canadian Dollar", "symbol": "C$", "flag": "🇨🇦", "is_active": true}},
-  {"model": "core.currency", "pk": "AUD", "fields": {"name": "Australian Dollar", "symbol": "A$", "flag": "🇦🇺", "is_active": true}},
-  {"model": "core.currency", "pk": "CNY", "fields": {"name": "Chinese Yuan", "symbol": "¥", "flag": "🇨🇳", "is_active": true}},
-  {"model": "core.currency", "pk": "HKD", "fields": {"name": "Hong Kong Dollar", "symbol": "HK$", "flag": "🇭🇰", "is_active": true}},
-  {"model": "core.currency", "pk": "SGD", "fields": {"name": "Singapore Dollar", "symbol": "S$", "flag": "🇸🇬", "is_active": true}},
-  {"model": "core.currency", "pk": "NZD", "fields": {"name": "New Zealand Dollar", "symbol": "NZ$", "flag": "🇳🇿", "is_active": true}},
-  {"model": "core.currency", "pk": "SEK", "fields": {"name": "Swedish Krona", "symbol": "kr", "flag": "🇸🇪", "is_active": true}},
-  {"model": "core.currency", "pk": "NOK", "fields": {"name": "Norwegian Krone", "symbol": "kr", "flag": "🇳🇴", "is_active": true}},
-  {"model": "core.currency", "pk": "DKK", "fields": {"name": "Danish Krone", "symbol": "kr", "flag": "🇩🇰", "is_active": true}},
-  {"model": "core.currency", "pk": "MXN", "fields": {"name": "Mexican Peso", "symbol": "$", "flag": "🇲🇽", "is_active": true}},
-  {"model": "core.currency", "pk": "BRL", "fields": {"name": "Brazilian Real", "symbol": "R$", "flag": "🇧🇷", "is_active": true}},
-  {"model": "core.currency", "pk": "INR", "fields": {"name": "Indian Rupee", "symbol": "₹", "flag": "🇮🇳", "is_active": true}},
-  {"model": "core.currency", "pk": "KRW", "fields": {"name": "South Korean Won", "symbol": "₩", "flag": "🇰🇷", "is_active": true}},
-  {"model": "core.currency", "pk": "ZAR", "fields": {"name": "South African Rand", "symbol": "R", "flag": "🇿🇦", "is_active": true}},
-  {"model": "core.currency", "pk": "AED", "fields": {"name": "UAE Dirham", "symbol": "د.إ", "flag": "🇦🇪", "is_active": true}},
-  {"model": "core.currency", "pk": "SAR", "fields": {"name": "Saudi Riyal", "symbol": "﷼", "flag": "🇸🇦", "is_active": true}},
-  {"model": "core.currency", "pk": "TRY", "fields": {"name": "Turkish Lira", "symbol": "₺", "flag": "🇹🇷", "is_active": true}},
-  {"model": "core.currency", "pk": "RUB", "fields": {"name": "Russian Ruble", "symbol": "₽", "flag": "🇷🇺", "is_active": true}},
-  {"model": "core.currency", "pk": "PLN", "fields": {"name": "Polish Zloty", "symbol": "zł", "flag": "🇵🇱", "is_active": true}},
-  {"model": "core.currency", "pk": "THB", "fields": {"name": "Thai Baht", "symbol": "฿", "flag": "🇹🇭", "is_active": true}},
-  {"model": "core.currency", "pk": "IDR", "fields": {"name": "Indonesian Rupiah", "symbol": "Rp", "flag": "🇮🇩", "is_active": true}},
-  {"model": "core.currency", "pk": "MYR", "fields": {"name": "Malaysian Ringgit", "symbol": "RM", "flag": "🇲🇾", "is_active": true}},
-  {"model": "core.currency", "pk": "PHP", "fields": {"name": "Philippine Peso", "symbol": "₱", "flag": "🇵🇭", "is_active": true}},
-  {"model": "core.currency", "pk": "VND", "fields": {"name": "Vietnamese Dong", "symbol": "₫", "flag": "🇻🇳", "is_active": true}},
-  {"model": "core.currency", "pk": "EGP", "fields": {"name": "Egyptian Pound", "symbol": "E£", "flag": "🇪🇬", "is_active": true}},
-  {"model": "core.currency", "pk": "NGN", "fields": {"name": "Nigerian Naira", "symbol": "₦", "flag": "🇳🇬", "is_active": true}},
-  {"model": "core.currency", "pk": "COP", "fields": {"name": "Colombian Peso", "symbol": "$", "flag": "🇨🇴", "is_active": true}},
-  {"model": "core.currency", "pk": "CLP", "fields": {"name": "Chilean Peso", "symbol": "$", "flag": "🇨🇱", "is_active": true}}
+ {
+  "model": "core.currency",
+  "pk": "USD",
+  "fields": {
+   "name": "US Dollar",
+   "symbol": "$",
+   "flag": "🇺🇸",
+   "is_active": true
+  }
+ },
+ {
+  "model": "core.currency",
+  "pk": "EUR",
+  "fields": {
+   "name": "Euro",
+   "symbol": "€",
+   "flag": "🇪🇺",
+   "is_active": true
+  }
+ },
+ {
+  "model": "core.currency",
+  "pk": "GBP",
+  "fields": {
+   "name": "British Pound",
+   "symbol": "£",
+   "flag": "🇬🇧",
+   "is_active": true
+  }
+ },
+ {
+  "model": "core.currency",
+  "pk": "JPY",
+  "fields": {
+   "name": "Japanese Yen",
+   "symbol": "¥",
+   "flag": "🇯🇵",
+   "is_active": true
+  }
+ },
+ {
+  "model": "core.currency",
+  "pk": "CHF",
+  "fields": {
+   "name": "Swiss Franc",
+   "symbol": "Fr",
+   "flag": "🇨🇭",
+   "is_active": true
+  }
+ },
+ {
+  "model": "core.currency",
+  "pk": "CAD",
+  "fields": {
+   "name": "Canadian Dollar",
+   "symbol": "C$",
+   "flag": "🇨🇦",
+   "is_active": true
+  }
+ },
+ {
+  "model": "core.currency",
+  "pk": "AUD",
+  "fields": {
+   "name": "Australian Dollar",
+   "symbol": "A$",
+   "flag": "🇦🇺",
+   "is_active": true
+  }
+ },
+ {
+  "model": "core.currency",
+  "pk": "CNY",
+  "fields": {
+   "name": "Chinese Yuan",
+   "symbol": "¥",
+   "flag": "🇨🇳",
+   "is_active": true
+  }
+ },
+ {
+  "model": "core.currency",
+  "pk": "HKD",
+  "fields": {
+   "name": "Hong Kong Dollar",
+   "symbol": "HK$",
+   "flag": "🇭🇰",
+   "is_active": true
+  }
+ },
+ {
+  "model": "core.currency",
+  "pk": "SGD",
+  "fields": {
+   "name": "Singapore Dollar",
+   "symbol": "S$",
+   "flag": "🇸🇬",
+   "is_active": true
+  }
+ },
+ {
+  "model": "core.currency",
+  "pk": "NZD",
+  "fields": {
+   "name": "New Zealand Dollar",
+   "symbol": "NZ$",
+   "flag": "🇳🇿",
+   "is_active": true
+  }
+ },
+ {
+  "model": "core.currency",
+  "pk": "SEK",
+  "fields": {
+   "name": "Swedish Krona",
+   "symbol": "kr",
+   "flag": "🇸🇪",
+   "is_active": true
+  }
+ },
+ {
+  "model": "core.currency",
+  "pk": "NOK",
+  "fields": {
+   "name": "Norwegian Krone",
+   "symbol": "kr",
+   "flag": "🇳🇴",
+   "is_active": true
+  }
+ },
+ {
+  "model": "core.currency",
+  "pk": "DKK",
+  "fields": {
+   "name": "Danish Krone",
+   "symbol": "kr",
+   "flag": "🇩🇰",
+   "is_active": true
+  }
+ },
+ {
+  "model": "core.currency",
+  "pk": "MXN",
+  "fields": {
+   "name": "Mexican Peso",
+   "symbol": "$",
+   "flag": "🇲🇽",
+   "is_active": true
+  }
+ },
+ {
+  "model": "core.currency",
+  "pk": "BRL",
+  "fields": {
+   "name": "Brazilian Real",
+   "symbol": "R$",
+   "flag": "🇧🇷",
+   "is_active": true
+  }
+ },
+ {
+  "model": "core.currency",
+  "pk": "INR",
+  "fields": {
+   "name": "Indian Rupee",
+   "symbol": "₹",
+   "flag": "🇮🇳",
+   "is_active": true
+  }
+ },
+ {
+  "model": "core.currency",
+  "pk": "KRW",
+  "fields": {
+   "name": "South Korean Won",
+   "symbol": "₩",
+   "flag": "🇰🇷",
+   "is_active": true
+  }
+ },
+ {
+  "model": "core.currency",
+  "pk": "ZAR",
+  "fields": {
+   "name": "South African Rand",
+   "symbol": "R",
+   "flag": "🇿🇦",
+   "is_active": true
+  }
+ },
+ {
+  "model": "core.currency",
+  "pk": "AED",
+  "fields": {
+   "name": "UAE Dirham",
+   "symbol": "د.إ",
+   "flag": "🇦🇪",
+   "is_active": true
+  }
+ },
+ {
+  "model": "core.currency",
+  "pk": "SAR",
+  "fields": {
+   "name": "Saudi Riyal",
+   "symbol": "﷼",
+   "flag": "🇸🇦",
+   "is_active": true
+  }
+ },
+ {
+  "model": "core.currency",
+  "pk": "TRY",
+  "fields": {
+   "name": "Turkish Lira",
+   "symbol": "₺",
+   "flag": "🇹🇷",
+   "is_active": true
+  }
+ },
+ {
+  "model": "core.currency",
+  "pk": "RUB",
+  "fields": {
+   "name": "Russian Ruble",
+   "symbol": "₽",
+   "flag": "🇷🇺",
+   "is_active": true
+  }
+ },
+ {
+  "model": "core.currency",
+  "pk": "PLN",
+  "fields": {
+   "name": "Polish Zloty",
+   "symbol": "zł",
+   "flag": "🇵🇱",
+   "is_active": true
+  }
+ },
+ {
+  "model": "core.currency",
+  "pk": "THB",
+  "fields": {
+   "name": "Thai Baht",
+   "symbol": "฿",
+   "flag": "🇹🇭",
+   "is_active": true
+  }
+ },
+ {
+  "model": "core.currency",
+  "pk": "IDR",
+  "fields": {
+   "name": "Indonesian Rupiah",
+   "symbol": "Rp",
+   "flag": "🇮🇩",
+   "is_active": true
+  }
+ },
+ {
+  "model": "core.currency",
+  "pk": "MYR",
+  "fields": {
+   "name": "Malaysian Ringgit",
+   "symbol": "RM",
+   "flag": "🇲🇾",
+   "is_active": true
+  }
+ },
+ {
+  "model": "core.currency",
+  "pk": "PHP",
+  "fields": {
+   "name": "Philippine Peso",
+   "symbol": "₱",
+   "flag": "🇵🇭",
+   "is_active": true
+  }
+ },
+ {
+  "model": "core.currency",
+  "pk": "VND",
+  "fields": {
+   "name": "Vietnamese Dong",
+   "symbol": "₫",
+   "flag": "🇻🇳",
+   "is_active": true
+  }
+ },
+ {
+  "model": "core.currency",
+  "pk": "EGP",
+  "fields": {
+   "name": "Egyptian Pound",
+   "symbol": "E£",
+   "flag": "🇪🇬",
+   "is_active": true
+  }
+ },
+ {
+  "model": "core.currency",
+  "pk": "NGN",
+  "fields": {
+   "name": "Nigerian Naira",
+   "symbol": "₦",
+   "flag": "🇳🇬",
+   "is_active": true
+  }
+ },
+ {
+  "model": "core.currency",
+  "pk": "COP",
+  "fields": {
+   "name": "Colombian Peso",
+   "symbol": "$",
+   "flag": "🇨🇴",
+   "is_active": true
+  }
+ },
+ {
+  "model": "core.currency",
+  "pk": "CLP",
+  "fields": {
+   "name": "Chilean Peso",
+   "symbol": "$",
+   "flag": "🇨🇱",
+   "is_active": true
+  }
+ },
+ {
+  "model": "core.currency",
+  "pk": "XAF",
+  "fields": {
+   "name": "Central African CFA Franc",
+   "symbol": "FCFA",
+   "flag": "🇨🇲",
+   "is_active": true
+  }
+ },
+ {
+  "model": "core.currency",
+  "pk": "XOF",
+  "fields": {
+   "name": "West African CFA Franc",
+   "symbol": "FCFA",
+   "flag": "🇸🇳",
+   "is_active": true
+  }
+ },
+ {
+  "model": "core.currency",
+  "pk": "KMF",
+  "fields": {
+   "name": "Comorian Franc",
+   "symbol": "CF",
+   "flag": "🇰🇲",
+   "is_active": true
+  }
+ }
 ]

@@ -31,6 +31,18 @@ def sync_all_rates(self):
             provider.error_count += 1
             provider.save(update_fields=['error_count'])
 
+    # Official fixed EUR pegs — treaty-fixed rates not published in eurofxref.
+    # 1 EUR = 655.957 XAF/XOF (CFA francs), 491.9678 KMF (Comorian franc).
+    PEGGED_EUR = {
+        'XAF': 655.957,
+        'XOF': 655.957,
+        'KMF': 491.9678,
+    }
+    for code, peg in PEGGED_EUR.items():
+        pair = f"EUR/{code}"
+        if pair not in all_rates:
+            all_rates[pair] = [(peg, 1.0)]
+
     spread = float(getattr(settings, 'FOREX_SPREAD_DEFAULT', 0.015))
     margin = float(getattr(settings, 'FOREX_MARGIN_DEFAULT', 0.005))
     updated = 0

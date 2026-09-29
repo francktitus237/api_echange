@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentation — ForexPlatform API</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --blue: #2563eb; --dark: #0f172a; --gray: #64748b; --light: #f8fafc; --border: #e2e8f0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif; background: white; color: var(--dark); }
+        code { font-family: 'Consolas', 'Monaco', monospace; }
+
+        /* Top nav */
+        .topnav { background: white; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 200; }
+        .topnav .wrap { max-width: 1280px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 60px; }
+        .logo { font-weight: 800; font-size: 18px; color: var(--blue); text-decoration: none; display: flex; align-items: center; gap: 10px; }
+        .logo-mark { width: 28px; height: 28px; border-radius: 7px; background: linear-gradient(135deg, #2563eb, #3b82f6); display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: 800; }
+        .topnav-links a { color: var(--gray); text-decoration: none; margin-left: 20px; font-size: 14px; font-weight: 600; }
+        .topnav-links a:hover { color: var(--blue); }
+        .topnav-links .cta { background: var(--blue); color: white; padding: 8px 16px; border-radius: 8px; }
+        .topnav-links .cta:hover { background: #1d4ed8; color: white; }
+
+        .layout { display: flex; max-width: 1280px; margin: 0 auto; }
+
+        /* Sidebar */
+        .docs-side { width: 250px; flex-shrink: 0; padding: 32px 20px; position: sticky; top: 60px; height: calc(100vh - 60px); overflow-y: auto; border-right: 1px solid var(--border); }
+        .docs-side h4 { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; margin: 22px 0 8px; padding-left: 12px; }
+        .docs-side h4:first-child { margin-top: 0; }
+        .docs-side a { display: block; padding: 7px 12px; border-radius: 7px; color: #475569; text-decoration: none; font-size: 14px; font-weight: 500; border-left: 2px solid transparent; }
+        .docs-side a:hover { background: var(--light); color: var(--blue); }
+        .docs-side a.active { color: var(--blue); background: #eff6ff; }
+
+        /* Content */
+        .docs-content { flex: 1; padding: 40px 56px; max-width: 860px; }
+        .docs-content h1 { font-size: 32px; font-weight: 800; margin-bottom: 12px; }
+        .docs-content .lede { color: var(--gray); font-size: 17px; margin-bottom: 36px; line-height: 1.6; }
+        .docs-content h2 { font-size: 23px; font-weight: 800; margin: 48px 0 14px; padding-top: 24px; border-top: 1px solid var(--border); }
+        .docs-content h2:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
+        .docs-content h3 { font-size: 17px; font-weight: 700; margin: 28px 0 10px; }
+        .docs-content p { color: #334155; font-size: 15px; line-height: 1.75; margin-bottom: 14px; }
+        .docs-content ul, .docs-content ol { color: #334155; font-size: 15px; line-height: 1.8; margin: 0 0 16px 22px; }
+        .docs-content li code { background: #f1f5f9; padding: 2px 7px; border-radius: 5px; font-size: 13px; }
+        .docs-content p code { background: #f1f5f9; padding: 2px 7px; border-radius: 5px; font-size: 13.5px; color: #0f172a; }
+
+        /* Code blocks */
+        .code { background: var(--dark); border-radius: 12px; margin: 16px 0 22px; overflow: hidden; }
+        .code-head { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; background: rgba(255,255,255,.05); border-bottom: 1px solid rgba(255,255,255,.08); }
+        .code-head span { font-size: 11.5px; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; }
+        .copy-btn { background: none; border: none; color: #7dd3fc; font-size: 12px; font-weight: 600; cursor: pointer; padding: 4px 8px; border-radius: 6px; }
+        .copy-btn:hover { background: rgba(255,255,255,.1); }
+        .code pre { padding: 18px 20px; overflow-x: auto; font-size: 13.5px; line-height: 1.7; color: #e2e8f0; }
+        .c { color: #64748b; } .k { color: #7dd3fc; } .s { color: #86efac; } .g { color: #fbbf24; } .n { color: #f9a8d4; }
+
+        /* Endpoint cards */
+        .ep { border: 1px solid var(--border); border-radius: 12px; margin: 14px 0; overflow: hidden; }
+        .ep-head { display: flex; align-items: center; gap: 14px; padding: 15px 18px; background: #fbfdff; }
+        .method { font-weight: 800; font-size: 11.5px; padding: 4px 12px; border-radius: 6px; letter-spacing: .5px; }
+        .get { background: #dcfce7; color: #15803d; }
+        .post { background: #dbeafe; color: #1d4ed8; }
+        .ep-head .path { font-family: 'Consolas', monospace; font-size: 14.5px; font-weight: 700; }
+        .ep-body { padding: 16px 18px; border-top: 1px solid var(--border); font-size: 14px; color: #475569; }
+        .ep-body table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13.5px; }
+        .ep-body th { text-align: left; padding: 8px 10px; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--gray); border-bottom: 1px solid var(--border); }
+        .ep-body td { padding: 8px 10px; border-bottom: 1px solid #f1f5f9; }
+        .ep-body td code { background: #f1f5f9; padding: 1px 6px; border-radius: 4px; font-size: 12.5px; }
+
+        .callout { border-left: 3px solid var(--blue); background: #eff6ff; border-radius: 0 10px 10px 0; padding: 14px 18px; margin: 18px 0; font-size: 14px; color: #1e40af; }
+        .callout.warn { border-color: #d97706; background: #fffbeb; color: #92400e; }
+
+        /* Response errors table */
+        .err-table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 14px; }
+        .err-table th { text-align: left; padding: 10px 14px; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--gray); border-bottom: 2px solid var(--border); }
+        .err-table td { padding: 11px 14px; border-bottom: 1px solid #f1f5f9; }
+        .err-table td:first-child { font-family: monospace; font-weight: 700; }
+
+        @media (max-width: 900px) {
+            .docs-side { display: none; }
+            .docs-content { padding: 28px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="topnav">
+    <div class="wrap">
+        <a class="logo" href="/"><span class="logo-mark">FX</span>ForexPlatform <span style="color:#94a3b8; font-weight:600; font-size:13px;">Docs</span></a>
+        <div class="topnav-links">
+            <a href="/api/docs/">Swagger UI</a>
+            <a href="/dashboard/">Dashboard</a>
+            <a class="cta" href="/register/">Obtenir une clé</a>
+        </div>
+    </div>
+</div>
+
+<div class="layout">
+    <aside class="docs-side">
+        <h4>Démarrage</h4>
+        <a href="#intro">Introduction</a>
+        <a href="#auth">Authentification</a>
+        <a href="#quickstart">Premier appel</a>
+        <h4>Guides</h4>
+        <a href="#rates">Taux de change</a>
+        <a href="#convert">Conversion</a>
+        <a href="#integration">Intégration</a>
+        <h4>Référence</h4>
+        <a href="#endpoints">Endpoints</a>
+        <a href="#errors">Erreurs</a>
+        <a href="#limits">Quotas</a>
+        <a href="#currencies">Devises</a>
+    </aside>
+
+    <main class="docs-content">
+
+        <h1 id="intro">Documentation API</h1>
+        <p class="lede">L'API REST ForexPlatform fournit des taux de change réels (BCE + providers de marché), la conversion de devises et l'historique — pour vos applications mobiles, sites web et backends.</p>
+
+        <div class="code">
+            <div class="code-head"><span>Base URL</span><button class="copy-btn" onclick="copyCode(this)">Copier</button></div>
+            <pre>https://api-forexplatform.sendbid.app/api/v1</pre>
+        </div>
+
+        <!-- ===== AUTH ===== -->
+        <h2 id="auth">Authentification</h2>
+        <p>Chaque requête protégée requiert votre clé API dans le header <code>X-API-KEY</code>. Votre clé commence par <code>fxp_</code> et se gère depuis votre <a href="/dashboard/" style="color:var(--blue);">dashboard</a>.</p>
+
+        <div class="code">
+            <div class="code-head"><span>Header requis</span><button class="copy-btn" onclick="copyCode(this)">Copier</button></div>
+            <pre>X-API-KEY: fxp_votre_cle_complete</pre>
+        </div>
+
+        <div class="callout warn">
+            <strong>Important :</strong> votre clé complète n'est affichée qu'une seule fois lors de sa génération. Ne la partagez jamais, ne la committez pas dans votre code — utilisez une variable d'environnement.
+        </div>
+
+        <!-- ===== QUICKSTART ===== -->
+        <h2 id="quickstart">Premier appel en 30 secondes</h2>
+        <p>Sans clé, testez déjà le service avec l'endpoint démo public :</p>
+
+        <div class="code">
+            <div class="code-head"><span>cURL — sans auth</span><button class="copy-btn" onclick="copyCode(this)">Copier</button></div>
+            <pre>curl https://api-forexplatform.sendbid.app/api/v1/demo/</pre>
+        </div>
+
+        <p>Puis avec votre clé, récupérez un taux :</p>
+
+        <div class="code">
+            <div class="code-head"><span>cURL</span><button class="copy-btn" onclick="copyCode(this)">Copier</button></div>
+            <pre>curl -H <span class="s">"X-API-KEY: fxp_votre_cle"</span> \
+     <span class="g">https://api-forexplatform.sendbid.app/api/v1/rates/USD/EUR/</span></pre>
+        </div>
+
+        <div class="code">
+            <div class="code-head"><span>Réponse</span><button class="copy-btn" onclick="copyCode(this)">Copier</button></div>
+            <pre>{
+  <span class="k">"success"</span>: <span class="g">true</span>,
+  <span class="k">"source"</span>: <span class="s">"live"</span>,
+  <span class="k">"rate"</span>: {
+    <span class="k">"pair"</span>: <span class="s">"USD/EUR"</span>,
+    <span class="k">"market_rate"</span>: <span class="s">"0.8788"</span>,
+    <span class="k">"timestamp"</span>: <span class="s">"2026-09-29T10:03:05Z"</span>
+  }
+}</pre>
+        </div>
+
+        <!-- ===== RATES ===== -->
+        <h2 id="rates">Taux de change</h2>
+        <p>Deux façons de consommer les taux : la liste complète pour une devise de base, ou une paire précise.</p>
+
+        <div class="ep">
+            <div class="ep-head"><span class="method get">GET</span><span class="path">/api/v1/rates/?base={DEVISE}</span></div>
+            <div class="ep-body">
+                Tous les taux depuis une base (ex: <code>?base=USD</code>). Les taux croisés sont calculés automatiquement — n'importe quelle devise peut servir de base.
+            </div>
+        </div>
+        <div class="ep">
+            <div class="ep-head"><span class="method get">GET</span><span class="path">/api/v1/rates/{FROM}/{TO}/</span></div>
+            <div class="ep-body">
+                Taux d'une paire précise, ex : <code>/rates/EUR/XAF/</code>. Répond en millisecondes depuis la base synchronisée (fraîcheur ≤ 15 min) ou via les providers live.
+            </div>
+        </div>
+
+        <!-- ===== CONVERT ===== -->
+        <h2 id="convert">Conversion de montant</h2>
+
+        <div class="ep">
+            <div class="ep-head"><span class="method post">POST</span><span class="path">/api/v1/convert/</span></div>
+            <div class="ep-body">
+                Convertit un montant avec le <strong>taux business</strong> (taux marché + spread de votre plan).
+                <table>
+                    <tr><th>Champ</th><th>Type</th><th>Description</th></tr>
+                    <tr><td><code>from_currency</code></td><td>string</td><td>Code ISO, ex "USD"</td></tr>
+                    <tr><td><code>to_currency</code></td><td>string</td><td>Code ISO, ex "XAF"</td></tr>
+                    <tr><td><code>amount</code></td><td>number</td><td>Montant positif</td></tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="code">
+            <div class="code-head"><span>cURL — convertir 100 CAD en FCFA</span><button class="copy-btn" onclick="copyCode(this)">Copier</button></div>
+            <pre>curl -X POST <span class="g">https://api-forexplatform.sendbid.app/api/v1/convert/</span> \
+     -H <span class="s">"X-API-KEY: fxp_votre_cle"</span> \
+     -H <span class="s">"Content-Type: application/json"</span> \
+     -d <span class="s">'{"from_currency": "CAD", "to_currency": "XAF", "amount": 100}'</span></pre>
+        </div>
+
+        <!-- ===== INTEGRATION ===== -->
+        <h2 id="integration">Intégration dans vos applications</h2>
+
+        <h3>Python — backend, Django, Flask, scripts</h3>
+        <div class="code">
+            <div class="code-head"><span>Python + requests</span><button class="copy-btn" onclick="copyCode(this)">Copier</button></div>
+            <pre><span class="k">import</span> requests
+
+API_KEY = <span class="s">"fxp_votre_cle"</span>
+BASE = <span class="s">"https://api-forexplatform.sendbid.app/api/v1"</span>
+
+r = requests.get(<span class="g">f"{BASE}/rates/USD/EUR/"</span>,
+                 headers={<span class="s">"X-API-KEY"</span>: API_KEY})
+data = r.json()
+<span class="k">print</span>(data[<span class="s">"rate"</span>][<span class="s">"market_rate"</span>])</pre>
+        </div>
+
+        <h3>JavaScript — site web, React, Vue, Node.js</h3>
+        <div class="code">
+            <div class="code-head"><span>JavaScript + fetch</span><button class="copy-btn" onclick="copyCode(this)">Copier</button></div>
+            <pre><span class="k">const</span> res = <span class="k">await</span> fetch(
+  <span class="s">"https://api-forexplatform.sendbid.app/api/v1/rates/USD/XAF/"</span>,
+  { headers: { <span class="s">"X-API-KEY"</span>: <span class="s">"fxp_votre_cle"</span> } }
+);
+<span class="k">const</span> { rate } = <span class="k">await</span> res.json();
+console.log(rate.market_rate);</pre>
+        </div>
+
+        <h3>PHP — WordPress, Laravel, Symfony</h3>
+        <div class="code">
+            <div class="code-head"><span>PHP + cURL</span><button class="copy-btn" onclick="copyCode(this)">Copier</button></div>
+            <pre>$ch = curl_init(<span class="s">"https://api-forexplatform.sendbid.app/api/v1/rates/EUR/XAF/"</span>);
+curl_setopt_array($ch, [
+    CURLOPT_RETURNTRANSFER => <span class="k">true</span>,
+    CURLOPT_HTTPHEADER => [<span class="s">"X-API-KEY: fxp_votre_cle"</span>],
+]);
+$data = json_decode(curl_exec($ch), <span class="k">true</span>);
+<span class="k">echo</span> $data[<span class="s">'rate'</span>][<span class="s">'market_rate'</span>];</pre>
+        </div>
+
+        <h3>Mobile — Swift (iOS) & Kotlin (Android)</h3>
+        <div class="code">
+            <div class="code-head"><span>Swift</span><button class="copy-btn" onclick="copyCode(this)">Copier</button></div>
+            <pre><span class="k">var</span> req = URLRequest(url: URL(string:
+  <span class="s">"https://api-forexplatform.sendbid.app/api/v1/rates/USD/XAF/"</span>)!)
+req.setValue(<span class="s">"fxp_votre_cle"</span>, forHTTPHeaderField: <span class="s">"X-API-KEY"</span>)
+<span class="k">let</span> (data, _) = <span class="k">try await</span> URLSession.shared.data(<span class="k">for</span>: req)</pre>
+        </div>
+        <div class="code">
+            <div class="code-head"><span>Kotlin (OkHttp)</span><button class="copy-btn" onclick="copyCode(this)">Copier</button></div>
+            <pre><span class="k">val</span> req = Request.Builder()
+    .url(<span class="s">"https://api-forexplatform.sendbid.app/api/v1/rates/USD/XAF/"</span>)
+    .header(<span class="s">"X-API-KEY"</span>, <span class="s">"fxp_votre_cle"</span>)
+    .build()
+<span class="k">val</span> body = client.newCall(req).execute().body?.string()</pre>
+        </div>
+
+        <!-- ===== ENDPOINTS ===== -->
+        <h2 id="endpoints">Référence des endpoints</h2>
+        <div class="ep">
+            <div class="ep-head"><span class="method get">GET</span><span class="path">/api/v1/health/</span><span style="margin-left:auto;font-size:12px;color:#94a3b8;">Public</span></div>
+            <div class="ep-body">État du service : base de données, cache. Utile pour le monitoring.</div>
+        </div>
+        <div class="ep">
+            <div class="ep-head"><span class="method get">GET</span><span class="path">/api/v1/demo/</span><span style="margin-left:auto;font-size:12px;color:#94a3b8;">Public</span></div>
+            <div class="ep-body">Échantillon de 10 taux réels — pour tester sans clé.</div>
+        </div>
+        <div class="ep">
+            <div class="ep-head"><span class="method get">GET</span><span class="path">/api/v1/currencies/</span><span style="margin-left:auto;font-size:12px;color:#94a3b8;">Public</span></div>
+            <div class="ep-body">Liste des 36 devises supportées (code, nom, symbole, drapeau).</div>
+        </div>
+        <div class="ep">
+            <div class="ep-head"><span class="method get">GET</span><span class="path">/api/v1/rates/?base={DEV}</span><span style="margin-left:auto;font-size:12px;color:#5b21b6;">Clé requise</span></div>
+            <div class="ep-body">Tous les taux depuis une base — taux croisés calculés automatiquement.</div>
+        </div>
+        <div class="ep">
+            <div class="ep-head"><span class="method get">GET</span><span class="path">/api/v1/rates/{FROM}/{TO}/</span><span style="margin-left:auto;font-size:12px;color:#5b21b6;">Clé requise</span></div>
+            <div class="ep-body">Taux d'une paire précise.</div>
+        </div>
+        <div class="ep">
+            <div class="ep-head"><span class="method post">POST</span><span class="path">/api/v1/convert/</span><span style="margin-left:auto;font-size:12px;color:#5b21b6;">Clé requise</span></div>
+            <div class="ep-body">Conversion avec taux business (spread selon votre plan).</div>
+        </div>
+        <div class="ep">
+            <div class="ep-head"><span class="method get">GET</span><span class="path">/api/v1/history/{FROM}/{TO}/</span><span style="margin-left:auto;font-size:12px;color:#5b21b6;">Clé requise</span></div>
+            <div class="ep-body">Historique quotidien OHLC d'une paire.</div>
+        </div>
+        <div class="ep">
+            <div class="ep-head"><span class="method get">GET</span><span class="path">/api/v1/wallets/</span><span style="margin-left:auto;font-size:12px;color:#5b21b6;">Clé requise</span></div>
+            <div class="ep-body">Wallets multi-devises du compte.</div>
+        </div>
+        <div class="ep">
+            <div class="ep-head"><span class="method post">POST</span><span class="path">/api/v1/transfers/create/</span><span style="margin-left:auto;font-size:12px;color:#5b21b6;">Clé requise</span></div>
+            <div class="ep-body">Créer un transfert entre utilisateurs.</div>
+        </div>
+
+        <!-- ===== ERRORS ===== -->
+        <h2 id="errors">Codes d'erreur</h2>
+        <table class="err-table">
+            <tr><th>Code</th><th>Signification</th><th>Action</th></tr>
+            <tr><td>200</td><td>Succès</td><td>—</td></tr>
+            <tr><td>400</td><td>Paramètres invalides</td><td>Vérifiez le body JSON</td></tr>
+            <tr><td>401</td><td>Clé manquante ou invalide</td><td>Vérifiez le header <code>X-API-KEY</code></td></tr>
+            <tr><td>404</td><td>Ressource introuvable</td><td>Vérifiez les codes devises</td></tr>
+            <tr><td>429</td><td>Quota horaire dépassé</td><td>Attendez la réinitialisation ou upgradez</td></tr>
+            <tr><td>503</td><td>Taux temporairement indisponible</td><td>Réessayez dans quelques secondes</td></tr>
+        </table>
+
+        <!-- ===== LIMITS ===== -->
+        <h2 id="limits">Quotas par plan</h2>
+        <table class="err-table">
+            <tr><th>Plan</th><th>Requêtes/heure</th><th>Spread business</th></tr>
+            <tr><td>Free</td><td>100</td><td>+2.5%</td></tr>
+            <tr><td>Standard</td><td>1 000</td><td>+1.5%</td></tr>
+            <tr><td>Premium</td><td>5 000</td><td>+0.8%</td></tr>
+            <tr><td>Partner</td><td>50 000</td><td>+0.3%</td></tr>
+        </table>
+        <div class="callout">
+            Le compteur se réinitialise chaque heure. Sur dépassement, l'API renvoie <code>429</code> — implémentez un retry avec backoff.
+        </div>
+
+        <!-- ===== CURRENCIES ===== -->
+        <h2 id="currencies">Devises supportées (36)</h2>
+        <p>USD, EUR, GBP, JPY, CHF, CAD, AUD, CNY, HKD, SGD, NZD, SEK, NOK, DKK, MXN, BRL, INR, KRW, ZAR, AED, SAR, TRY, RUB, PLN, THB, IDR, MYR, PHP, VND, EGP, NGN, COP, CLP, <strong>XAF, XOF, KMF</strong>.</p>
+        <div class="callout">
+            Les francs CFA (XAF, XOF) et le franc comorien (KMF) sont arrimés à l'euro par taux officiel fixe (1 EUR = 655,957 XAF/XOF ; 491,9678 KMF). Tous les croisements (ex : CAD/XAF, USD/XOF) sont calculés automatiquement.
+        </div>
+
+    </main>
+</div>
+
+<script>
+function copyCode(btn) {
+    var pre = btn.closest('.code').querySelector('pre');
+    navigator.clipboard.writeText(pre.textContent).then(function() {
+        var old = btn.textContent;
+        btn.textContent = 'Copié !';
+        setTimeout(function() { btn.textContent = old; }, 2000);
+    });
+}
+// Highlight active section in sidebar
+var links = document.querySelectorAll('.docs-side a');
+window.addEventListener('scroll', function() {
+    var current = '';
+    document.querySelectorAll('.docs-content h2').forEach(function(h) {
+        if (window.scrollY >= h.offsetTop - 120) current = h.id;
+    });
+    links.forEach(function(a) {
+        a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+    });
+});
+</script>
+</body>
+</html>

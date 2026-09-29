@@ -621,6 +621,10 @@ def home_view(request):
     return render(request, 'home_en.html' if lang == 'en' else 'home.html')
 
 
+def docs_view(request):
+    return render(request, 'docs.html')
+
+
 def dashboard_view(request):
     if not request.user.is_authenticated:
         return redirect('/login/')

@@ -3,60 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Abonnements - ForexPlatform API</title>
+    <title>Abonnements — ForexPlatform</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8fafc; color: #1e293b; padding: 40px 20px; }
-        .container { max-width: 1200px; margin: 0 auto; }
-        h1 { text-align: center; margin-bottom: 12px; font-size: 36px; color: #1e293b; }
-        p.subtitle { text-align: center; color: #64748b; margin-bottom: 48px; font-size: 18px; }
-        .plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-bottom: 40px; }
-        .plan { background: white; border-radius: 16px; padding: 32px; border: 2px solid #e2e8f0; transition: all 0.3s; position: relative; }
-        .plan:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); border-color: #2563eb; }
-        .plan.featured { border-color: #2563eb; background: linear-gradient(135deg, #eff6ff, #ffffff); }
-        .plan.featured::before { content: 'Populaire'; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: #2563eb; color: white; padding: 4px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; }
-        .plan-name { font-size: 20px; font-weight: 700; margin-bottom: 8px; color: #1e293b; }
-        .plan-price { font-size: 36px; font-weight: 800; color: #2563eb; margin-bottom: 8px; }
-        .plan-price span { font-size: 16px; color: #64748b; font-weight: 400; }
-        .plan-description { color: #64748b; margin-bottom: 24px; font-size: 14px; }
-        .plan-features { list-style: none; margin-bottom: 24px; }
-        .plan-features li { padding: 8px 0; color: #475569; font-size: 14px; display: flex; align-items: center; }
-        .plan-features li::before { content: '✓'; color: #22c55e; font-weight: 700; margin-right: 12px; }
-        .plan-button { width: 100%; padding: 14px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-        .plan-button.primary { background: #2563eb; color: white; }
+        :root { --blue: #2563eb; --dark: #0f172a; --gray: #64748b; --light: #f8fafc; --border: #e2e8f0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif; background: var(--light); color: var(--dark); }
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+        /* Nav */
+        nav { background: white; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+        nav .container { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+        .logo { font-weight: 800; font-size: 20px; color: var(--blue); text-decoration: none; display: flex; align-items: center; gap: 10px; }
+        .logo-mark { width: 30px; height: 30px; border-radius: 8px; background: linear-gradient(135deg, #2563eb, #3b82f6); display: flex; align-items: center; justify-content: center; color: white; font-size: 13px; font-weight: 800; }
+        .nav-links a { color: var(--gray); text-decoration: none; margin-left: 22px; font-size: 14px; font-weight: 600; }
+        .nav-links a:hover { color: var(--blue); }
+
+        .page { padding: 48px 0 64px; }
+        h1 { text-align: center; margin-bottom: 10px; font-size: 34px; font-weight: 800; }
+        p.subtitle { text-align: center; color: var(--gray); margin-bottom: 44px; font-size: 16px; }
+
+        .alert { background: #fffbeb; border: 1px solid #fde68a; border-radius: 12px; padding: 16px 20px; margin-bottom: 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+        .alert strong { color: #92400e; }
+        .alert p { color: #b45309; font-size: 14px; margin-top: 2px; }
+        .alert a { background: #d97706; color: white; padding: 9px 18px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 13px; white-space: nowrap; }
+
+        .plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 40px; }
+        .plan { background: white; border-radius: 16px; padding: 30px 26px; border: 1.5px solid var(--border); transition: all .2s; position: relative; display: flex; flex-direction: column; }
+        .plan:hover { transform: translateY(-4px); box-shadow: 0 16px 36px rgba(15,23,42,.08); border-color: var(--blue); }
+        .plan.featured { border-color: var(--blue); }
+        .plan.featured::before { content: 'Populaire'; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--blue); color: white; padding: 4px 16px; border-radius: 999px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
+        .plan-name { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+        .plan-price { font-size: 34px; font-weight: 800; color: var(--blue); margin-bottom: 8px; }
+        .plan-price span { font-size: 14px; color: var(--gray); font-weight: 400; }
+        .plan-description { color: var(--gray); margin-bottom: 22px; font-size: 13.5px; }
+        .plan-features { list-style: none; margin-bottom: 26px; flex: 1; }
+        .plan-features li { padding: 7px 0; color: #475569; font-size: 14px; display: flex; align-items: center; }
+        .plan-features li::before { content: ''; width: 16px; height: 16px; border-radius: 50%; background: #dcfce7 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2316a34a' stroke-width='3'%3E%3Cpath d='M5 13l4 4L19 7'/%3E%3C/svg%3E") center/10px no-repeat; margin-right: 10px; flex-shrink: 0; }
+        .plan-button { width: 100%; padding: 13px; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; transition: all .15s; }
+        .plan-button.primary { background: var(--blue); color: white; }
         .plan-button.primary:hover { background: #1d4ed8; }
-        .plan-button.secondary { background: #f1f5f9; color: #1e293b; }
+        .plan-button.secondary { background: #f1f5f9; color: var(--dark); }
         .plan-button.secondary:hover { background: #e2e8f0; }
-        .current-plan { background: #dcfce7; color: #166534; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 600; display: inline-block; margin-bottom: 16px; }
-        .api-key-section { background: white; border-radius: 16px; padding: 32px; margin-top: 40px; border: 2px solid #e2e8f0; }
-        .api-key-section h2 { margin-bottom: 16px; color: #1e293b; }
-        .api-key-box { background: #1e293b; color: #7dd3fc; padding: 16px; border-radius: 8px; font-family: monospace; font-size: 14px; word-break: break-all; margin-bottom: 16px; }
-        .api-key-instructions { color: #64748b; font-size: 14px; line-height: 1.6; }
-        .api-key-instructions code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-family: monospace; }
+        .current-plan { background: #dcfce7; color: #166534; padding: 10px 16px; border-radius: 10px; font-size: 14px; font-weight: 700; display: block; text-align: center; }
+
+        /* API key section */
+        .key-card { background: white; border-radius: 16px; padding: 32px; border: 1.5px solid var(--border); }
+        .key-card h2 { margin-bottom: 6px; font-size: 20px; }
+        .key-card .sub { color: var(--gray); font-size: 14px; margin-bottom: 20px; }
+        .key-display { display: flex; gap: 12px; align-items: center; margin-bottom: 22px; flex-wrap: wrap; }
+        .key-box { flex: 1; min-width: 240px; background: var(--dark); color: #7dd3fc; padding: 15px 18px; border-radius: 10px; font-family: 'Consolas', monospace; font-size: 14px; word-break: break-all; }
+        .usage-steps { background: var(--light); border-radius: 12px; padding: 22px; font-size: 14px; color: #334155; line-height: 1.9; }
+        .usage-steps code { background: #e2e8f0; padding: 2px 8px; border-radius: 6px; font-family: 'Consolas', monospace; font-size: 13px; color: #0f172a; }
+        .key-warning { background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; padding: 22px; text-align: center; }
+        .key-warning h2 { color: #b91c1c; font-size: 19px; margin-bottom: 8px; }
+        .key-warning p { color: #dc2626; font-size: 14px; margin-bottom: 18px; }
+
+        footer { background: var(--dark); color: #94a3b8; padding: 36px 0; text-align: center; font-size: 14px; }
+        footer a { color: #93c5fd; text-decoration: none; }
     </style>
 </head>
 <body>
+
+<nav>
+    <div class="container">
+        <a class="logo" href="/"><span class="logo-mark">FX</span>ForexPlatform</a>
+        <div class="nav-links">
+            <a href="/">Accueil</a>
+            <a href="/dashboard/">Dashboard</a>
+            <a href="/docs/">Docs</a>
+            <a href="/logout/">Déconnexion</a>
+        </div>
+    </div>
+</nav>
+
+<div class="page">
     <div class="container">
         <h1>Choisissez votre abonnement</h1>
-        <p class="subtitle">Accédez aux taux de change en temps réel avec un plan adapté à vos besoins</p>
-        
+        <p class="subtitle">Taux de change réels, quotas clairs, activation immédiate après validation du paiement.</p>
+
         {% if subscription.status == 'pending' %}
-        <div style="background: #fef3c7; border: 2px solid #f59e0b; border-radius: 8px; padding: 16px; margin-bottom: 24px;">
-            <strong>Abonnement en attente de paiement</strong><br>
-            Veuillez effectuer le paiement pour activer votre compte et générer votre clé API.
+        <div class="alert">
+            <div>
+                <strong>Abonnement en attente de paiement</strong>
+                <p>Complétez le paiement pour activer votre compte et générer votre clé API.</p>
+            </div>
+            <a href="/payment/">Procéder au paiement</a>
         </div>
         {% endif %}
-        
+
         <div class="plans">
-            <!-- Free Plan -->
             <div class="plan">
                 <div class="plan-name">Free</div>
                 <div class="plan-price">0€<span>/mois</span></div>
                 <div class="plan-description">Pour tester et développer</div>
                 <ul class="plan-features">
                     <li>100 requêtes/heure</li>
-                    <li>Taux de change en temps réel</li>
-                    <li>Support email</li>
+                    <li>Taux de change réels</li>
+                    <li>Documentation complète</li>
                 </ul>
                 {% if current_plan == 'free' %}
                 <span class="current-plan">Plan actuel</span>
@@ -64,15 +107,14 @@
                 <button class="plan-button secondary" onclick="selectPlan('free')">Sélectionner</button>
                 {% endif %}
             </div>
-            
-            <!-- Standard Plan -->
+
             <div class="plan featured">
                 <div class="plan-name">Standard</div>
-                <div class="plan-price">9.99€<span>/mois</span></div>
+                <div class="plan-price">9,99€<span>/mois</span></div>
                 <div class="plan-description">Pour les petites entreprises</div>
                 <ul class="plan-features">
                     <li>1 000 requêtes/heure</li>
-                    <li>Taux de change en temps réel</li>
+                    <li>Taux de change réels</li>
                     <li>Support prioritaire</li>
                     <li>Historique sur 30 jours</li>
                 </ul>
@@ -82,18 +124,17 @@
                 <button class="plan-button primary" onclick="selectPlan('standard')">S'abonner</button>
                 {% endif %}
             </div>
-            
-            <!-- Premium Plan -->
+
             <div class="plan">
                 <div class="plan-name">Premium</div>
-                <div class="plan-price">29.99€<span>/mois</span></div>
+                <div class="plan-price">29,99€<span>/mois</span></div>
                 <div class="plan-description">Pour les entreprises en croissance</div>
                 <ul class="plan-features">
                     <li>5 000 requêtes/heure</li>
-                    <li>Taux de change en temps réel</li>
-                    <li>Support dédié 24/7</li>
+                    <li>Spread réduit</li>
+                    <li>Support dédié</li>
                     <li>Historique sur 90 jours</li>
-                    <li>API avancée</li>
+                    <li>Wallets & transferts</li>
                 </ul>
                 {% if current_plan == 'premium' %}
                 <span class="current-plan">Plan actuel</span>
@@ -101,18 +142,16 @@
                 <button class="plan-button primary" onclick="selectPlan('premium')">S'abonner</button>
                 {% endif %}
             </div>
-            
-            <!-- Partner Plan -->
+
             <div class="plan">
                 <div class="plan-name">Partner</div>
-                <div class="plan-price">99.99€<span>/mois</span></div>
+                <div class="plan-price">99,99€<span>/mois</span></div>
                 <div class="plan-description">Pour les grands partenaires</div>
                 <ul class="plan-features">
                     <li>50 000 requêtes/heure</li>
-                    <li>Taux de change en temps réel</li>
+                    <li>Spread minimal</li>
                     <li>Support dédié 24/7</li>
                     <li>Historique illimité</li>
-                    <li>API personnalisée</li>
                     <li>SLA garanti</li>
                 </ul>
                 {% if current_plan == 'partner' %}
@@ -122,31 +161,42 @@
                 {% endif %}
             </div>
         </div>
-        
+
         {% if api_key %}
-        <div class="api-key-section">
+        <div class="key-card">
             <h2>Votre clé API</h2>
-            <div class="api-key-box">{{ api_key }}</div>
-            <div class="api-key-instructions">
+            <p class="sub">La clé complète s'affiche une seule fois à sa génération dans le dashboard. Seul le préfixe est conservé ici.</p>
+            <div class="key-display">
+                <div class="key-box">{{ api_key }}</div>
+            </div>
+            <div class="usage-steps">
                 <strong>Comment utiliser votre clé :</strong><br>
-                Ajoutez le header <code>X-API-KEY: {{ api_key }}</code> à chaque requête API.<br>
-                Exemple : <code>curl -H "X-API-KEY: {{ api_key }}" https://votre-api.com/api/v1/rates/EUR/USD/</code>
+                1. Ajoutez le header <code>X-API-KEY: fxp_votre_cle_complete</code> à chaque requête.<br>
+                2. Exemple : <code>curl -H "X-API-KEY: fxp_votre_cle" https://api-forexplatform.sendbid.app/api/v1/rates/USD/EUR/</code><br>
+                3. Gérez vos clés (créer, révoquer) depuis votre <a href="/dashboard/" style="color:var(--blue); font-weight:600;">dashboard</a>.
             </div>
         </div>
         {% else %}
-        <div class="api-key-section" style="background: #fee2e2; border-color: #dc2626;">
+        <div class="key-warning">
             <h2>Paiement requis</h2>
-            <p style="color: #dc2626; margin-bottom: 16px;">Votre abonnement n'est pas encore actif. Complétez le paiement pour générer votre clé API.</p>
-            <button class="plan-button primary" onclick="window.location.href='/payment/'">Effectuer le paiement</button>
+            <p>Votre abonnement n'est pas encore actif. Complétez le paiement pour générer votre clé API.</p>
+            <button class="plan-button primary" style="max-width:280px;" onclick="window.location.href='/payment/'">Effectuer le paiement</button>
         </div>
         {% endif %}
     </div>
-    
-    <script>
-        function selectPlan(plan) {
-            // Ici vous pouvez intégrer Stripe ou un autre système de paiement
-            alert('Système de paiement à intégrer. Plan sélectionné : ' + plan);
-        }
-    </script>
+</div>
+
+<footer>
+    <div class="container">
+        <p>ForexPlatform API — Données de change fiables pour vos applications</p>
+        <p style="margin-top:8px;"><a href="/">Accueil</a> · <a href="/docs/">Documentation</a> · <a href="/dashboard/">Dashboard</a></p>
+    </div>
+</footer>
+
+<script>
+    function selectPlan(plan) {
+        window.location.href = '/payment/?plan=' + plan;
+    }
+</script>
 </body>
 </html>

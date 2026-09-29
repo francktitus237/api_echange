@@ -31,6 +31,9 @@ class APIKeyAuthentication(BaseAuthentication):
         client.total_requests += 1
         client.save(update_fields=['total_requests'])
 
+        # Expose the client on the underlying HttpRequest for AuditLogMiddleware
+        request._request.api_client = client
+
         return (client.user, client)
 
     def authenticate_header(self, request):

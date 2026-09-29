@@ -46,21 +46,33 @@ class RateLimitMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
 
+    EXEMPT_PATHS = ('/api/v1/health/', '/api/docs/', '/api/schema/', '/api/redoc/')
+
     def __call__(self, request):
-        if request.path.startswith('/api/'):
+        if request.path.startswith('/api/') and request.path not in self.EXEMPT_PATHS:
             try:
                 from django.core.cache import cache
-                ip = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR', 'unknown'))
-                if ',' in ip:
-                    ip = ip.split(',')[0].strip()
-                key = f"ratelimit:{ip}"
-                limit = self.TIER_LIMITS['anonymous']
+                from .models import APIClient
 
-                if request.user.is_authenticated:
-                    api_clients = request.user.api_clients.filter(is_active=True).first()
-                    if api_clients:
-                        limit = self.TIER_LIMITS.get(api_clients.tier, 100)
-                        key = f"ratelimit:client:{api_clients.id}"
+                # DRF auth runs inside the view — too late for middleware.
+                # Resolve the X-API-KEY header ourselves so keyed clients get
+                # their tier quota instead of the anonymous 20/hour bucket.
+                api_client = getattr(request, 'api_client', None)
+                raw_key = request.META.get('HTTP_X_API_KEY')
+                if api_client is None and raw_key:
+                    api_client = APIClient.verify_key(raw_key)
+                if api_client is None and request.user.is_authenticated:
+                    api_client = request.user.api_clients.filter(is_active=True).first()
+
+                if api_client:
+                    limit = api_client.quota_requests_per_hour or self.TIER_LIMITS.get(api_client.tier, 100)
+                    key = f"ratelimit:client:{api_client.id}"
+                else:
+                    ip = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR', 'unknown'))
+                    if ',' in ip:
+                        ip = ip.split(',')[0].strip()
+                    key = f"ratelimit:{ip}"
+                    limit = self.TIER_LIMITS['anonymous']
 
                 count = cache.get(key, 0)
                 if count >= limit:

@@ -32,6 +32,10 @@
 </head>
 <body>
     <div class="container">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+            <a href="/" style="font-weight:800; font-size:18px; color:#2563eb; text-decoration:none;">ForexPlatform</a>
+            <a href="/dashboard/" style="color:#64748b; text-decoration:none; font-size:13px; font-weight:600;">← Dashboard</a>
+        </div>
         <h1>Choisissez votre abonnement</h1>
         <p class="subtitle">Sélectionnez un plan et une méthode de paiement pour activer votre compte</p>
         
@@ -99,7 +103,7 @@
             
             <div id="manual-payment-info" class="manual-payment-info" style="display: none;">
                 <strong>Instructions pour paiement manuel :</strong><br>
-                Contactez notre support à support@forexplatform.com pour organiser le paiement par virement bancaire ou autre méthode. Une fois le paiement reçu, votre compte sera activé manuellement par notre équipe.
+                Contactez notre support à support@sendbid.app pour organiser le paiement par virement bancaire ou autre méthode. Une fois le paiement reçu, votre compte sera activé manuellement par notre équipe.
             </div>
             
             <button type="submit" id="submit-btn" disabled>Continuer vers le paiement</button>
@@ -152,8 +156,10 @@
             }
         }
         
-        // Initialize with default selections
-        selectPlan('free');
+        // Initialize — preselect plan from ?plan= URL param (from subscription page)
+        var urlPlan = new URLSearchParams(window.location.search).get('plan');
+        var validPlans = ['free', 'standard', 'premium', 'partner'];
+        selectPlan(validPlans.includes(urlPlan) ? urlPlan : 'free');
         selectPayment('stripe');
     </script>
 </body>
