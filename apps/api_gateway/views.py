@@ -87,9 +87,9 @@ class DocsHTMLView(APIView):
   </div>
 
   <div class="info-box">
-    <strong>🔐 Authentification</strong>
+    <strong>Authentification</strong>
     Ajouter le header <code>X-API-KEY: votre-clé</code> à chaque requête protégée.<br>
-    Pour obtenir une clé : <code>GET {base_url}/setup/create-key/?secret=VOTRE_SECRET</code>
+    Pour obtenir une clé : créez un compte sur <a href="/register/">/register/</a> puis gérez vos clés depuis le <a href="/dashboard/">dashboard</a>.
   </div>
 
   <!-- ===== PUBLICS ===== -->
@@ -328,68 +328,6 @@ class DocsHTMLView(APIView):
         return HttpResponse(html, content_type='text/html')
 
 
-class AutoCreateAPIKeyView(APIView):
-    """
-    Vue temporaire pour créer automatiquement une clé API.
-    Protégée par un secret dans les variables d'environnement.
-    GET /api/v1/setup/create-key/?secret=TON_SECRET
-    GET /api/v1/setup/create-key/?secret=TON_SECRET&reset=true  (pour régénérer)
-    """
-    permission_classes = [AllowAny]
-
-    def get(self, request):
-        secret = request.query_params.get('secret', '')
-        reset = request.query_params.get('reset', '').lower() == 'true'
-        expected_secret = os.getenv('SETUP_SECRET', 'changeme123')
-
-        if secret != expected_secret:
-            return Response({'error': 'Invalid secret'}, status=403)
-
-        # Créer un utilisateur système si nécessaire
-        user, created = User.objects.get_or_create(
-            username='system_api',
-            defaults={'email': 'system@forexplatform.local', 'is_active': True}
-        )
-
-        # Vérifier si une clé existe déjà
-        existing = APIClient.objects.filter(user=user, is_active=True).first()
-        if existing and not reset:
-            return Response({
-                'success': True,
-                'message': 'Une clé existe déjà. Utilisez ?reset=true pour régénérer.',
-                'api_key_prefix': existing.api_key_prefix,
-                'tier': existing.tier,
-                'quota': existing.quota_requests_per_hour,
-                'created_at': existing.created_at,
-            })
-
-        # Si reset=true, supprimer l'ancienne clé
-        if existing and reset:
-            existing.delete()
-
-        # Générer une nouvelle clé
-        raw_key, key_hash, prefix = APIClient.generate_key()
-        client = APIClient.objects.create(
-            user=user,
-            name='Auto-generated Mobile App Key',
-            api_key_prefix=prefix,
-            api_key_hash=key_hash,
-            tier='standard',
-            quota_requests_per_hour=1000,
-            is_active=True,
-        )
-
-        return Response({
-            'success': True,
-            'message': 'Clé API créée avec succès' + (' (ancienne clé remplacée)' if reset else ''),
-            'raw_key': raw_key,
-            'api_key_prefix': prefix,
-            'tier': client.tier,
-            'quota': client.quota_requests_per_hour,
-            'instructions': 'Copie cette clé immédiatement - elle ne sera plus affichée',
-        }, status=201)
-
-
 class HealthView(APIView):
     permission_classes = [AllowAny]
 
@@ -435,11 +373,17 @@ class APIKeyCreateView(APIView):
 
     def post(self, request):
         name = request.data.get('name', '').strip()
-        tier = request.data.get('tier', 'free')
         if not name:
             return Response({'success': False, 'error': 'Name is required.'}, status=400)
-        if tier not in dict(APIClient.TIER_CHOICES):
-            return Response({'success': False, 'error': 'Invalid tier.'}, status=400)
+
+        # Tier comes from the user's subscription — never from client input.
+        subscription = Subscription.objects.filter(user=request.user).first()
+        if not subscription or not subscription.is_active():
+            return Response(
+                {'success': False, 'error': 'An active subscription is required to create API keys.'},
+                status=403
+            )
+        tier = subscription.get_tier_from_plan()
 
         raw_key, key_hash, prefix = APIClient.generate_key()
         quota = APIClient.QUOTA_MAP.get(tier, 100)
@@ -460,8 +404,9 @@ class APIKeyDeleteView(APIView):
     def delete(self, request, pk):
         try:
             key = APIClient.objects.get(pk=pk, user=request.user)
-            key.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            key.is_active = False
+            key.save(update_fields=['is_active'])
+            return Response({'success': True, 'message': 'Key revoked.'})
         except APIClient.DoesNotExist:
             return Response({'success': False, 'error': 'API key not found.'}, status=404)
 
@@ -528,26 +473,52 @@ def payment_view(request):
     except Subscription.DoesNotExist:
         subscription = Subscription.objects.create(user=request.user, plan='free', status='pending')
     
-    # Si l'abonnement est déjà actif, rediriger vers la page de souscription
-    if subscription.is_active():
-        return redirect('/subscription/')
-    
+    # Note: active subscribers CAN reach this page — it doubles as the
+    # upgrade/downgrade flow (a new pending payment switches the plan
+    # once approved by an admin).
     if request.method == 'POST':
-        plan = request.POST.get('plan', 'free')
-        payment_method = request.POST.get('payment_method', 'stripe')
-        
-        # Mettre à jour le plan de l'abonnement
-        subscription.plan = plan
-        subscription.save()
-        
-        # Créer un paiement en attente
         plan_prices = {
             'free': 0,
             'standard': 9.99,
             'premium': 29.99,
             'partner': 99.99,
         }
-        
+        plan = request.POST.get('plan', 'free')
+        payment_method = request.POST.get('payment_method', 'stripe')
+
+        # Validate — never trust POST data for plan or method
+        if plan not in plan_prices:
+            plan = 'free'
+        if payment_method not in ('stripe', 'paypal', 'manual'):
+            payment_method = 'manual'
+
+        # Mettre à jour le plan de l'abonnement
+        subscription.plan = plan
+        subscription.save()
+
+        # Free plan: activate immediately — no payment needed
+        if plan == 'free':
+            from django.utils.timezone import now as tz_now
+            from datetime import timedelta
+            subscription.status = 'active'
+            subscription.start_date = tz_now()
+            subscription.end_date = tz_now() + timedelta(days=30)
+            subscription.save()
+            # Generate API key if none exists
+            if not APIClient.objects.filter(user=request.user, is_active=True).exists():
+                raw_key, key_hash, prefix = APIClient.generate_key()
+                APIClient.objects.create(
+                    user=request.user,
+                    name='Default API Key',
+                    api_key_prefix=prefix,
+                    api_key_hash=key_hash,
+                    tier='free',
+                    quota_requests_per_hour=APIClient.QUOTA_MAP.get('free', 100),
+                )
+                request.session['new_api_key'] = raw_key
+            return redirect('/dashboard/')
+
+        # Créer un paiement en attente
         payment = Payment.objects.create(
             user=request.user,
             subscription=subscription,

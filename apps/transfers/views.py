@@ -94,15 +94,17 @@ class TransferCreateView(APIView):
         except User.DoesNotExist:
             return Response({'success': False, 'error': 'Recipient not found.'}, status=404)
 
-        try:
-            rate_obj = ExchangeRate.objects.get(from_currency=source_cur, to_currency=dest_cur)
-        except ExchangeRate.DoesNotExist:
+        # Resolve the rate via the service layer — supports inverse and
+        # cross-rates (e.g. USD→XAF), not only pairs stored directly.
+        from apps.forex.services import get_live_rate
+        market_rate = get_live_rate(source_cur, dest_cur)
+        if market_rate is None:
             return Response({'success': False, 'error': f'Rate {source_cur}/{dest_cur} not found.'}, status=404)
 
         api_client = request.user.api_clients.filter(is_active=True).first()
         tier = api_client.tier if api_client else 'standard'
         spread, margin = SPREAD_MAP.get(tier, SPREAD_MAP['standard'])
-        applied_rate = rate_obj.market_rate * (1 + spread + margin)
+        applied_rate = market_rate * (1 + spread + margin)
         dest_amount = amount * applied_rate
         fee = amount * spread * applied_rate
 

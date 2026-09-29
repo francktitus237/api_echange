@@ -11,8 +11,7 @@ urlpatterns = [
     path('health/', views.HealthView.as_view(), name='health'),
     # Documentation HTML
     path('docs/', views.DocsHTMLView.as_view(), name='docs_html'),
-    # Setup - création automatique de clé API
-    path('setup/create-key/', views.AutoCreateAPIKeyView.as_view(), name='auto_create_key'),
+
     # API Keys
     path('api-keys/', views.APIKeyListView.as_view(), name='api_keys'),
     path('api-keys/create/', views.APIKeyCreateView.as_view(), name='api_key_create'),
