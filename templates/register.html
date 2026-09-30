@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inscription — ForexPlatform</title>
+    <title>{{ t.auth_register_title }} — {{ t.brand }}</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 55%, #2563eb 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
@@ -29,9 +29,9 @@
 <body>
     <div style="position:fixed;top:16px;inset-inline-end:20px;z-index:10;">{% include 'lang_select.html' %}</div>
     <div class="box">
-        <a class="brand" href="/"><span class="brand-mark">FX</span>ForexPlatform</a>
-        <h1>Créer votre compte</h1>
-        <p class="subtitle">Clé API générée automatiquement après activation</p>
+        <a class="brand" href="/"><span class="brand-mark">FX</span>{{ t.brand }}</a>
+        <h1>{{ t.auth_register_title }}</h1>
+        <p class="subtitle">{{ t.auth_register_sub }}</p>
 
         {% if error %}
         <div class="error">{{ error }}</div>
@@ -40,7 +40,7 @@
         <form method="post">
             {% csrf_token %}
             <div class="form-group">
-                <label for="username">Nom d'utilisateur</label>
+                <label for="username">{{ t.auth_username }}</label>
                 <input type="text" id="username" name="username" required autocomplete="username">
             </div>
             <div class="form-group">
@@ -48,23 +48,23 @@
                 <input type="email" id="email" name="email" required autocomplete="email">
             </div>
             <div class="form-group">
-                <label for="password">Mot de passe</label>
+                <label for="password">{{ t.auth_password }}</label>
                 <input type="password" id="password" name="password" required minlength="8" autocomplete="new-password">
             </div>
             <div class="form-group">
-                <label for="password_confirm">Confirmer le mot de passe</label>
+                <label for="password_confirm">{{ t.auth_password_confirm }}</label>
                 <input type="password" id="password_confirm" name="password_confirm" required minlength="8" autocomplete="new-password">
             </div>
-            <button type="submit">Créer mon compte</button>
+            <button type="submit">{{ t.auth_register_btn }}</button>
         </form>
 
         <div class="perks">
-            <span class="perk">Plan gratuit</span>
-            <span class="perk">Docs Swagger</span>
-            <span class="perk">36 devises</span>
+            <span class="perk">{{ t.perk_free }}</span>
+            <span class="perk">{{ t.perk_docs }}</span>
+            <span class="perk">{{ t.perk_currencies }}</span>
         </div>
         <div class="link">
-            Déjà un compte ? <a href="/login/">Se connecter</a>
+            {{ t.auth_have_account }} <a href="/login/">{{ t.auth_login_btn }}</a>
         </div>
     </div>
 </body>

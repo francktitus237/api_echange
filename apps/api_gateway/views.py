@@ -440,14 +440,17 @@ def register_view(request):
         password = request.POST.get('password')
         password_confirm = request.POST.get('password_confirm')
         
+        from .i18n import get_lang, TRANSLATIONS
+        _t = TRANSLATIONS.get(get_lang(request), TRANSLATIONS['fr'])
+
         if password != password_confirm:
-            return render(request, 'register.html', {'error': 'Les mots de passe ne correspondent pas.'})
-        
+            return render(request, 'register.html', {'error': _t['err_pwd_mismatch']})
+
         if User.objects.filter(username=username).exists():
-            return render(request, 'register.html', {'error': 'Ce nom d\'utilisateur existe déjà.'})
-        
+            return render(request, 'register.html', {'error': _t['err_username_taken']})
+
         if User.objects.filter(email=email).exists():
-            return render(request, 'register.html', {'error': 'Cet email est déjà utilisé.'})
+            return render(request, 'register.html', {'error': _t['err_email_taken']})
         
         user = User.objects.create_user(username=username, email=email, password=password)
 
@@ -480,7 +483,9 @@ def subscription_view(request):
     api_key = None
     if api_client:
         # Pour des raisons de sécurité, on ne montre que le préfixe
-        api_key = f"{api_client.api_key_prefix}... (utilisez votre clé complète)"
+        from .i18n import get_lang, TRANSLATIONS
+        _t = TRANSLATIONS.get(get_lang(request), TRANSLATIONS['fr'])
+        api_key = f"{api_client.api_key_prefix}... {_t['key_full_hint']}"
     
     return render(request, 'subscription.html', {
         'current_plan': current_plan,
@@ -560,11 +565,13 @@ def payment_view(request):
         
         if payment_method == 'manual':
             from .emails import send_manual_payment_request
+            from .i18n import TRANSLATIONS
+            _t = TRANSLATIONS.get(client_lang, TRANSLATIONS['fr'])
             send_manual_payment_request(payment)
             return render(request, 'payment.html', {
                 'subscription': subscription,
                 'plan_prices': plan_prices,
-                'success': f'Demande de paiement manuel envoyée. Contactez le support pour finaliser le paiement de {plan_prices.get(plan, 0)}€. Votre référence : {payment.id}'
+                'success': _t['msg_manual_sent'].format(amount=plan_prices.get(plan, 0), ref=payment.id)
             })
         elif payment_method == 'stripe':
             from .payments import create_stripe_checkout
@@ -573,10 +580,12 @@ def payment_view(request):
                 return redirect(checkout_url)
             payment.status = 'failed'
             payment.save(update_fields=['status'])
+            from .i18n import TRANSLATIONS
+            _t = TRANSLATIONS.get(client_lang, TRANSLATIONS['fr'])
             return render(request, 'payment.html', {
                 'subscription': subscription,
                 'plan_prices': plan_prices,
-                'error': 'Paiement par carte momentanément indisponible. Utilisez le paiement manuel ou réessayez plus tard.'
+                'error': _t['err_card_down']
             })
         elif payment_method == 'paypal':
             from .payments import create_paypal_order
@@ -585,10 +594,12 @@ def payment_view(request):
                 return redirect(approve_url)
             payment.status = 'failed'
             payment.save(update_fields=['status'])
+            from .i18n import TRANSLATIONS
+            _t = TRANSLATIONS.get(client_lang, TRANSLATIONS['fr'])
             return render(request, 'payment.html', {
                 'subscription': subscription,
                 'plan_prices': plan_prices,
-                'error': 'PayPal momentanément indisponible. Utilisez le paiement manuel ou réessayez plus tard.'
+                'error': _t['err_paypal_down']
             })
     
     # Récupérer les prix des plans
@@ -616,8 +627,10 @@ def payment_success_view(request):
         if payment.status != 'completed':
             payment.mark_completed()
         return redirect('/dashboard/')
+    from .i18n import get_lang, TRANSLATIONS
+    _t = TRANSLATIONS.get(get_lang(request), TRANSLATIONS['fr'])
     return render(request, 'payment.html', {
-        'error': "Paiement non confirmé. Si vous avez été débité, contactez le support.",
+        'error': _t['err_pay_unconfirmed'],
         'plan_prices': {'free': 0, 'standard': 9.99, 'premium': 29.99, 'partner': 99.99},
     })
 
@@ -631,15 +644,19 @@ def payment_paypal_return_view(request):
         if payment.status != 'completed':
             payment.mark_completed()
         return redirect('/dashboard/')
+    from .i18n import get_lang, TRANSLATIONS
+    _t = TRANSLATIONS.get(get_lang(request), TRANSLATIONS['fr'])
     return render(request, 'payment.html', {
-        'error': "Paiement PayPal non confirmé. Si vous avez été débité, contactez le support.",
+        'error': _t['err_paypal_unconfirmed'],
         'plan_prices': {'free': 0, 'standard': 9.99, 'premium': 29.99, 'partner': 99.99},
     })
 
 
 def payment_cancel_view(request):
+    from .i18n import get_lang, TRANSLATIONS
+    _t = TRANSLATIONS.get(get_lang(request), TRANSLATIONS['fr'])
     return render(request, 'payment.html', {
-        'error': 'Paiement annulé. Vous pouvez réessayer quand vous voulez.',
+        'error': _t['msg_pay_cancelled'],
         'plan_prices': {'free': 0, 'standard': 9.99, 'premium': 29.99, 'partner': 99.99},
     })
 
@@ -657,7 +674,8 @@ def login_view(request):
         if user is not None:
             login(request, user)
             return redirect('/dashboard/')
-        return render(request, 'login.html', {'error': "Nom d'utilisateur ou mot de passe incorrect."})
+        from .i18n import get_lang, TRANSLATIONS
+        return render(request, 'login.html', {'error': TRANSLATIONS.get(get_lang(request), TRANSLATIONS['fr'])['err_bad_credentials']})
     return render(request, 'login.html')
 
 
@@ -670,8 +688,13 @@ def logout_view(request):
 def home_view(request):
     from .i18n import get_lang
     lang = get_lang(request)
-    # Only FR page exists; EN template serves all other languages for now
-    return render(request, 'home.html' if lang == 'fr' else 'home_en.html')
+    template = {
+        'fr': 'home.html',
+        'en': 'home_en.html',
+        'ar': 'home_ar.html',
+        'es': 'home_es.html',
+    }.get(lang, 'home_en.html')
+    return render(request, template)
 
 
 def docs_view(request):
@@ -681,6 +704,9 @@ def docs_view(request):
 def dashboard_view(request):
     if not request.user.is_authenticated:
         return redirect('/login/')
+
+    from .i18n import get_lang, TRANSLATIONS
+    _t = TRANSLATIONS.get(get_lang(request), TRANSLATIONS['fr'])
 
     subscription, _ = Subscription.objects.get_or_create(
         user=request.user, defaults={'plan': 'free', 'status': 'pending'}
@@ -693,7 +719,7 @@ def dashboard_view(request):
             tier = subscription.get_tier_from_plan()
             APIClient.objects.create(
                 user=request.user,
-                name=request.POST.get('key_name', 'Default Key')[:100],
+                name=request.POST.get('key_name', _t['default_key_name'])[:100],
                 api_key_prefix=prefix,
                 api_key_hash=key_hash,
                 tier=tier,

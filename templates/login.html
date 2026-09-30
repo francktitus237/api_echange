@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connexion — ForexPlatform</title>
+    <title>{{ t.auth_login_title }} — {{ t.brand }}</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif; background: #f8fafc; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
@@ -28,9 +28,9 @@
 <body>
     <div style="position:fixed;top:16px;inset-inline-end:20px;z-index:10;">{% include 'lang_select.html' %}</div>
     <div class="box">
-        <a class="brand" href="/"><span class="brand-mark">FX</span>ForexPlatform</a>
-        <h1>Connexion</h1>
-        <p class="subtitle">Accédez à votre espace client</p>
+        <a class="brand" href="/"><span class="brand-mark">FX</span>{{ t.brand }}</a>
+        <h1>{{ t.auth_login_title }}</h1>
+        <p class="subtitle">{{ t.auth_login_sub }}</p>
 
         {% if error %}
         <div class="error">{{ error }}</div>
@@ -39,22 +39,22 @@
         <form method="post">
             {% csrf_token %}
             <div class="form-group">
-                <label for="username">Nom d'utilisateur</label>
+                <label for="username">{{ t.auth_username }}</label>
                 <input type="text" id="username" name="username" required autofocus autocomplete="username">
             </div>
             <div class="form-group">
-                <label for="password">Mot de passe</label>
+                <label for="password">{{ t.auth_password }}</label>
                 <input type="password" id="password" name="password" required autocomplete="current-password">
             </div>
-            <button type="submit">Se connecter</button>
+            <button type="submit">{{ t.auth_login_btn }}</button>
         </form>
 
         <div class="divider"></div>
         <div class="link">
-            Pas encore de compte ? <a href="/register/">Créer un compte</a>
+            {{ t.auth_no_account }} <a href="/register/">{{ t.auth_create }}</a>
         </div>
         <div class="link" style="margin-top:10px;">
-            <a href="/">← Retour à l'accueil</a>
+            <a href="/">{{ t.auth_back_home }}</a>
         </div>
     </div>
 </body>

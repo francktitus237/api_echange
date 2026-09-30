@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="{{ lang|default:'ar' }}" dir="{{ dir|default:'rtl' }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ForexPlatform API — أسعار صرف في الوقت الفعلي</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --blue: #2563eb; --dark: #0f172a; --gray: #64748b; --light: #f1f5f9; }
+        body { font-family: 'Segoe UI', 'Noto Kufi Arabic', Tahoma, sans-serif; color: var(--dark); line-height: 1.7; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+        nav { background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.08); position: sticky; top: 0; z-index: 100; }
+        nav .container { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+        .logo { font-weight: 800; font-size: 20px; color: var(--blue); text-decoration: none; }
+        .nav-links { display: flex; align-items: center; gap: 20px; }
+        .nav-links a { color: var(--gray); text-decoration: none; font-size: 15px; font-weight: 500; }
+        .nav-links a:hover { color: var(--blue); }
+        .btn { display: inline-block; padding: 12px 28px; border-radius: 8px; font-weight: 600; text-decoration: none; font-size: 15px; transition: all .2s; }
+        .btn-primary { background: var(--blue); color: white; }
+        .btn-primary:hover { background: #1d4ed8; }
+        .btn-outline { border: 2px solid white; color: white; }
+        .btn-outline:hover { background: rgba(255,255,255,.15); }
+        .btn-sm { padding: 8px 20px; font-size: 14px; }
+
+        .hero { background: linear-gradient(135deg, #1e3a8a, #2563eb 60%, #3b82f6); color: white; padding: 96px 0; text-align: center; }
+        .hero h1 { font-size: 44px; font-weight: 800; margin-bottom: 20px; line-height: 1.3; }
+        .hero p { font-size: 19px; opacity: .9; max-width: 640px; margin: 0 auto 36px; }
+        .hero .btn { margin: 0 8px; }
+        .hero .btn-primary { background: white; color: var(--blue); }
+        .hero .btn-primary:hover { background: var(--light); }
+        .hero-badge { display: inline-block; background: rgba(255,255,255,.15); padding: 6px 16px; border-radius: 999px; font-size: 13px; margin-bottom: 24px; }
+
+        section { padding: 80px 0; }
+        .section-title { font-size: 30px; font-weight: 800; text-align: center; margin-bottom: 12px; }
+        .section-sub { color: var(--gray); text-align: center; max-width: 560px; margin: 0 auto 48px; }
+
+        .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; }
+        .feature { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 32px 24px; }
+        .feature .icon { width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #2563eb, #3b82f6); margin-bottom: 16px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 18px; }
+        .feature h3 { font-size: 18px; margin-bottom: 8px; }
+        .feature p { color: var(--gray); font-size: 14px; }
+
+        .steps { background: var(--light); }
+        .step { display: flex; gap: 24px; margin-bottom: 32px; align-items: flex-start; }
+        .step-num { background: var(--blue); color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0; }
+        .step h3 { margin-bottom: 4px; }
+        .step p { color: var(--gray); font-size: 15px; }
+
+        .code-block { background: #0f172a; color: #e2e8f0; border-radius: 12px; padding: 24px; overflow-x: auto; font-family: 'Consolas', 'Monaco', monospace; font-size: 14px; line-height: 1.7; margin-top: 16px; direction: ltr; text-align: left; }
+        .code-block .c { color: #64748b; }
+        .code-block .k { color: #7dd3fc; }
+        .code-block .s { color: #86efac; }
+        .code-block .g { color: #fbbf24; }
+
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+        th { background: var(--dark); color: white; text-align: right; padding: 14px 18px; font-size: 13px; }
+        td { padding: 14px 18px; border-top: 1px solid #e2e8f0; font-size: 14px; }
+        td code { background: var(--light); padding: 3px 8px; border-radius: 6px; font-size: 13px; direction: ltr; display: inline-block; }
+        .method { font-weight: 700; font-size: 12px; padding: 3px 10px; border-radius: 6px; }
+        .get { background: #dcfce7; color: #15803d; }
+        .post { background: #dbeafe; color: #1d4ed8; }
+
+        .pricing { background: var(--light); }
+        .plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 24px; }
+        .plan { background: white; border: 2px solid #e2e8f0; border-radius: 14px; padding: 32px 24px; text-align: center; }
+        .plan.featured { border-color: var(--blue); position: relative; }
+        .plan .tag { position: absolute; top: -12px; right: 50%; transform: translateX(50%); background: var(--blue); color: white; font-size: 11px; font-weight: 700; padding: 4px 14px; border-radius: 999px; }
+        .plan h3 { font-size: 18px; text-transform: capitalize; }
+        .plan .price { font-size: 36px; font-weight: 800; margin: 12px 0; }
+        .plan .price span { font-size: 15px; color: var(--gray); font-weight: 400; }
+        .plan ul { list-style: none; margin: 20px 0 28px; color: var(--gray); font-size: 14px; }
+        .plan ul li { padding: 6px 0; }
+
+        .live { background: var(--dark); color: white; padding: 28px 0; }
+        .live-label { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 700; color: #93c5fd; margin-bottom: 16px; }
+        .live-dot { width: 9px; height: 9px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 4px rgba(34,197,94,.2); animation: pulse 1.6s infinite; }
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
+        .rates-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; }
+        .rate-card { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 10px; padding: 14px 16px; }
+        .rate-card .pair { font-size: 13px; color: #93c5fd; font-weight: 700; direction: ltr; }
+        .rate-card .val { font-size: 21px; font-weight: 800; margin-top: 4px; font-variant-numeric: tabular-nums; direction: ltr; text-align: right; }
+        .rate-card .src { font-size: 11px; color: #64748b; margin-top: 4px; direction: ltr; text-align: right; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 24px; text-align: center; }
+        .stat .num { font-size: 40px; font-weight: 800; color: var(--blue); }
+        .stat .lbl { color: var(--gray); font-size: 14px; font-weight: 600; margin-top: 4px; }
+        .faq { max-width: 720px; margin: 0 auto; }
+        .faq details { background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px 22px; margin-bottom: 12px; }
+        .faq summary { font-weight: 700; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+        .faq summary::after { content: '+'; font-size: 22px; color: var(--blue); font-weight: 400; }
+        .faq details[open] summary::after { content: '–'; }
+        .faq details p { color: var(--gray); font-size: 15px; margin-top: 12px; }
+
+        footer { background: var(--dark); color: #94a3b8; padding: 40px 0; text-align: center; font-size: 14px; }
+        footer a { color: #93c5fd; text-decoration: none; }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="container">
+        <a class="logo" href="/">ForexPlatform</a>
+        <div class="nav-links">
+            <a href="#features">المميزات</a>
+            <a href="#integration">التكامل</a>
+            <a href="#endpoints">نقاط النهاية</a>
+            <a href="#pricing">الأسعار</a>
+            <a href="/docs/">التوثيق</a>
+            {% include 'lang_select.html' %}
+            <a href="/login/">تسجيل الدخول</a>
+            <a class="btn btn-primary btn-sm" href="/register/">ابدأ الآن</a>
+        </div>
+    </div>
+</nav>
+
+<header class="hero">
+    <div class="container">
+        <div class="hero-badge">REST API v1 — أسعار صرف حقيقية</div>
+        <h1>واجهة Forex البرمجية البسيطة<br>لتطبيقاتك</h1>
+        <p>أسعار صرف حقيقية، تحويل عملات، سجل تاريخي ومحافظ متعددة العملات. مفتاح API واحد، ثلاثة أسطر من الكود، وانتهى الأمر.</p>
+        <a class="btn btn-primary" href="/register/">أنشئ حساباً مجانياً</a>
+        <a class="btn btn-outline" href="/docs/">التوثيق</a>
+    </div>
+</header>
+
+<section class="live" id="live">
+    <div class="container">
+        <div class="live-label"><span class="live-dot"></span> أسعار حقيقية تخدمها الواجهة البرمجية — مزامنة كل 15 دقيقة</div>
+        <div class="rates-grid" id="live-rates"><p style="color:#94a3b8;">جارٍ تحميل الأسعار…</p></div>
+    </div>
+</section>
+
+<section>
+    <div class="container">
+        <div class="stats">
+            <div class="stat"><div class="num">36+</div><div class="lbl">عملة عالمية</div></div>
+            <div class="stat"><div class="num">15 دقيقة</div><div class="lbl">تكرار المزامنة</div></div>
+            <div class="stat"><div class="num">SHA-256</div><div class="lbl">مفاتيح API مشفرة</div></div>
+            <div class="stat"><div class="num">50,000</div><div class="lbl">أقصى طلبات/ساعة</div></div>
+        </div>
+    </div>
+</section>
+
+<section id="features">
+    <div class="container">
+        <h2 class="section-title">كل ما تحتاجه للعملات</h2>
+        <p class="section-sub">واجهة برمجية كاملة وموثوقة وموثقة لدمج أسعار الصرف في مشاريعك.</p>
+        <div class="features">
+            <div class="feature"><div class="icon">⇄</div><h3>بيانات حقيقية</h3><p>أسعار متزامنة من عدة مصادر مع تخزين Redis مؤقت واحتياطي تلقائي.</p></div>
+            <div class="feature"><div class="icon">◇</div><h3>الأمان</h3><p>مفاتيح API مشفرة SHA-256، جلسات JWT، حصص لكل خطة وسجل تدقيق كامل.</p></div>
+            <div class="feature"><div class="icon">€</div><h3>التحويل</h3><p>حوّل بين أكثر من 36 عملة مع هامش قابل للتخصيص وسجل أسعار كامل.</p></div>
+            <div class="feature"><div class="icon">◈</div><h3>المحافظ والتحويلات</h3><p>محافظ متعددة العملات وتحويلات مدمجة في الواجهة البرمجية.</p></div>
+            <div class="feature"><div class="icon">▲</div><h3>المراقبة</h3><p>إحصائيات المزودين وصحة النظام وتتبع الحصص في الوقت الفعلي.</p></div>
+            <div class="feature"><div class="icon">{}</div><h3>توثيق تفاعلي</h3><p>Swagger UI وReDoc مولّدان تلقائياً — اختبر كل نقطة نهاية من متصفحك.</p></div>
+        </div>
+    </div>
+</section>
+
+<section class="steps" id="integration">
+    <div class="container">
+        <h2 class="section-title">التكامل في 3 خطوات</h2>
+        <p class="section-sub">من التسجيل إلى أول طلب API في أقل من 5 دقائق.</p>
+
+        <div class="step">
+            <div class="step-num">1</div>
+            <div>
+                <h3>أنشئ حساباً واختر خطتك</h3>
+                <p>سجّل، واختر اشتراكك. بمجرد التفعيل، يتم إنشاء مفتاح <code>fxp_...</code> تلقائياً — أدره من <a href="/dashboard/">لوحة التحكم</a>.</p>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-num">2</div>
+            <div>
+                <h3>اضبط المفتاح في مشروعك</h3>
+                <p>متغير بيئة واحد يكفي. أرسله عبر ترويسة <code>X-API-KEY</code>:</p>
+                <div class="code-block"><span class="c"># .env الخاص بمشروعك</span>
+FOREX_API_KEY=<span class="s">fxp_your_api_key</span>
+FOREX_API_URL=<span class="s">https://api-forexplatform.sendbid.app/api/v1</span></div>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-num">3</div>
+            <div>
+                <h3>نفّذ أول طلب</h3>
+                <div class="code-block"><span class="c"># cURL</span>
+curl -H <span class="s">"X-API-KEY: fxp_your_key"</span> \
+     <span class="g">https://api-forexplatform.sendbid.app/api/v1/rates/USD/EUR/</span>
+
+<span class="c"># Python</span>
+<span class="k">import</span> requests
+r = requests.get(<span class="s">"https://api-forexplatform.sendbid.app/api/v1/rates/USD/EUR/"</span>,
+                 headers={<span class="s">"X-API-KEY"</span>: <span class="s">"fxp_your_key"</span>})
+<span class="k">print</span>(r.json())  <span class="c"># {"from": "USD", "to": "EUR", "rate": 0.92, ...}</span>
+
+<span class="c"># JavaScript / تطبيق الجوال</span>
+<span class="k">const</span> res = <span class="k">await</span> fetch(<span class="s">"https://api-forexplatform.sendbid.app/api/v1/rates/USD/EUR/"</span>,
+  { headers: { <span class="s">"X-API-KEY"</span>: <span class="s">"fxp_your_key"</span> } });
+<span class="k">const</span> data = <span class="k">await</span> res.json();</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="endpoints">
+    <div class="container">
+        <h2 class="section-title">نقاط النهاية الرئيسية</h2>
+        <p class="section-sub">Base URL : <code style="direction:ltr;display:inline-block;">https://api-forexplatform.sendbid.app/api/v1</code></p>
+        <table>
+            <thead><tr><th>الطريقة</th><th>نقطة النهاية</th><th>الوصف</th></tr></thead>
+            <tbody>
+                <tr><td><span class="method get">GET</span></td><td><code>/api/v1/currencies/</code></td><td>قائمة العملات المدعومة</td></tr>
+                <tr><td><span class="method get">GET</span></td><td><code>/api/v1/rates/</code></td><td>جميع أسعار الصرف الحالية</td></tr>
+                <tr><td><span class="method get">GET</span></td><td><code>/api/v1/rates/{from}/{to}/</code></td><td>سعر زوج معين (مثال: USD→EUR)</td></tr>
+                <tr><td><span class="method post">POST</span></td><td><code>/api/v1/convert/</code></td><td>تحويل مبلغ بين عملتين</td></tr>
+                <tr><td><span class="method get">GET</span></td><td><code>/api/v1/history/{from}/{to}/</code></td><td>سجل أسعار زوج معين</td></tr>
+                <tr><td><span class="method get">GET</span></td><td><code>/api/v1/wallets/</code></td><td>محافظ متعددة العملات</td></tr>
+                <tr><td><span class="method post">POST</span></td><td><code>/api/v1/transfers/create/</code></td><td>إنشاء تحويل</td></tr>
+                <tr><td><span class="method get">GET</span></td><td><code>/api/v1/health/</code></td><td>حالة الخدمة</td></tr>
+            </tbody>
+        </table>
+        <p style="text-align:center; margin-top:24px; color: var(--gray);">الدليل الكامل: <a href="/docs/" style="color:var(--blue); font-weight:600;">التوثيق</a> · جرّب مباشرة: <a href="/api/docs/" style="color:var(--blue); font-weight:600;">Swagger UI</a> · <a href="/api/redoc/" style="color:var(--blue); font-weight:600;">ReDoc</a></p>
+    </div>
+</section>
+
+<section class="pricing" id="pricing">
+    <div class="container">
+        <h2 class="section-title">أسعار بسيطة وشفافة</h2>
+        <p class="section-sub">ابدأ مجاناً، وتوسّع عند الحاجة.</p>
+        <div class="plans">
+            <div class="plan">
+                <h3>Free</h3>
+                <div class="price">$0<span>/شهر</span></div>
+                <ul><li>100 طلب/ساعة</li><li>جميع العملات</li><li>التوثيق الكامل</li></ul>
+                <a class="btn btn-primary" href="/register/">ابدأ الآن</a>
+            </div>
+            <div class="plan featured">
+                <div class="tag">الأكثر شيوعاً</div>
+                <h3>Standard</h3>
+                <div class="price">$9.99<span>/شهر</span></div>
+                <ul><li>1,000 طلب/ساعة</li><li>التحويل والسجل</li><li>دعم بالبريد</li></ul>
+                <a class="btn btn-primary" href="/register/">اختر</a>
+            </div>
+            <div class="plan">
+                <h3>Premium</h3>
+                <div class="price">$29.99<span>/شهر</span></div>
+                <ul><li>5,000 طلب/ساعة</li><li>محافظ وتحويلات</li><li>دعم ذو أولوية</li></ul>
+                <a class="btn btn-primary" href="/register/">اختر</a>
+            </div>
+            <div class="plan">
+                <h3>Partner</h3>
+                <div class="price">$99.99<span>/شهر</span></div>
+                <ul><li>50,000 طلب/ساعة</li><li>وصول كامل</li><li>دعم مخصص وSLA</li></ul>
+                <a class="btn btn-primary" href="/register/">اختر</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="faq">
+    <div class="container">
+        <h2 class="section-title">الأسئلة الشائعة</h2>
+        <p class="section-sub">كل ما تحتاج معرفته قبل البدء.</p>
+        <div class="faq">
+            <details>
+                <summary>من أين تأتي أسعار الصرف؟</summary>
+                <p>من عدة مصادر رسمية متزامنة تلقائياً: البنك المركزي الأوروبي (أسعار يومية رسمية) إضافةً إلى مزودي السوق لبيانات أحدث. كل سعر يتضمن طابع آخر مزامنة.</p>
+            </details>
+            <details>
+                <summary>كيف أحصل على مفتاح API؟</summary>
+                <p>أنشئ حساباً واختر خطتك. بمجرد تفعيل اشتراكك، يتم إنشاء مفتاح <code>fxp_...</code> تلقائياً. يمكنك بعدها إنشاء مفاتيح إضافية (واحد لكل تطبيق) من لوحة التحكم.</p>
+            </details>
+            <details>
+                <summary>كيف أدمج الواجهة البرمجية في تطبيقي؟</summary>
+                <p>ترويسة واحدة: <code>X-API-KEY: fxp_your_key</code>. تعمل من أي لغة أو إطار — تطبيقات الجوال (Swift, Kotlin, Flutter)، المواقع (JavaScript)، الخوادم (Python, PHP, Node.js). راجع الأمثلة الكاملة في التوثيق.</p>
+            </details>
+            <details>
+                <summary>ماذا يحدث إذا تجاوزت حصتي؟</summary>
+                <p>الطلبات التي تتجاوز حصتك الساعية تحصل على رد <code>429</code> مع وقت إعادة التعيين. يمكنك الترقية لخطة أعلى في أي وقت من لوحة التحكم.</p>
+            </details>
+            <details>
+                <summary>هل بياناتي آمنة؟</summary>
+                <p>مفاتيح API الخاصة بك مخزنة مشفرة (SHA-256) — حتى نحن لا نستطيع قراءتها. كل طلب API مسجل في سجل تدقيق. المفتاح الكامل يُعرض مرة واحدة فقط عند الإنشاء.</p>
+            </details>
+        </div>
+    </div>
+</section>
+
+<section style="background: linear-gradient(135deg, #1e3a8a, #2563eb); color: white; text-align:center;">
+    <div class="container">
+        <h2 class="section-title" style="color:white;">هل أنت مستعد لإضافة أسعار الصرف إلى تطبيقك؟</h2>
+        <p style="opacity:.85; max-width:520px; margin:0 auto 32px;">حساب مجاني في دقيقتين. مفتاح API فوري. توثيق كامل.</p>
+        <a class="btn" style="background:white; color:var(--blue);" href="/register/">أنشئ حسابي المجاني</a>
+    </div>
+</section>
+
+<footer>
+    <div class="container">
+        <p>ForexPlatform API — بيانات أسعار صرف موثوقة لتطبيقاتك</p>
+        <p style="margin-top:8px;"><a href="/docs/">التوثيق</a> · <a href="/register/">التسجيل</a> · <a href="/login/">تسجيل الدخول</a></p>
+    </div>
+</footer>
+
+<script>
+fetch('/api/v1/demo/')
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+        var box = document.getElementById('live-rates');
+        if (!d.success || !d.rates || !d.rates.length) {
+            box.innerHTML = '<p style="color:#94a3b8;">جارٍ مزامنة الأسعار…</p>';
+            return;
+        }
+        box.innerHTML = d.rates.map(function(r) {
+            var t = new Date(r.updated_at);
+            var hh = ('0' + t.getHours()).slice(-2) + ':' + ('0' + t.getMinutes()).slice(-2);
+            return '<div class="rate-card"><div class="pair">' + r.pair + '</div>' +
+                   '<div class="val">' + r.rate + '</div>' +
+                   '<div class="src">آخر تحديث ' + hh + '</div></div>';
+        }).join('');
+    })
+    .catch(function() {
+        document.getElementById('live-rates').innerHTML = '<p style="color:#94a3b8;">الأسعار متاحة عبر الواجهة البرمجية — راجع التوثيق.</p>';
+    });
+</script>
+</body>
+</html>

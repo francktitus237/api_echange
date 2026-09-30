@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Abonnements — ForexPlatform</title>
+    <title>{{ t.sub_title }} — {{ t.brand }}</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root { --blue: #2563eb; --dark: #0f172a; --gray: #64748b; --light: #f8fafc; --border: #e2e8f0; }
@@ -31,7 +31,7 @@
         .plan { background: white; border-radius: 16px; padding: 30px 26px; border: 1.5px solid var(--border); transition: all .2s; position: relative; display: flex; flex-direction: column; }
         .plan:hover { transform: translateY(-4px); box-shadow: 0 16px 36px rgba(15,23,42,.08); border-color: var(--blue); }
         .plan.featured { border-color: var(--blue); }
-        .plan.featured::before { content: 'Populaire'; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--blue); color: white; padding: 4px 16px; border-radius: 999px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
+        .plan.featured::before { content: '{{ t.popular }}'; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--blue); color: white; padding: 4px 16px; border-radius: 999px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
         .plan-name { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
         .plan-price { font-size: 34px; font-weight: 800; color: var(--blue); margin-bottom: 8px; }
         .plan-price span { font-size: 14px; color: var(--gray); font-weight: 400; }
@@ -79,109 +79,108 @@
 
 <div class="page">
     <div class="container">
-        <h1>Choisissez votre abonnement</h1>
-        <p class="subtitle">Taux de change réels, quotas clairs, activation immédiate après validation du paiement.</p>
+        <h1>{{ t.sub_title }}</h1>
+        <p class="subtitle">{{ t.sub_subtitle }}</p>
 
         {% if subscription.status == 'pending' %}
         <div class="alert">
             <div>
-                <strong>Abonnement en attente de paiement</strong>
-                <p>Complétez le paiement pour activer votre compte et générer votre clé API.</p>
+                <strong>{{ t.sub_pending_title }}</strong>
+                <p>{{ t.sub_pending_desc }}</p>
             </div>
-            <a href="/payment/">Procéder au paiement</a>
+            <a href="/payment/">{{ t.sub_pending_cta }}</a>
         </div>
         {% endif %}
 
         <div class="plans">
             <div class="plan">
                 <div class="plan-name">Free</div>
-                <div class="plan-price">0€<span>/mois</span></div>
-                <div class="plan-description">Pour tester et développer</div>
+                <div class="plan-price">0€<span>{{ t.per_month }}</span></div>
+                <div class="plan-description">{{ t.plan_free_desc }}</div>
                 <ul class="plan-features">
-                    <li>100 requêtes/heure</li>
-                    <li>Taux de change réels</li>
-                    <li>Documentation complète</li>
+                    <li>100 {{ t.req_per_hour }}</li>
+                    <li>{{ t.feat_realrates }}</li>
+                    <li>{{ t.feat_fulldocs }}</li>
                 </ul>
                 {% if current_plan == 'free' %}
-                <span class="current-plan">Plan actuel</span>
+                <span class="current-plan">{{ t.current_plan }}</span>
                 {% else %}
-                <button class="plan-button secondary" onclick="selectPlan('free')">Sélectionner</button>
+                <button class="plan-button secondary" onclick="selectPlan('free')">{{ t.btn_select }}</button>
                 {% endif %}
             </div>
 
             <div class="plan featured">
                 <div class="plan-name">Standard</div>
-                <div class="plan-price">9,99€<span>/mois</span></div>
-                <div class="plan-description">Pour les petites entreprises</div>
+                <div class="plan-price">9,99€<span>{{ t.per_month }}</span></div>
+                <div class="plan-description">{{ t.plan_standard_desc }}</div>
                 <ul class="plan-features">
-                    <li>1 000 requêtes/heure</li>
-                    <li>Taux de change réels</li>
-                    <li>Support prioritaire</li>
-                    <li>Historique sur 30 jours</li>
+                    <li>1 000 {{ t.req_per_hour }}</li>
+                    <li>{{ t.feat_realrates }}</li>
+                    <li>{{ t.feat_priority_support }}</li>
+                    <li>{{ t.feat_history30 }}</li>
                 </ul>
                 {% if current_plan == 'standard' %}
-                <span class="current-plan">Plan actuel</span>
+                <span class="current-plan">{{ t.current_plan }}</span>
                 {% else %}
-                <button class="plan-button primary" onclick="selectPlan('standard')">S'abonner</button>
+                <button class="plan-button primary" onclick="selectPlan('standard')">{{ t.btn_subscribe }}</button>
                 {% endif %}
             </div>
 
             <div class="plan">
                 <div class="plan-name">Premium</div>
-                <div class="plan-price">29,99€<span>/mois</span></div>
-                <div class="plan-description">Pour les entreprises en croissance</div>
+                <div class="plan-price">29,99€<span>{{ t.per_month }}</span></div>
+                <div class="plan-description">{{ t.plan_premium_desc }}</div>
                 <ul class="plan-features">
-                    <li>5 000 requêtes/heure</li>
-                    <li>Spread réduit</li>
-                    <li>Support dédié</li>
-                    <li>Historique sur 90 jours</li>
-                    <li>Wallets & transferts</li>
+                    <li>5 000 {{ t.req_per_hour }}</li>
+                    <li>{{ t.feat_reduced_spread }}</li>
+                    <li>{{ t.feat_dedicated }}</li>
+                    <li>{{ t.feat_history90 }}</li>
+                    <li>{{ t.feat_wallets }}</li>
                 </ul>
                 {% if current_plan == 'premium' %}
-                <span class="current-plan">Plan actuel</span>
+                <span class="current-plan">{{ t.current_plan }}</span>
                 {% else %}
-                <button class="plan-button primary" onclick="selectPlan('premium')">S'abonner</button>
+                <button class="plan-button primary" onclick="selectPlan('premium')">{{ t.btn_subscribe }}</button>
                 {% endif %}
             </div>
 
             <div class="plan">
                 <div class="plan-name">Partner</div>
-                <div class="plan-price">99,99€<span>/mois</span></div>
-                <div class="plan-description">Pour les grands partenaires</div>
+                <div class="plan-price">99,99€<span>{{ t.per_month }}</span></div>
+                <div class="plan-description">{{ t.plan_partner_desc }}</div>
                 <ul class="plan-features">
-                    <li>50 000 requêtes/heure</li>
-                    <li>Spread minimal</li>
-                    <li>Support dédié 24/7</li>
-                    <li>Historique illimité</li>
-                    <li>SLA garanti</li>
+                    <li>50 000 {{ t.req_per_hour }}</li>
+                    <li>{{ t.feat_min_spread }}</li>
+                    <li>{{ t.feat_247 }}</li>
+                    <li>{{ t.feat_unlimited }}</li>
+                    <li>{{ t.feat_sla }}</li>
                 </ul>
                 {% if current_plan == 'partner' %}
-                <span class="current-plan">Plan actuel</span>
+                <span class="current-plan">{{ t.current_plan }}</span>
                 {% else %}
-                <button class="plan-button primary" onclick="selectPlan('partner')">S'abonner</button>
+                <button class="plan-button primary" onclick="selectPlan('partner')">{{ t.btn_subscribe }}</button>
                 {% endif %}
             </div>
         </div>
 
         {% if api_key %}
         <div class="key-card">
-            <h2>Votre clé API</h2>
-            <p class="sub">La clé complète s'affiche une seule fois à sa génération dans le dashboard. Seul le préfixe est conservé ici.</p>
+            <h2>{{ t.key_title }}</h2>
+            <p class="sub">{{ t.key_sub }}</p>
             <div class="key-display">
                 <div class="key-box">{{ api_key }}</div>
             </div>
             <div class="usage-steps">
-                <strong>Comment utiliser votre clé :</strong><br>
-                1. Ajoutez le header <code>X-API-KEY: fxp_votre_cle_complete</code> à chaque requête.<br>
-                2. Exemple : <code>curl -H "X-API-KEY: fxp_votre_cle" https://api-forexplatform.sendbid.app/api/v1/rates/USD/EUR/</code><br>
-                3. Gérez vos clés (créer, révoquer) depuis votre <a href="/dashboard/" style="color:var(--blue); font-weight:600;">dashboard</a>.
+                <strong>{{ t.key_howto }}</strong> <code>X-API-KEY: fxp_...</code> {{ t.key_howto_2 }}<br>
+                <code>curl -H "X-API-KEY: fxp_..." https://api-forexplatform.sendbid.app/api/v1/rates/USD/EUR/</code><br>
+                {{ t.key_howto_3 }} <a href="/dashboard/" style="color:var(--blue); font-weight:600;">dashboard</a>.
             </div>
         </div>
         {% else %}
         <div class="key-warning">
-            <h2>Paiement requis</h2>
-            <p>Votre abonnement n'est pas encore actif. Complétez le paiement pour générer votre clé API.</p>
-            <button class="plan-button primary" style="max-width:280px;" onclick="window.location.href='/payment/'">Effectuer le paiement</button>
+            <h2>{{ t.keyreq_title }}</h2>
+            <p>{{ t.keyreq_desc }}</p>
+            <button class="plan-button primary" style="max-width:280px;" onclick="window.location.href='/payment/'">{{ t.keyreq_cta }}</button>
         </div>
         {% endif %}
     </div>
@@ -189,8 +188,8 @@
 
 <footer>
     <div class="container">
-        <p>ForexPlatform API — Données de change fiables pour vos applications</p>
-        <p style="margin-top:8px;"><a href="/">Accueil</a> · <a href="/docs/">Documentation</a> · <a href="/dashboard/">Dashboard</a></p>
+        <p>{{ t.brand }} API — {{ t.footer_tagline }}</p>
+        <p style="margin-top:8px;"><a href="/">{{ t.nav_home }}</a> · <a href="/docs/">{{ t.nav_docs }}</a> · <a href="/dashboard/">{{ t.nav_dashboard }}</a></p>
     </div>
 </footer>
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard — ForexPlatform</title>
+    <title>{{ t.nav_dashboard }} — {{ t.brand }}</title>
     <meta http-equiv="refresh" content="60">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -108,35 +108,35 @@
     <aside class="sidebar">
         <a class="brand" href="/"><span class="brand-mark">FX</span>ForexPlatform</a>
         <nav>
-            <div class="side-section">Espace client</div>
+            <div class="side-section">{{ t.side_client }}</div>
             <a class="side-link active" href="#overview">
                 <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
-                Vue d'ensemble
+                {{ t.side_overview }}
             </a>
             <a class="side-link" href="#api-keys">
                 <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 2l-2 2m-7.6 7.6a5.5 5.5 0 1 1-7.8 7.8 5.5 5.5 0 0 1 7.8-7.8zm0 0L19 4m-4 4l3 3"/></svg>
-                Clés API
+                {{ t.side_keys }}
             </a>
             <a class="side-link" href="#rates">
                 <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg>
-                Taux en direct
+                {{ t.side_rates }}
             </a>
             <a class="side-link" href="#billing">
                 <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
-                Facturation
+                {{ t.side_billing }}
             </a>
-            <div class="side-section">Compte</div>
+            <div class="side-section">{{ t.side_account }}</div>
             <a class="side-link" href="/subscription/">
                 <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2l3 6 6 1-4.5 4.5L18 20l-6-3-6 3 1.5-6.5L3 9l6-1z"/></svg>
-                Abonnement
+                {{ t.side_subscription }}
             </a>
             <a class="side-link" href="/docs/">
                 <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4H6.5A2.5 2.5 0 0 0 4 6.5v13z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/></svg>
-                Documentation
+                {{ t.nav_docs }}
             </a>
             <a class="side-link" href="/">
                 <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12l9-9 9 9M5 10v10a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V10"/></svg>
-                Site public
+                {{ t.side_site }}
             </a>
         </nav>
         <div style="padding:0 16px 12px;">{% include 'lang_select.html' %}</div>
@@ -144,7 +144,7 @@
             <div class="avatar">{{ request.user.username|first|upper }}</div>
             <div>
                 <div class="uname">{{ request.user.username }}</div>
-                <a href="/logout/">{{ t.nav_logout|default:'Déconnexion' }}</a>
+                <a href="/logout/">{{ t.nav_logout }}</a>
             </div>
         </div>
     </aside>
@@ -153,11 +153,11 @@
     <main>
         <div class="topbar" id="overview">
             <div>
-                <h1>Bonjour, {{ request.user.username }}</h1>
-                <div class="sub">Voici l'état de votre compte et de votre consommation API.</div>
+                <h1>{{ t.dash_hello }} {{ request.user.username }}</h1>
+                <div class="sub">{{ t.dash_sub }}</div>
             </div>
             {% if subscription.status != 'active' %}
-            <a class="btn" href="/payment/">Activer mon abonnement</a>
+            <a class="btn" href="/payment/">{{ t.dash_activate }}</a>
             {% endif %}
         </div>
 
@@ -166,29 +166,29 @@
             <div class="stat">
                 <div class="lbl">
                     <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2l3 6 6 1-4.5 4.5L18 20l-6-3-6 3 1.5-6.5L3 9l6-1z"/></svg>
-                    Plan
+                    {{ t.stat_plan }}
                 </div>
                 <div class="num" style="text-transform:capitalize;">{{ subscription.plan }}</div>
                 <div class="foot">
                     <span class="badge {% if subscription.status == 'active' %}badge-active{% elif subscription.status == 'pending' %}badge-pending{% else %}badge-other{% endif %}">{{ subscription.get_status_display }}</span>
-                    {% if subscription.end_date %} · expire {{ subscription.end_date|date:"d/m/Y" }}{% endif %}
+                    {% if subscription.end_date %} · {{ t.expires }} {{ subscription.end_date|date:"d/m/Y" }}{% endif %}
                 </div>
             </div>
             <div class="stat">
                 <div class="lbl">
                     <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 2L3 14h7l-1 8 10-12h-7z"/></svg>
-                    Quota horaire
+                    {{ t.stat_quota }}
                 </div>
                 <div class="num">{% if api_client %}{{ api_client.quota_requests_per_hour }}{% else %}—{% endif %}<small> req/h</small></div>
-                <div class="foot">{% if api_client %}Quota de votre tier {{ api_client.tier }}{% else %}Aucune clé active{% endif %}</div>
+                <div class="foot">{% if api_client %}{{ t.stat_quota_foot }} {{ api_client.tier }}{% else %}{{ t.stat_no_key }}{% endif %}</div>
             </div>
             <div class="stat">
                 <div class="lbl">
                     <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 15l4-6 4 3 5-8"/></svg>
-                    Requêtes totales
+                    {{ t.stat_requests }}
                 </div>
                 <div class="num">{% if api_client %}{{ api_client.total_requests }}{% else %}0{% endif %}</div>
-                <div class="foot">Depuis la création de votre clé</div>
+                <div class="foot">{{ t.stat_since }}</div>
                 {% if api_client %}
                 <div class="bar"><i style="width: {% widthratio api_client.total_requests api_client.quota_requests_per_hour 100 %}%;"></i></div>
                 {% endif %}
@@ -196,21 +196,21 @@
             <div class="stat">
                 <div class="lbl">
                     <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 2l-2 2m-7.6 7.6a5.5 5.5 0 1 1-7.8 7.8 5.5 5.5 0 0 1 7.8-7.8zm0 0L19 4m-4 4l3 3"/></svg>
-                    Clés actives
+                    {{ t.stat_keys }}
                 </div>
                 <div class="num">{{ api_keys|length }}</div>
-                <div class="foot">{% if api_client %}Préfixe : <code>{{ api_client.api_key_prefix }}…</code>{% else %}Générées après activation{% endif %}</div>
+                <div class="foot">{% if api_client %}{{ t.stat_prefix }} <code>{{ api_client.api_key_prefix }}…</code>{% else %}{{ t.stat_gen_after }}{% endif %}</div>
             </div>
         </div>
 
         <!-- ===== New key banner ===== -->
         {% if new_api_key %}
         <div class="key-banner">
-            <h3>Nouvelle clé générée — copiez-la maintenant</h3>
-            <p>Elle ne sera plus jamais affichée en entier. Stockez-la dans un endroit sûr.</p>
+            <h3>{{ t.keybanner_title }}</h3>
+            <p>{{ t.keybanner_desc }}</p>
             <div class="key-row">
                 <div class="key-value" id="new-key">{{ new_api_key }}</div>
-                <button class="btn btn-ghost" onclick="copyKey('new-key', this)">Copier</button>
+                <button class="btn btn-ghost" onclick="copyKey('new-key', this)">{{ t.btn_copy }}</button>
             </div>
         </div>
         {% endif %}
@@ -218,12 +218,12 @@
         <!-- ===== API Keys ===== -->
         <div class="card" id="api-keys">
             <div class="card-head">
-                <h2>Clés API</h2>
+                <h2>{{ t.side_keys }}</h2>
                 <span class="note">Header : <code>X-API-KEY: fxp_...</code></span>
             </div>
             <div class="card-body">
                 <table>
-                    <thead><tr><th>Nom</th><th>Préfixe</th><th>Tier</th><th>Requêtes</th><th>Statut</th><th></th></tr></thead>
+                    <thead><tr><th>{{ t.th_name }}</th><th>{{ t.th_prefix }}</th><th>{{ t.th_tier }}</th><th>{{ t.th_requests }}</th><th>{{ t.th_status }}</th><th></th></tr></thead>
                     <tbody>
                     {% for key in api_keys %}
                         <tr>
@@ -231,20 +231,20 @@
                             <td><code>{{ key.api_key_prefix }}…</code></td>
                             <td style="text-transform:capitalize;">{{ key.tier }}</td>
                             <td>{{ key.total_requests }}</td>
-                            <td><span class="badge {% if key.is_active %}badge-active{% else %}badge-other{% endif %}">{% if key.is_active %}Active{% else %}Révoquée{% endif %}</span></td>
+                            <td><span class="badge {% if key.is_active %}badge-active{% else %}badge-other{% endif %}">{% if key.is_active %}{{ t.key_active }}{% else %}{{ t.key_revoked }}{% endif %}</span></td>
                             <td style="text-align:right;">
                                 {% if key.is_active %}
                                 <form method="post" style="display:inline;">
                                     {% csrf_token %}
                                     <input type="hidden" name="action" value="revoke_key">
                                     <input type="hidden" name="key_id" value="{{ key.pk }}">
-                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Révoquer cette clé ? Les applications qui l\'utilisent perdront l\'accès.');">Révoquer</button>
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('{{ t.revoke_confirm|escapejs }}');">{{ t.btn_revoke }}</button>
                                 </form>
                                 {% endif %}
                             </td>
                         </tr>
                     {% empty %}
-                        <tr><td colspan="6"><div class="empty">Aucune clé API — votre première clé est générée à l'activation de l'abonnement.</div></td></tr>
+                        <tr><td colspan="6"><div class="empty">{{ t.keys_empty }}</div></td></tr>
                     {% endfor %}
                     </tbody>
                 </table>
@@ -252,11 +252,11 @@
                 <form method="post" class="gen-form">
                     {% csrf_token %}
                     <input type="hidden" name="action" value="generate_key">
-                    <input type="text" name="key_name" placeholder="Nom de la clé (ex: App mobile, Site web, Production)">
-                    <button type="submit" class="btn">Générer une clé</button>
+                    <input type="text" name="key_name" placeholder="{{ t.key_name_ph }}">
+                    <button type="submit" class="btn">{{ t.btn_generate }}</button>
                 </form>
                 {% else %}
-                <div class="pad-note">Activez votre abonnement pour générer des clés API supplémentaires.</div>
+                <div class="pad-note">{{ t.keys_inactive_note }}</div>
                 {% endif %}
             </div>
         </div>
@@ -264,12 +264,12 @@
         <!-- ===== Live rates ===== -->
         <div class="card" id="rates">
             <div class="card-head">
-                <h2>Taux de change en direct</h2>
-                <span class="note">Actualisation auto — 60s</span>
+                <h2>{{ t.rates_title }}</h2>
+                <span class="note">{{ t.rates_note }}</span>
             </div>
             <div class="card-body">
                 <table>
-                    <thead><tr><th>Paire</th><th>Taux marché</th><th>Taux appliqué</th><th>Mise à jour</th></tr></thead>
+                    <thead><tr><th>{{ t.th_pair }}</th><th>{{ t.th_market }}</th><th>{{ t.th_applied }}</th><th>{{ t.th_updated }}</th></tr></thead>
                     <tbody>
                     {% for rate in rates %}
                         <tr>
@@ -279,7 +279,7 @@
                             <td style="color:var(--gray);">{{ rate.fetched_at|date:"H:i:s" }}</td>
                         </tr>
                     {% empty %}
-                        <tr><td colspan="4"><div class="empty">Aucun taux synchronisé pour le moment.</div></td></tr>
+                        <tr><td colspan="4"><div class="empty">{{ t.rates_empty }}</div></td></tr>
                     {% endfor %}
                     </tbody>
                 </table>
@@ -288,10 +288,10 @@
 
         <!-- ===== Billing ===== -->
         <div class="card" id="billing">
-            <div class="card-head"><h2>Facturation</h2></div>
+            <div class="card-head"><h2>{{ t.billing_title }}</h2></div>
             <div class="card-body">
                 <table>
-                    <thead><tr><th>Date</th><th>Plan</th><th>Montant</th><th>Méthode</th><th>Statut</th></tr></thead>
+                    <thead><tr><th>{{ t.th_date }}</th><th>{{ t.th_plan }}</th><th>{{ t.th_amount }}</th><th>{{ t.th_method }}</th><th>{{ t.th_status }}</th></tr></thead>
                     <tbody>
                     {% for payment in payments %}
                         <tr>
@@ -302,7 +302,7 @@
                             <td><span class="badge {% if payment.status == 'completed' %}badge-active{% elif payment.status == 'pending' %}badge-pending{% else %}badge-other{% endif %}">{{ payment.get_status_display }}</span></td>
                         </tr>
                     {% empty %}
-                        <tr><td colspan="5"><div class="empty">Aucun paiement pour le moment.</div></td></tr>
+                        <tr><td colspan="5"><div class="empty">{{ t.billing_empty }}</div></td></tr>
                     {% endfor %}
                     </tbody>
                 </table>
@@ -316,7 +316,7 @@ function copyKey(id, btn) {
     var el = document.getElementById(id);
     navigator.clipboard.writeText(el.textContent.trim()).then(function() {
         var old = btn.textContent;
-        btn.textContent = 'Copié !';
+        btn.textContent = '{{ t.copied }}';
         setTimeout(function() { btn.textContent = old; }, 2000);
     });
 }
