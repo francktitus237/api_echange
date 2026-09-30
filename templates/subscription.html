@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ lang|default:'fr' }}" dir="{{ dir|default:'ltr' }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -68,10 +68,11 @@
     <div class="container">
         <a class="logo" href="/"><span class="logo-mark">FX</span>ForexPlatform</a>
         <div class="nav-links">
-            <a href="/">Accueil</a>
-            <a href="/dashboard/">Dashboard</a>
-            <a href="/docs/">Docs</a>
-            <a href="/logout/">Déconnexion</a>
+            <a href="/">{{ t.nav_home|default:'Accueil' }}</a>
+            <a href="/dashboard/">{{ t.nav_dashboard|default:'Dashboard' }}</a>
+            <a href="/docs/">{{ t.nav_docs|default:'Docs' }}</a>
+            <a href="/logout/">{{ t.nav_logout|default:'Déconnexion' }}</a>
+            {% include 'lang_select.html' %}
         </div>
     </div>
 </nav>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ lang|default:'fr' }}" dir="{{ dir|default:'ltr' }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -119,7 +119,7 @@
             <a href="#endpoints">Endpoints</a>
             <a href="#pricing">Tarifs</a>
             <a href="/docs/">Docs</a>
-            <a href="/?lang=en">EN</a>
+            {% include 'lang_select.html' %}
             <a href="/login/">Connexion</a>
             <a class="btn btn-primary btn-sm" href="/register/">Commencer</a>
         </div>

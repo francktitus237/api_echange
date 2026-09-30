@@ -455,7 +455,8 @@ def register_view(request):
         subscription = Subscription.objects.create(user=user, plan='free', status='pending')
 
         from .emails import send_welcome
-        send_welcome(user)
+        from .i18n import get_lang
+        send_welcome(user, lang=get_lang(request))
 
         login(request, user)
         return redirect('/payment/')
@@ -501,6 +502,8 @@ def payment_view(request):
     # upgrade/downgrade flow (a new pending payment switches the plan
     # once approved by an admin).
     if request.method == 'POST':
+        from .i18n import get_lang
+        client_lang = get_lang(request)
         plan_prices = {
             'free': 0,
             'standard': 9.99,
@@ -540,6 +543,8 @@ def payment_view(request):
                     quota_requests_per_hour=APIClient.QUOTA_MAP.get('free', 100),
                 )
                 request.session['new_api_key'] = raw_key
+            from .emails import send_subscription_activated
+            send_subscription_activated(request.user, plan, lang=client_lang)
             return redirect('/dashboard/')
 
         # Créer un paiement en attente
@@ -549,7 +554,8 @@ def payment_view(request):
             amount=plan_prices.get(plan, 0),
             currency='EUR',
             payment_method=payment_method,
-            status='pending'
+            status='pending',
+            language=client_lang,
         )
         
         if payment_method == 'manual':
@@ -662,8 +668,10 @@ def logout_view(request):
 
 
 def home_view(request):
-    lang = request.GET.get('lang', 'fr')
-    return render(request, 'home_en.html' if lang == 'en' else 'home.html')
+    from .i18n import get_lang
+    lang = get_lang(request)
+    # Only FR page exists; EN template serves all other languages for now
+    return render(request, 'home.html' if lang == 'fr' else 'home_en.html')
 
 
 def docs_view(request):

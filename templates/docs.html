@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ lang|default:'fr' }}" dir="{{ dir|default:'ltr' }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -86,7 +86,8 @@
         <a class="logo" href="/"><span class="logo-mark">FX</span>ForexPlatform <span style="color:#94a3b8; font-weight:600; font-size:13px;">Docs</span></a>
         <div class="topnav-links">
             <a href="/api/docs/">Swagger UI</a>
-            <a href="/dashboard/">Dashboard</a>
+            <a href="/dashboard/">{{ t.nav_dashboard|default:'Dashboard' }}</a>
+            {% include 'lang_select.html' %}
             <a class="cta" href="/register/">Obtenir une clé</a>
         </div>
     </div>

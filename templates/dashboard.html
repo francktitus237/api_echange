@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ lang|default:'fr' }}" dir="{{ dir|default:'ltr' }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -139,11 +139,12 @@
                 Site public
             </a>
         </nav>
+        <div style="padding:0 16px 12px;">{% include 'lang_select.html' %}</div>
         <div class="user-box">
             <div class="avatar">{{ request.user.username|first|upper }}</div>
             <div>
                 <div class="uname">{{ request.user.username }}</div>
-                <a href="/logout/">Déconnexion</a>
+                <a href="/logout/">{{ t.nav_logout|default:'Déconnexion' }}</a>
             </div>
         </div>
     </aside>

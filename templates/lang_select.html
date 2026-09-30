@@ -1,0 +1,15 @@
+{# Language selector — include anywhere: {% include 'lang_select.html' %} #}
+<select class="lang-select" onchange="setLang(this.value)" aria-label="Language"
+        style="border:1px solid #e2e8f0;border-radius:8px;padding:6px 9px;font-size:12.5px;background:#fff;cursor:pointer;color:#0f172a;">
+    {% for code, label in langs %}
+    <option value="{{ code }}" {% if lang == code %}selected{% endif %}>{{ label }}</option>
+    {% endfor %}
+</select>
+<script>
+function setLang(l) {
+    document.cookie = 'fxp_lang=' + l + ';path=/;max-age=31536000';
+    var u = new URL(location.href);
+    u.searchParams.set('lang', l);
+    location.href = u.toString();
+}
+</script>

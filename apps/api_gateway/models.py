@@ -140,6 +140,7 @@ class Payment(models.Model):
     currency = models.CharField(max_length=3, default='EUR')
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    language = models.CharField(max_length=5, default='fr', help_text="Langue du client pour les notifications")
     stripe_payment_intent_id = models.CharField(max_length=100, blank=True, null=True)
     paypal_order_id = models.CharField(max_length=100, blank=True, null=True)
     transaction_id = models.CharField(max_length=100, blank=True, null=True)
