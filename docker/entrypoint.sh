@@ -13,7 +13,17 @@ if [ -z "$SECRET_KEY" ]; then
     echo "=== WARNING: SECRET_KEY not set — generated ephemeral key ==="
 fi
 
-if getent hosts db >/dev/null 2>&1; then
+if [ "$USE_SQLITE" = "true" ] || [ "$USE_SQLITE" = "True" ]; then
+    echo "=== SQLite mode forced ==="
+    export USE_SQLITE=True
+    unset DB_HOST DB_NAME DB_USER DB_PASSWORD DB_PORT
+elif [ -n "$DB_HOST" ]; then
+    echo "=== Using external PostgreSQL ($DB_HOST) ==="
+    export USE_SQLITE=False
+    export DB_NAME="${DB_NAME:-forex_db}"
+    export DB_USER="${DB_USER:-postgres}"
+    export DB_PORT="${DB_PORT:-5432}"
+elif getent hosts db >/dev/null 2>&1; then
     echo "=== Using bundled PostgreSQL (db) ==="
     export USE_SQLITE=False
     export DB_NAME=forex_db
@@ -22,7 +32,7 @@ if getent hosts db >/dev/null 2>&1; then
     export DB_HOST=db
     export DB_PORT=5432
 else
-    echo "=== 'db' host not resolvable, falling back to SQLite ==="
+    echo "=== No database configured, falling back to SQLite ==="
     export USE_SQLITE=True
     unset DB_HOST DB_NAME DB_USER DB_PASSWORD DB_PORT
 fi
