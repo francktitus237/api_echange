@@ -4,92 +4,513 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ t.docs_title }} — {{ t.brand }} API</title>
+
+    <!-- Polices modernes Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root { --blue: #2563eb; --dark: #0f172a; --gray: #64748b; --light: #f8fafc; --border: #e2e8f0; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif; background: white; color: var(--dark); }
-        code { font-family: 'Consolas', 'Monaco', monospace; }
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-        /* Top nav */
-        .topnav { background: white; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 200; }
-        .topnav .wrap { max-width: 1280px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 60px; }
-        .logo { font-weight: 800; font-size: 18px; color: var(--blue); text-decoration: none; display: flex; align-items: center; gap: 10px; }
-        .logo-mark { width: 28px; height: 28px; border-radius: 7px; background: linear-gradient(135deg, #2563eb, #3b82f6); display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: 800; }
-        .topnav-links { display: flex; align-items: center; }
-        .topnav-links a { color: var(--gray); text-decoration: none; margin-inline-start: 20px; font-size: 14px; font-weight: 600; }
-        .topnav-links a:hover { color: var(--blue); }
-        .topnav-links .cta { background: var(--blue); color: white; padding: 8px 16px; border-radius: 8px; }
-        .topnav-links .cta:hover { background: #1d4ed8; color: white; }
+        :root {
+            --blue: #2563eb;
+            --blue-d: #1d4ed8;
+            --sky: #3b82f6;
+            --navy: #1e3a8a;
+            --dark: #0f172a;
+            --gray: #64748b;
+            --light: #f8fafc;
+            --line: #e2e8f0;
+            --ease: cubic-bezier(.22, 1, .36, 1);
+            --display: 'Sora', 'Segoe UI', system-ui, sans-serif;
+            --body: 'DM Sans', 'Segoe UI', system-ui, sans-serif;
+            --mono: 'Cascadia Code', 'Consolas', 'Menlo', monospace;
+        }
 
-        .layout { display: flex; max-width: 1280px; margin: 0 auto; }
+        html { scroll-behavior: smooth; scroll-padding-top: 90px; }
 
-        /* Sidebar */
-        .docs-side { width: 250px; flex-shrink: 0; padding: 32px 20px; position: sticky; top: 60px; height: calc(100vh - 60px); overflow-y: auto; border-inline-end: 1px solid var(--border); }
-        .docs-side h4 { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; margin: 22px 0 8px; padding-inline-start: 12px; }
+        body {
+            font-family: var(--body);
+            background: #ffffff;
+            color: var(--dark);
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        code { font-family: var(--mono); }
+
+        /* Top nav moderne en verre dépoli */
+        .topnav {
+            position: fixed;
+            top: 14px;
+            left: 0;
+            right: 0;
+            z-index: 200;
+            transition: top .4s var(--ease);
+        }
+
+        .topnav .wrap {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 16px 0 24px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.82);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            -webkit-backdrop-filter: blur(18px) saturate(1.6);
+            backdrop-filter: blur(18px) saturate(1.6);
+            box-shadow: 0 10px 40px -14px rgba(15, 23, 42, 0.15);
+            transition: background .4s, box-shadow .4s, top .4s;
+        }
+
+        .topnav.scrolled { top: 8px; }
+        .topnav.scrolled .wrap {
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 14px 44px -14px rgba(15, 23, 42, 0.25);
+        }
+
+        .logo {
+            font-family: var(--display);
+            font-weight: 800;
+            font-size: 19px;
+            color: var(--dark);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            letter-spacing: -0.02em;
+        }
+
+        .logo-mark {
+            width: 32px;
+            height: 32px;
+            border-radius: 9px;
+            background: linear-gradient(135deg, #2563eb, #3b82f6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 13px;
+            font-weight: 800;
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
+        }
+
+        .topnav-links {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .topnav-links a:not(.cta) {
+            color: var(--gray);
+            text-decoration: none;
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-size: 14.5px;
+            font-weight: 600;
+            transition: color .25s, background .25s;
+        }
+
+        .topnav-links a:not(.cta):hover {
+            color: var(--blue);
+            background: rgba(37, 99, 235, 0.08);
+        }
+
+        .topnav-links .cta {
+            background: var(--blue);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 14.5px;
+            text-decoration: none;
+            box-shadow: 0 8px 20px -6px rgba(37, 99, 235, 0.5);
+            transition: transform .25s var(--ease), background .25s, box-shadow .25s;
+        }
+
+        .topnav-links .cta:hover {
+            background: var(--blue-d);
+            transform: translateY(-1px);
+            box-shadow: 0 12px 24px -6px rgba(37, 99, 235, 0.6);
+            color: white;
+        }
+
+        .layout {
+            display: flex;
+            max-width: 1280px;
+            margin: 94px auto 0;
+            padding: 0 24px;
+        }
+
+        /* Sidebar raffinée */
+        .docs-side {
+            width: 270px;
+            flex-shrink: 0;
+            padding: 24px 20px 40px 0;
+            position: sticky;
+            top: 94px;
+            height: calc(100vh - 94px);
+            overflow-y: auto;
+            border-inline-end: 1px solid var(--line);
+        }
+
+        .docs-side::-webkit-scrollbar { width: 4px; }
+        .docs-side::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+        .docs-side h4 {
+            font-family: var(--display);
+            font-size: 11.5px;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: #94a3b8;
+            margin: 26px 0 10px;
+            padding-inline-start: 12px;
+        }
+
         .docs-side h4:first-child { margin-top: 0; }
-        .docs-side a { display: block; padding: 7px 12px; border-radius: 7px; color: #475569; text-decoration: none; font-size: 14px; font-weight: 500; border-inline-start: 2px solid transparent; }
-        .docs-side a:hover { background: var(--light); color: var(--blue); }
-        .docs-side a.active { color: var(--blue); background: #eff6ff; }
 
-        /* Content */
-        .docs-content { flex: 1; padding: 40px 56px; max-width: 860px; }
-        .docs-content h1 { font-size: 32px; font-weight: 800; margin-bottom: 12px; }
-        .docs-content .lede { color: var(--gray); font-size: 17px; margin-bottom: 36px; line-height: 1.6; }
-        .docs-content h2 { font-size: 23px; font-weight: 800; margin: 48px 0 14px; padding-top: 24px; border-top: 1px solid var(--border); }
+        .docs-side a {
+            display: block;
+            padding: 9px 14px;
+            border-radius: 9px;
+            color: #475569;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all .2s ease;
+            margin-bottom: 2px;
+        }
+
+        .docs-side a:hover {
+            background: var(--light);
+            color: var(--blue);
+            transform: translateX(2px);
+        }
+
+        .docs-side a.active {
+            color: var(--blue);
+            background: #eff6ff;
+            font-weight: 700;
+        }
+
+        /* Contenu principal de la documentation */
+        .docs-content {
+            flex: 1;
+            padding: 24px 0 80px 56px;
+            max-width: 880px;
+        }
+
+        .docs-content h1 {
+            font-family: var(--display);
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 14px;
+            letter-spacing: -0.03em;
+            color: var(--dark);
+        }
+
+        .docs-content .lede {
+            color: var(--gray);
+            font-size: 18px;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .docs-content h2 {
+            font-family: var(--display);
+            font-size: 24px;
+            font-weight: 800;
+            margin: 56px 0 16px;
+            padding-top: 28px;
+            border-top: 1px solid var(--line);
+            letter-spacing: -0.02em;
+        }
+
         .docs-content h2:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
-        .docs-content h3 { font-size: 17px; font-weight: 700; margin: 28px 0 10px; }
-        .docs-content p { color: #334155; font-size: 15px; line-height: 1.75; margin-bottom: 14px; }
-        .docs-content ul, .docs-content ol { color: #334155; font-size: 15px; line-height: 1.8; margin: 0 0 16px 22px; }
-        .docs-content li code { background: #f1f5f9; padding: 2px 7px; border-radius: 5px; font-size: 13px; }
-        .docs-content p code { background: #f1f5f9; padding: 2px 7px; border-radius: 5px; font-size: 13.5px; color: #0f172a; }
 
-        /* Code blocks — always LTR even on RTL pages */
-        .code { background: var(--dark); border-radius: 12px; margin: 16px 0 22px; overflow: hidden; direction: ltr; }
-        .code-head { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; background: rgba(255,255,255,.05); border-bottom: 1px solid rgba(255,255,255,.08); }
-        .code-head span { font-size: 11.5px; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; }
-        .copy-btn { background: none; border: none; color: #7dd3fc; font-size: 12px; font-weight: 600; cursor: pointer; padding: 4px 8px; border-radius: 6px; }
-        .copy-btn:hover { background: rgba(255,255,255,.1); }
-        .code pre { padding: 18px 20px; overflow-x: auto; font-size: 13.5px; line-height: 1.7; color: #e2e8f0; text-align: left; }
-        .c { color: #64748b; } .k { color: #7dd3fc; } .s { color: #86efac; } .g { color: #fbbf24; } .n { color: #f9a8d4; }
+        .docs-content h3 {
+            font-family: var(--display);
+            font-size: 18px;
+            font-weight: 700;
+            margin: 32px 0 12px;
+            color: var(--dark);
+        }
 
-        /* Endpoint cards */
-        .ep { border: 1px solid var(--border); border-radius: 12px; margin: 14px 0; overflow: hidden; }
-        .ep-head { display: flex; align-items: center; gap: 14px; padding: 15px 18px; background: #fbfdff; }
-        .method { font-weight: 800; font-size: 11.5px; padding: 4px 12px; border-radius: 6px; letter-spacing: .5px; }
+        .docs-content p {
+            color: #334155;
+            font-size: 15.5px;
+            line-height: 1.75;
+            margin-bottom: 16px;
+        }
+
+        .docs-content ul, .docs-content ol {
+            color: #334155;
+            font-size: 15.5px;
+            line-height: 1.8;
+            margin: 0 0 20px 24px;
+        }
+
+        .docs-content li code {
+            background: #f1f5f9;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 13.5px;
+        }
+
+        .docs-content p code {
+            background: #f1f5f9;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 14px;
+            color: var(--navy);
+            font-weight: 600;
+        }
+
+        /* Blocs de Code pro & épurés */
+        .code {
+            background: var(--dark);
+            border-radius: 14px;
+            margin: 20px 0 28px;
+            overflow: hidden;
+            direction: ltr;
+            box-shadow: 0 16px 36px -12px rgba(15, 23, 42, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .code-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 18px;
+            background: rgba(255, 255, 255, 0.04);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .code-head span {
+            font-family: var(--mono);
+            font-size: 12px;
+            color: #94a3b8;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .8px;
+        }
+
+        .copy-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: none;
+            color: #38bdf8;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 5px 12px;
+            border-radius: 8px;
+            transition: background .2s, color .2s;
+        }
+
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.16);
+            color: #ffffff;
+        }
+
+        .code pre {
+            padding: 20px 24px;
+            overflow-x: auto;
+            font-size: 14px;
+            line-height: 1.75;
+            color: #e2e8f0;
+            text-align: left;
+            font-family: var(--mono);
+        }
+
+        .c { color: #64748b; } .k { color: #38bdf8; } .s { color: #4ade80; } .g { color: #fbbf24; } .n { color: #f472b6; }
+
+        /* Cartes d'Endpoints design */
+        .ep {
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            margin: 18px 0;
+            overflow: hidden;
+            background: #ffffff;
+            box-shadow: 0 4px 20px rgba(15, 23, 42, 0.03);
+            transition: box-shadow .25s ease;
+        }
+
+        .ep:hover { box-shadow: 0 8px 30px rgba(15, 23, 42, 0.06); }
+
+        .ep-head {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 16px 20px;
+            background: #f8fafc;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .method {
+            font-family: var(--display);
+            font-weight: 800;
+            font-size: 12px;
+            padding: 5px 12px;
+            border-radius: 7px;
+            letter-spacing: .5px;
+        }
+
         .get { background: #dcfce7; color: #15803d; }
         .post { background: #dbeafe; color: #1d4ed8; }
-        .ep-head .path { font-family: 'Consolas', monospace; font-size: 14.5px; font-weight: 700; direction: ltr; }
-        .ep-head .tag-right { margin-inline-start: auto; font-size: 12px; color: #94a3b8; }
-        .ep-head .tag-key { margin-inline-start: auto; font-size: 12px; color: #5b21b6; }
-        .ep-body { padding: 16px 18px; border-top: 1px solid var(--border); font-size: 14px; color: #475569; }
-        .ep-body table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13.5px; }
-        .ep-body th { text-align: start; padding: 8px 10px; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--gray); border-bottom: 1px solid var(--border); }
-        .ep-body td { padding: 8px 10px; border-bottom: 1px solid #f1f5f9; }
-        .ep-body td code { background: #f1f5f9; padding: 1px 6px; border-radius: 4px; font-size: 12.5px; }
 
-        .callout { border-inline-start: 3px solid var(--blue); background: #eff6ff; border-radius: 0 10px 10px 0; padding: 14px 18px; margin: 18px 0; font-size: 14px; color: #1e40af; }
-        [dir="rtl"] .callout { border-radius: 10px 0 0 10px; }
-        .callout.warn { border-color: #d97706; background: #fffbeb; color: #92400e; }
+        .ep-head .path {
+            font-family: var(--mono);
+            font-size: 14.5px;
+            font-weight: 700;
+            direction: ltr;
+            color: var(--dark);
+        }
 
-        /* Response errors table */
-        .err-table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 14px; }
-        .err-table th { text-align: start; padding: 10px 14px; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--gray); border-bottom: 2px solid var(--border); }
-        .err-table td { padding: 11px 14px; border-bottom: 1px solid #f1f5f9; }
-        .err-table td:first-child { font-family: monospace; font-weight: 700; }
+        .ep-head .tag-right {
+            margin-inline-start: auto;
+            font-size: 12.5px;
+            color: #64748b;
+            font-weight: 500;
+        }
 
+        .ep-head .tag-key {
+            margin-inline-start: auto;
+            font-size: 12.5px;
+            color: #6d28d9;
+            font-weight: 600;
+            background: #f5f3ff;
+            padding: 3px 10px;
+            border-radius: 6px;
+        }
+
+        .ep-body {
+            padding: 18px 20px;
+            font-size: 14.5px;
+            color: #475569;
+        }
+
+        .ep-body table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 14px;
+            font-size: 14px;
+        }
+
+        .ep-body th {
+            text-align: start;
+            padding: 10px 12px;
+            font-size: 11.5px;
+            text-transform: uppercase;
+            letter-spacing: .6px;
+            color: var(--gray);
+            border-bottom: 1px solid var(--line);
+            font-weight: 700;
+        }
+
+        .ep-body td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .ep-body td code { background: #f1f5f9; padding: 2px 6px; border-radius: 5px; font-size: 13px; }
+
+        /* Callouts élégants */
+        .callout {
+            border-inline-start: 4px solid var(--blue);
+            background: #eff6ff;
+            border-radius: 0 12px 12px 0;
+            padding: 16px 20px;
+            margin: 22px 0;
+            font-size: 14.5px;
+            color: #1e40af;
+            box-shadow: 0 4px 16px rgba(37, 99, 235, 0.05);
+        }
+
+        [dir="rtl"] .callout { border-radius: 12px 0 0 12px; }
+
+        .callout.warn {
+            border-color: #d97706;
+            background: #fffbeb;
+            color: #92400e;
+            box-shadow: 0 4px 16px rgba(217, 119, 6, 0.05);
+        }
+
+        /* Tables d'erreurs et de quotas */
+        .err-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 18px 0 28px;
+            font-size: 14.5px;
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--line);
+        }
+
+        .err-table th {
+            text-align: start;
+            padding: 12px 16px;
+            font-size: 11.5px;
+            text-transform: uppercase;
+            letter-spacing: .6px;
+            color: var(--gray);
+            background: #f8fafc;
+            border-bottom: 2px solid var(--line);
+            font-weight: 700;
+        }
+
+        .err-table td {
+            padding: 13px 16px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
+        }
+
+        .err-table tr:last-child td { border-bottom: none; }
+        .err-table td:first-child { font-family: var(--mono); font-weight: 700; }
+
+        /* Style pour les drapeaux des pays dans la section des devises */
+        .currency-flags-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 12px;
+            margin-top: 14px;
+        }
+        .currency-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            background: #f8fafc;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--dark);
+        }
+        .currency-card span { font-size: 20px; }
+
+        /* Responsive Mobile */
         @media (max-width: 900px) {
             .docs-side { display: none; }
-            .docs-content { padding: 28px 20px; }
+            .docs-content { padding: 20px 10px; max-width: 100%; }
+            .topnav .wrap { padding: 0 16px; }
         }
     </style>
 </head>
 <body>
 
-<div class="topnav">
+<div class="topnav" id="navbar">
     <div class="wrap">
-        <a class="logo" href="/"><span class="logo-mark">FX</span>{{ t.brand }} <span style="color:#94a3b8; font-weight:600; font-size:13px;">Docs</span></a>
+        <a class="logo" href="/">
+            <span class="logo-mark">FX</span>
+            <span>{{ t.brand }} <span style="color:#94a3b8; font-weight:600; font-size:13.5px; margin-inline-start: 4px;">Docs</span></span>
+        </a>
         <div class="topnav-links">
-            <a href="/api/docs/">Swagger UI</a>
             <a href="/dashboard/">{{ t.nav_dashboard }}</a>
             {% include 'lang_select.html' %}
             <a class="cta" href="/register/">{{ t.docs_getkey }}</a>
@@ -103,10 +524,12 @@
         <a href="#intro">{{ t.docs_sec_intro }}</a>
         <a href="#auth">{{ t.docs_sec_auth }}</a>
         <a href="#quickstart">{{ t.docs_sec_first }}</a>
+
         <h4>{{ t.docs_nav_guides }}</h4>
         <a href="#rates">{{ t.docs_sec_rates }}</a>
         <a href="#convert">{{ t.docs_sec_convert }}</a>
         <a href="#integration">{{ t.docs_sec_integration }}</a>
+
         <h4>{{ t.docs_nav_ref }}</h4>
         <a href="#endpoints">{{ t.docs_sec_endpoints }}</a>
         <a href="#errors">{{ t.docs_sec_errors }}</a>
@@ -126,7 +549,7 @@
 
         <!-- ===== AUTH ===== -->
         <h2 id="auth">{{ t.docs_sec_auth }}</h2>
-        <p>{{ t.docs_auth_p1 }} <a href="/dashboard/" style="color:var(--blue);">{{ t.nav_dashboard }}</a>.</p>
+        <p>{{ t.docs_auth_p1 }} <a href="/dashboard/" style="color:var(--blue); font-weight:600; text-decoration:none;">{{ t.nav_dashboard }}</a>.</p>
 
         <div class="code">
             <div class="code-head"><span>{{ t.docs_auth_header }}</span><button class="copy-btn" onclick="copyCode(this)">{{ t.docs_copy }}</button></div>
@@ -173,15 +596,11 @@
 
         <div class="ep">
             <div class="ep-head"><span class="method get">GET</span><span class="path">/api/v1/rates/?base={DEVISE}</span></div>
-            <div class="ep-body">
-                {{ t.docs_rates_ep1 }}
-            </div>
+            <div class="ep-body">{{ t.docs_rates_ep1 }}</div>
         </div>
         <div class="ep">
             <div class="ep-head"><span class="method get">GET</span><span class="path">/api/v1/rates/{FROM}/{TO}/</span></div>
-            <div class="ep-body">
-                {{ t.docs_rates_ep2 }}
-            </div>
+            <div class="ep-body">{{ t.docs_rates_ep2 }}</div>
         </div>
 
         <!-- ===== CONVERT ===== -->
@@ -331,8 +750,48 @@ req.setValue(<span class="s">"fxp_your_key"</span>, forHTTPHeaderField: <span cl
 
         <!-- ===== CURRENCIES ===== -->
         <h2 id="currencies">{{ t.docs_curr_title }}</h2>
-        <p dir="ltr">USD, EUR, GBP, JPY, CHF, CAD, AUD, CNY, HKD, SGD, NZD, SEK, NOK, DKK, MXN, BRL, INR, KRW, ZAR, AED, SAR, TRY, RUB, PLN, THB, IDR, MYR, PHP, VND, EGP, NGN, COP, CLP, <strong>XAF, XOF, KMF</strong>.</p>
-        <div class="callout">
+
+        <!-- Grille avec les drapeaux et les devises -->
+        <div class="currency-flags-grid" dir="ltr">
+            <div class="currency-card"><span>🇺🇸</span> USD</div>
+            <div class="currency-card"><span>🇪🇺</span> EUR</div>
+            <div class="currency-card"><span>🇬🇧</span> GBP</div>
+            <div class="currency-card"><span>🇯🇵</span> JPY</div>
+            <div class="currency-card"><span>🇨🇭</span> CHF</div>
+            <div class="currency-card"><span>🇨🇦</span> CAD</div>
+            <div class="currency-card"><span>🇦🇺</span> AUD</div>
+            <div class="currency-card"><span>🇨🇳</span> CNY</div>
+            <div class="currency-card"><span>🇭🇰</span> HKD</div>
+            <div class="currency-card"><span>🇸🇬</span> SGD</div>
+            <div class="currency-card"><span>🇳🇿</span> NZD</div>
+            <div class="currency-card"><span>🇸🇪</span> SEK</div>
+            <div class="currency-card"><span>🇳🇴</span> NOK</div>
+            <div class="currency-card"><span>🇩🇰</span> DKK</div>
+            <div class="currency-card"><span>🇲🇽</span> MXN</div>
+            <div class="currency-card"><span>🇧🇷</span> BRL</div>
+            <div class="currency-card"><span>🇮🇳</span> INR</div>
+            <div class="currency-card"><span>🇰🇷</span> KRW</div>
+            <div class="currency-card"><span>🇿🇦</span> ZAR</div>
+            <div class="currency-card"><span>🇦🇪</span> AED</div>
+            <div class="currency-card"><span>🇸🇦</span> SAR</div>
+            <div class="currency-card"><span>🇹🇷</span> TRY</div>
+            <div class="currency-card"><span>🇷🇺</span> RUB</div>
+            <div class="currency-card"><span>🇵🇱</span> PLN</div>
+            <div class="currency-card"><span>🇹🇭</span> THB</div>
+            <div class="currency-card"><span>🇮🇩</span> IDR</div>
+            <div class="currency-card"><span>🇲🇾</span> MYR</div>
+            <div class="currency-card"><span>🇵🇭</span> PHP</div>
+            <div class="currency-card"><span>🇻🇳</span> VND</div>
+            <div class="currency-card"><span>🇪🇬</span> EGP</div>
+            <div class="currency-card"><span>🇳🇬</span> NGN</div>
+            <div class="currency-card"><span>🇨🇴</span> COP</div>
+            <div class="currency-card"><span>🇨🇱</span> CLP</div>
+            <div class="currency-card"><span>🇨🇲</span> XAF</div>
+            <div class="currency-card"><span>🇨🇮</span> XOF</div>
+            <div class="currency-card"><span>🇰🇲</span> KMF</div>
+        </div>
+
+        <div class="callout" style="margin-top: 20px;">
             {{ t.docs_curr_note }}
         </div>
 
@@ -340,6 +799,15 @@ req.setValue(<span class="s">"fxp_your_key"</span>, forHTTPHeaderField: <span cl
 </div>
 
 <script>
+window.addEventListener('scroll', function() {
+    var nav = document.getElementById('navbar');
+    if (window.scrollY > 30) {
+        nav.classList.add('scrolled');
+    } else {
+        nav.classList.remove('scrolled');
+    }
+});
+
 function copyCode(btn) {
     var pre = btn.closest('.code').querySelector('pre');
     navigator.clipboard.writeText(pre.textContent).then(function() {
@@ -348,12 +816,12 @@ function copyCode(btn) {
         setTimeout(function() { btn.textContent = old; }, 2000);
     });
 }
-// Highlight active section in sidebar
+
 var links = document.querySelectorAll('.docs-side a');
 window.addEventListener('scroll', function() {
     var current = '';
     document.querySelectorAll('.docs-content h2').forEach(function(h) {
-        if (window.scrollY >= h.offsetTop - 120) current = h.id;
+        if (window.scrollY >= h.offsetTop - 140) current = h.id;
     });
     links.forEach(function(a) {
         a.classList.toggle('active', a.getAttribute('href') === '#' + current);

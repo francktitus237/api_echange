@@ -6,56 +6,297 @@
     <title>{{ t.auth_login_title }} — {{ t.brand }}</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif; background: #f8fafc; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .box { background: white; border-radius: 16px; box-shadow: 0 10px 40px rgba(15,23,42,.08); max-width: 420px; width: 100%; padding: 44px 40px; border: 1px solid #e2e8f0; }
-        .brand { display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: 800; font-size: 20px; color: #0f172a; text-decoration: none; margin-bottom: 32px; }
-        .brand-mark { width: 34px; height: 34px; border-radius: 9px; background: linear-gradient(135deg, #2563eb, #3b82f6); display: flex; align-items: center; justify-content: center; color: white; font-size: 15px; font-weight: 800; }
-        h1 { color: #0f172a; margin-bottom: 6px; font-size: 24px; font-weight: 800; text-align: center; }
-        p.subtitle { color: #64748b; margin-bottom: 30px; font-size: 14px; text-align: center; }
-        .form-group { margin-bottom: 18px; }
-        label { display: block; color: #334155; font-weight: 600; margin-bottom: 8px; font-size: 14px; }
-        input { width: 100%; padding: 12px 16px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-size: 15px; transition: border-color .15s, box-shadow .15s; }
-        input:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.12); }
-        button { width: 100%; padding: 13px; background: #2563eb; color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; transition: background .15s; margin-top: 6px; }
-        button:hover { background: #1d4ed8; }
-        .link { text-align: center; margin-top: 22px; color: #64748b; font-size: 14px; }
-        .link a { color: #2563eb; text-decoration: none; font-weight: 600; }
-        .link a:hover { text-decoration: underline; }
-        .error { background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; padding: 12px 14px; border-radius: 10px; margin-bottom: 20px; font-size: 14px; }
-        .divider { height: 1px; background: #e2e8f0; margin: 26px 0 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+            background: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #111827;
+            overflow-x: hidden;
+        }
+
+        /* Conteneur principal en 2 colonnes parfaitement équitables (50% / 50%) */
+        .page-container {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+            background: #ffffff;
+        }
+
+        /* --- Section GAUCHE : Image (Gars devant un ordinateur, style Dribbble) --- */
+        .right-section {
+            flex: 0 0 50%;
+            width: 50%;
+            position: relative;
+            background: #f8fafc;
+            display: flex;
+            align-items: flex-end;
+            padding: 60px;
+            overflow: hidden;
+            order: 1;
+        }
+
+        .bg-image {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1;
+        }
+
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(15, 23, 42, 0.7) 0%, rgba(15, 23, 42, 0) 50%);
+            z-index: 2;
+        }
+
+        .hero-text {
+            position: relative;
+            z-index: 3;
+            color: #ffffff;
+            max-width: 480px;
+        }
+
+        .hero-text h2 {
+            font-size: 32px;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .hero-text p {
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.85);
+            line-height: 1.5;
+        }
+
+        /* --- Section DROITE : Formulaire (Bien centré dans les 50% restants) --- */
+        .left-section {
+            flex: 0 0 50%;
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 40px 60px;
+            position: relative;
+            order: 2;
+            background: #ffffff;
+        }
+
+        /* En-tête du formulaire (logo) tout en haut à gauche de la zone droite */
+        .brand-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 20px;
+            color: #0f172a;
+            text-decoration: none;
+        }
+
+        .brand-mark {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: #2563eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 800;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+        }
+
+        /* La boîte du formulaire parfaitement centrée au milieu verticalement et horizontalement */
+        .box {
+            width: 100%;
+            max-width: 400px;
+            margin: auto;
+        }
+
+        h1 {
+            color: #0f172a;
+            margin-bottom: 8px;
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        p.subtitle {
+            color: #64748b;
+            margin-bottom: 32px;
+            font-size: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #334155;
+            font-weight: 500;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 13px 16px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 15px;
+            background: #ffffff;
+            color: #0f172a;
+            transition: all 0.2s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        button {
+            width: 100%;
+            padding: 13px;
+            background: #2563eb;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 10px;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+        }
+
+        button:hover {
+            background: #1d4ed8;
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
+        }
+
+        .link {
+            text-align: center;
+            margin-top: 24px;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .link a {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .link a:hover {
+            text-decoration: underline;
+        }
+
+        .error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #b91c1c;
+            padding: 12px 14px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .divider {
+            height: 1px;
+            background: #f1f5f9;
+            margin: 24px 0 0;
+        }
+
+        /* Switcher de langue propre en haut à droite */
+        .lang-container {
+            position: relative;
+        }
+
+        /* Footer bas de page formulaire */
+        .form-footer {
+            text-align: center;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        /* Responsive : Empiler sur mobile */
+        @media (max-width: 900px) {
+            .page-container { flex-direction: column; height: auto; }
+            .right-section { display: none; }
+            .left-section { width: 100%; flex: 1; padding: 40px 20px; min-height: 100vh; }
+        }
     </style>
 </head>
 <body>
-    <div style="position:fixed;top:16px;inset-inline-end:20px;z-index:10;">{% include 'lang_select.html' %}</div>
-    <div class="box">
-        <a class="brand" href="/"><span class="brand-mark">FX</span>{{ t.brand }}</a>
-        <h1>{{ t.auth_login_title }}</h1>
-        <p class="subtitle">{{ t.auth_login_sub }}</p>
+    <div class="page-container">
 
-        {% if error %}
-        <div class="error">{{ error }}</div>
-        {% endif %}
-
-        <form method="post">
-            {% csrf_token %}
-            <div class="form-group">
-                <label for="username">{{ t.auth_username }}</label>
-                <input type="text" id="username" name="username" required autofocus autocomplete="username">
+        <!-- --- Colonne de GAUCHE : Image (Style Dribbble / Illustration 3D d'un gars devant son ordinateur) --- -->
+        <div class="right-section">
+            <img class="bg-image" src="https://images.unsplash.com/photo-1531403009284-440f080d1e12?q=80&w=1600&auto=format&fit=crop" alt="Man working on computer illustration style">
+            <div class="overlay"></div>
+            <div class="hero-text">
+                <h2>{{ t.auth_login_title }}</h2>
+                <p>Accédez à votre espace et profitez de toutes les fonctionnalités en un clic.</p>
             </div>
-            <div class="form-group">
-                <label for="password">{{ t.auth_password }}</label>
-                <input type="password" id="password" name="password" required autocomplete="current-password">
-            </div>
-            <button type="submit">{{ t.auth_login_btn }}</button>
-        </form>
+        </div>
 
-        <div class="divider"></div>
-        <div class="link">
-            {{ t.auth_no_account }} <a href="/register/">{{ t.auth_create }}</a>
+        <!-- --- Colonne de DROITE : Formulaire (Parfaitement centré dans les 50%) --- -->
+        <div class="left-section">
+            <div class="brand-container">
+                <a class="brand" href="/"><span class="brand-mark">FX</span>{{ t.brand }}</a>
+                <div class="lang-container">{% include 'lang_select.html' %}</div>
+            </div>
+
+            <div class="box">
+                <h1>{{ t.auth_login_title }}</h1>
+                <p class="subtitle">{{ t.auth_login_sub }}</p>
+
+                {% if error %}
+                <div class="error">{{ error }}</div>
+                {% endif %}
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="username">{{ t.auth_username }}</label>
+                        <input type="text" id="username" name="username" required autofocus autocomplete="username">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">{{ t.auth_password }}</label>
+                        <input type="password" id="password" name="password" required autocomplete="current-password">
+                    </div>
+                    <button type="submit">{{ t.auth_login_btn }}</button>
+                </form>
+
+                <div class="divider"></div>
+                <div class="link">
+                    {{ t.auth_no_account }} <a href="/register/">{{ t.auth_create }}</a>
+                </div>
+                <div class="link" style="margin-top:10px;">
+                    <a href="/">{{ t.auth_back_home }}</a>
+                </div>
+            </div>
+
+            <div class="form-footer">&copy; {{ t.brand }}</div>
         </div>
-        <div class="link" style="margin-top:10px;">
-            <a href="/">{{ t.auth_back_home }}</a>
-        </div>
+
     </div>
 </body>
 </html>
