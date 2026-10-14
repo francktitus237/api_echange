@@ -123,7 +123,6 @@ URL : https://api-forexplatform.sendbid.app/api/v1/webhooks/stripe/
 ```bash
 python -m venv venv && venv\Scripts\activate   # Windows
 pip install -r requirements.txt
-cd forex_platform
 python manage.py migrate
 python manage.py loaddata currencies
 python manage.py seed_forex
@@ -136,20 +135,22 @@ python manage.py runserver
 ## 📁 Structure
 
 ```
+├── manage.py                   # Point d'entrée unique (racine)
 ├── docker-compose.yml          # Stack Dokploy (app, db, redis, rabbitmq, nginx)
 ├── docker/entrypoint.sh        # Orchestration démarrage (migrate, seed, sync, admin)
 ├── nginx/nginx.conf            # Proxy → app:8000
 ├── postman_collection.json     # Tests API prêts à l'emploi
 ├── templates/                  # home FR/EN, docs, dashboard, auth, paiement
-└── forex_platform/
-    ├── apps/api_gateway/       # Auth clés, quotas, audit, paiements, UI
+├── forex_platform/             # settings, urls, wsgi, asgi, celery
+└── apps/
+    ├── api_gateway/            # Auth clés, quotas, audit, paiements, UI
     │   ├── payments.py         # Stripe Checkout + PayPal Orders v2
     │   ├── emails.py           # Notifications (welcome, paiement, manuel)
     │   ├── middleware.py       # Rate limiting + audit log
     │   └── management/commands/setup_admin.py  # auto-superuser
-    ├── apps/forex/             # Providers, taux, conversion, tasks Celery
-    ├── apps/transfers/         # Wallets multi-devises + transferts
-    └── apps/core/              # Devises (fixture 36 devises)
+    ├── forex/                  # Providers, taux, conversion, tasks Celery
+    ├── transfers/              # Wallets multi-devises + transferts
+    └── core/                   # Devises (fixture 36 devises)
 ```
 
 ## 🔒 Sécurité

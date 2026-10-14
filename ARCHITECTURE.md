@@ -227,7 +227,8 @@ Tout mouvement = transaction tracée avec soldes avant/après → auditabilité 
 ## 8. Structure Django
 
 ```
-forex_platform/
+apiexchange/
+├── manage.py              ← point d'entrée unique (racine)
 ├── forex_platform/
 │   ├── settings.py        ← toute la config vient de os.getenv()
 │   └── urls.py            ← pages web + admin + /api/v1/
