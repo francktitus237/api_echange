@@ -46,7 +46,8 @@ class RateLimitMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
 
-    EXEMPT_PATHS = ('/api/v1/health/', '/api/docs/', '/api/schema/', '/api/redoc/')
+    EXEMPT_PATHS = ('/api/v1/health/', '/api/docs/', '/api/schema/', '/api/redoc/',
+                    '/api/v1/docs/', '/api/v1/webhooks/stripe/')
 
     def __call__(self, request):
         if request.path.startswith('/api/') and request.path not in self.EXEMPT_PATHS:
