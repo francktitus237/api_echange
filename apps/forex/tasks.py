@@ -43,8 +43,8 @@ def sync_all_rates(self):
         if pair not in all_rates:
             all_rates[pair] = [(peg, 1.0)]
 
-    spread = float(getattr(settings, 'FOREX_SPREAD_DEFAULT', 0.015))
-    margin = float(getattr(settings, 'FOREX_MARGIN_DEFAULT', 0.005))
+    # Le spread n'est plus cuit dans le taux stocké : business_rate = taux réel.
+    # La tarification par tier est appliquée au moment de la conversion.
     updated = 0
 
     for pair, rate_list in all_rates.items():
@@ -52,13 +52,13 @@ def sync_all_rates(self):
             from_cur, to_cur = pair.split('/')
             total_weight = sum(w for _, w in rate_list)
             market_rate = sum(r * w for r, w in rate_list) / total_weight
-            business_rate = market_rate * (1 + spread + margin)
+            business_rate = market_rate
             ExchangeRate.objects.update_or_create(
                 from_currency_id=from_cur, to_currency_id=to_cur,
                 defaults={
                     'market_rate': round(market_rate, 8),
                     'business_rate': round(business_rate, 8),
-                    'spread': spread, 'margin': margin,
+                    'spread': 0, 'margin': 0,
                     'is_stale': False,
                     'sources': [p[0] for p in rate_list],
                 }

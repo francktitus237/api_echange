@@ -13,11 +13,13 @@ from apps.core.models import Currency
 from .models import ExchangeRate, ForexProvider, RateHistory
 from .services import get_live_rate
 
+# Modèle tarifaire : les abonnés payants convertissent au taux réel (0 %).
+# Seul le tier gratuit paie un spread sur chaque conversion.
 SPREAD_MAP = {
     'free': (Decimal('0.025'), Decimal('0.005')),
-    'standard': (Decimal('0.015'), Decimal('0.003')),
-    'premium': (Decimal('0.008'), Decimal('0.002')),
-    'partner': (Decimal('0.003'), Decimal('0.001')),
+    'standard': (Decimal('0'), Decimal('0')),
+    'premium': (Decimal('0'), Decimal('0')),
+    'partner': (Decimal('0'), Decimal('0')),
 }
 
 
@@ -133,7 +135,7 @@ class ConvertView(APIView):
         amount = params.get('amount')
 
         api_client = request.user.api_clients.filter(is_active=True).first() if request.user.is_authenticated else None
-        tier = api_client.tier if api_client else 'standard'
+        tier = api_client.tier if api_client else 'free'
 
         if not all([from_cur, to_cur, amount]):
             return Response({'success': False, 'error': 'from_currency, to_currency and amount are required.'}, status=400)
@@ -182,19 +184,39 @@ class RateHistoryView(APIView):
         except (TypeError, ValueError):
             return Response({'success': False, 'error': 'days must be an integer.'}, status=400)
 
-        history = RateHistory.objects.filter(
+        history = list(RateHistory.objects.filter(
             from_currency=from_currency, to_currency=to_currency
-        ).order_by('-date')[:days]
+        ).order_by('-date')[:days])
+        source = 'direct'
 
-        data = [{
-            'date': h.date.isoformat(),
-            'open_rate': str(h.open_rate), 'high_rate': str(h.high_rate),
-            'low_rate': str(h.low_rate), 'close_rate': str(h.close_rate),
-            'avg_rate': str(h.avg_rate), 'data_points': h.data_points,
-        } for h in history]
+        # Inverse-pair fallback: pairs like XAF/EUR are never stored (providers
+        # publish EUR/XAF), so invert the stored rows — 1/rate, high/low swap.
+        if not history:
+            history = list(RateHistory.objects.filter(
+                from_currency=to_currency, to_currency=from_currency
+            ).order_by('-date')[:days])
+            source = 'inverse'
+
+        if source == 'inverse':
+            data = [{
+                'date': h.date.isoformat(),
+                'open_rate': str(round(1 / h.open_rate, 8)),
+                'high_rate': str(round(1 / h.low_rate, 8)),
+                'low_rate': str(round(1 / h.high_rate, 8)),
+                'close_rate': str(round(1 / h.close_rate, 8)),
+                'avg_rate': str(round(1 / h.avg_rate, 8)),
+                'data_points': h.data_points,
+            } for h in history]
+        else:
+            data = [{
+                'date': h.date.isoformat(),
+                'open_rate': str(h.open_rate), 'high_rate': str(h.high_rate),
+                'low_rate': str(h.low_rate), 'close_rate': str(h.close_rate),
+                'avg_rate': str(h.avg_rate), 'data_points': h.data_points,
+            } for h in history]
 
         return Response({
-            'success': True, 'from_currency': from_currency,
+            'success': True, 'source': source, 'from_currency': from_currency,
             'to_currency': to_currency, 'count': len(data), 'history': data
         })
 

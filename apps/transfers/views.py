@@ -10,11 +10,13 @@ from django.contrib.auth.models import User
 from apps.forex.models import ExchangeRate
 from .models import Wallet, Transaction, Transfer
 
+# Même règle que les conversions : abonnés payants au taux réel (0 %),
+# tier gratuit avec spread.
 SPREAD_MAP = {
     'free': (Decimal('0.025'), Decimal('0.005')),
-    'standard': (Decimal('0.015'), Decimal('0.003')),
-    'premium': (Decimal('0.008'), Decimal('0.002')),
-    'partner': (Decimal('0.003'), Decimal('0.001')),
+    'standard': (Decimal('0'), Decimal('0')),
+    'premium': (Decimal('0'), Decimal('0')),
+    'partner': (Decimal('0'), Decimal('0')),
 }
 
 
@@ -118,7 +120,7 @@ class TransferCreateView(APIView):
             return Response({'success': False, 'error': f'Rate {source_cur}/{dest_cur} not found.'}, status=404)
 
         api_client = request.user.api_clients.filter(is_active=True).first()
-        tier = api_client.tier if api_client else 'standard'
+        tier = api_client.tier if api_client else 'free'
         spread, margin = SPREAD_MAP.get(tier, SPREAD_MAP['standard'])
         applied_rate = market_rate * (1 + spread + margin)
         dest_amount = amount * applied_rate
