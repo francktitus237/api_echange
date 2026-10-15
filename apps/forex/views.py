@@ -136,6 +136,7 @@ class ConvertView(APIView):
 
         api_client = request.user.api_clients.filter(is_active=True).first() if request.user.is_authenticated else None
         tier = api_client.tier if api_client else 'free'
+        tier = api_client.tier if api_client else 'free'
 
         if not all([from_cur, to_cur, amount]):
             return Response({'success': False, 'error': 'from_currency, to_currency and amount are required.'}, status=400)
@@ -154,9 +155,9 @@ class ConvertView(APIView):
             )
 
         spread, margin = SPREAD_MAP.get(tier, SPREAD_MAP['standard'])
-        business_rate = market_rate * (1 + spread + margin)
+        business_rate = market_rate * (1 - spread - margin)
         converted = amount * business_rate
-        fee = amount * spread * business_rate
+        fee = amount * market_rate * (spread + margin)
 
         return Response({'success': True, 'conversion': {
             'from_currency': from_cur, 'to_currency': to_cur,
@@ -180,9 +181,9 @@ class RateHistoryView(APIView):
         from_currency = from_currency.upper()
         to_currency = to_currency.upper()
         try:
-            days = min(max(int(request.query_params.get('days', 30)), 1), 365)
-        except (TypeError, ValueError):
-            return Response({'success': False, 'error': 'days must be an integer.'}, status=400)
+            days = min(int(request.query_params.get('days', 30)), 365)
+        except (ValueError, TypeError):
+            days = 30
 
         history = list(RateHistory.objects.filter(
             from_currency=from_currency, to_currency=to_currency

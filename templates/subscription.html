@@ -108,13 +108,78 @@
             background: rgba(37, 99, 235, 0.08);
         }
 
+        /* Sélecteur de langue avec drapeaux */
+        .lang { position: relative; margin-left: 4px; }
+
+        .lang-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 7px 10px 7px 9px;
+            font: 700 14px var(--body);
+            color: var(--dark);
+            cursor: pointer;
+            transition: border-color .3s, background .3s;
+        }
+        .lang-btn:hover { border-color: var(--blue); background: #fff; }
+        .lang-btn:focus-visible { outline: 2px solid var(--sky); outline-offset: 3px; }
+        .lang-btn svg { width: 12px; height: 12px; transition: transform .35s var(--ease); }
+        .lang.open .lang-btn svg { transform: rotate(180deg); }
+
+        .flag {
+            width: 22px;
+            height: 16px;
+            border-radius: 3px;
+            object-fit: cover;
+            flex-shrink: 0;
+            box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.14);
+        }
+
+        .lang-menu {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            min-width: 176px;
+            list-style: none;
+            padding: 6px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.97);
+            border: 1px solid var(--line);
+            box-shadow: 0 24px 50px -20px rgba(15, 23, 42, 0.5);
+            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(16px);
+            opacity: 0;
+            transform: translateY(-6px) scale(.98);
+            transform-origin: top right;
+            pointer-events: none;
+            transition: opacity .3s var(--ease), transform .3s var(--ease);
+        }
+        .lang.open .lang-menu { opacity: 1; transform: none; pointer-events: auto; }
+
+        .nav-links .lang-menu a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0;
+            padding: 9px 12px;
+            border-radius: 10px;
+            color: var(--dark);
+            font-size: 14.5px;
+            font-weight: 500;
+        }
+        .nav-links .lang-menu a:hover { background: rgba(37, 99, 235, 0.09); color: var(--blue); }
+        .nav-links .lang-menu a[aria-current="true"] { background: rgba(37, 99, 235, 0.12); color: var(--blue); font-weight: 700; }
+
         .page { padding: 120px 0 80px; }
 
         h1 {
             font-family: var(--display);
             text-align: center;
             margin-bottom: 10px;
-            font-size: 38px;
+            font-size: clamp(28px, 6.4vw, 38px);
             font-weight: 800;
             letter-spacing: -0.03em;
         }
@@ -160,7 +225,7 @@
         /* Grille des plans moderne */
         .plans {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
             gap: 24px;
             margin-bottom: 48px;
         }
@@ -338,7 +403,7 @@
 
         .key-box {
             flex: 1;
-            min-width: 240px;
+            min-width: min(240px, 100%);
             background: var(--dark);
             color: #7dd3fc;
             padding: 16px 20px;
@@ -367,6 +432,8 @@
             font-size: 13.5px;
             color: var(--navy);
             font-weight: 600;
+            overflow-wrap: anywhere;
+            word-break: break-word;
         }
 
         .key-warning {
@@ -404,9 +471,92 @@
         footer a { color: #93c5fd; text-decoration: none; transition: color .2s; }
         footer a:hover { color: #ffffff; }
 
+        /* Arabe / RTL : menu de langue et coches des offres */
+        [dir="rtl"] .lang { margin-left: 0; margin-right: 4px; }
+        [dir="rtl"] .lang-menu { right: auto; left: 0; transform-origin: top left; }
+        [dir="rtl"] .plan-features li::before { margin-right: 0; margin-left: 12px; }
+
+        /* Bouton burger (visible sur mobile uniquement) */
+        .burger {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            flex-shrink: 0;
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            color: var(--dark);
+            cursor: pointer;
+            transition: border-color .3s, background .3s;
+        }
+        .burger:hover { border-color: var(--blue); }
+        .burger:focus-visible { outline: 2px solid var(--sky); outline-offset: 3px; }
+
+        /* Tablette et mobile : menu déroulant */
+        @media (max-width: 900px) {
+            nav { top: 10px; left: 10px; right: 10px; }
+            nav .container { height: 58px; padding: 0 8px 0 16px; }
+            .burger { display: inline-flex; }
+
+            .nav-links {
+                position: absolute;
+                top: 68px;
+                left: 0;
+                right: 0;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 2px;
+                padding: 12px;
+                border-radius: 20px;
+                background: rgba(255, 255, 255, 0.96);
+                border: 1px solid var(--line);
+                box-shadow: 0 24px 50px -20px rgba(15, 23, 42, 0.5);
+                -webkit-backdrop-filter: blur(20px);
+                backdrop-filter: blur(20px);
+                opacity: 0;
+                transform: translateY(-10px);
+                pointer-events: none;
+                transition: opacity .35s var(--ease), transform .35s var(--ease);
+            }
+            .nav-links.open { opacity: 1; transform: none; pointer-events: auto; }
+            .nav-links a:not(.btn) { padding: 12px 14px; font-size: 15px; }
+
+            .lang, [dir="rtl"] .lang { margin: 6px 0 0; }
+            .lang-btn { width: 100%; justify-content: space-between; padding: 11px 14px; }
+            .lang-menu {
+                position: static;
+                display: none;
+                opacity: 1;
+                transform: none;
+                pointer-events: auto;
+                box-shadow: none;
+                margin-top: 6px;
+                background: var(--light);
+            }
+            .lang.open .lang-menu { display: block; }
+        }
+
         @media (max-width: 820px) {
-            .page { padding: 90px 0 60px; }
+            .page { padding: 96px 0 60px; }
+            p.subtitle { margin-bottom: 32px; font-size: 16px; }
+            .plans { gap: 18px; margin-bottom: 36px; }
+            .plan { padding: 30px 24px; }
             .key-card, .key-warning { padding: 24px 20px; }
+            .key-card h2, .key-warning h2 { font-size: 20px; }
+            .usage-steps { padding: 18px; line-height: 1.9; }
+        }
+
+        @media (max-width: 520px) {
+            .container { padding: 0 16px; }
+            nav .container { padding: 0 8px 0 14px; }
+            .logo { font-size: 17px; }
+            .alert { padding: 18px; }
+            .alert a { width: 100%; text-align: center; white-space: normal; }
+            .key-box { font-size: 13px; padding: 14px 16px; }
+            .key-warning .plan-button { max-width: 100% !important; }
+            footer { padding: 36px 0; }
         }
     </style>
 </head>
@@ -418,12 +568,29 @@
             <span class="logo-mark">FX</span>
             <span>Forex<b>Platform</b></span>
         </a>
-        <div class="nav-links">
+        <button class="burger" id="burger" type="button" aria-label="{{ t.nav_menu|default:'Menu' }}" aria-expanded="false" aria-controls="links">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+        <div class="nav-links" id="links">
             <a href="/">{{ t.nav_home|default:'Accueil' }}</a>
             <a href="/dashboard/">{{ t.nav_dashboard|default:'Dashboard' }}</a>
             <a href="/docs/">{{ t.nav_docs|default:'Docs' }}</a>
             <a href="/logout/">{{ t.nav_logout|default:'Déconnexion' }}</a>
-            {% include 'lang_select.html' %}
+
+            <!-- Sélecteur de langue avec drapeaux (remplace lang_select.html) -->
+            <div class="lang" id="lang">
+                <button class="lang-btn" id="lang-btn" type="button" aria-haspopup="true" aria-expanded="false" aria-label="Langue / Language">
+                    <img class="flag" src="https://flagcdn.com/w40/fr.png" srcset="https://flagcdn.com/w80/fr.png 2x" width="22" height="16" alt="">
+                    <span>FR</span>
+                    <svg viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m1 1 5 5 5-5"/></svg>
+                </button>
+                <ul class="lang-menu" id="lang-menu">
+                    <li><a href="?lang=fr" data-code="fr" hreflang="fr"><img class="flag" src="https://flagcdn.com/w40/fr.png" srcset="https://flagcdn.com/w80/fr.png 2x" width="22" height="16" alt="">Français</a></li>
+                    <li><a href="?lang=en" data-code="en" hreflang="en"><img class="flag" src="https://flagcdn.com/w40/gb.png" srcset="https://flagcdn.com/w80/gb.png 2x" width="22" height="16" alt="">English</a></li>
+                    <li><a href="?lang=es" data-code="es" hreflang="es"><img class="flag" src="https://flagcdn.com/w40/es.png" srcset="https://flagcdn.com/w80/es.png 2x" width="22" height="16" alt="">Español</a></li>
+                    <li><a href="?lang=ar" data-code="ar" hreflang="ar"><img class="flag" src="https://flagcdn.com/w40/sa.png" srcset="https://flagcdn.com/w80/sa.png 2x" width="22" height="16" alt="">العربية</a></li>
+                </ul>
+            </div>
         </div>
     </div>
 </nav>
@@ -548,6 +715,51 @@
     function selectPlan(plan) {
         window.location.href = '/payment/?plan=' + plan;
     }
+
+    /* Menu mobile */
+    (function () {
+        var burger = document.getElementById('burger'), links = document.getElementById('links');
+        if (!burger || !links) return;
+        function setOpen(open) {
+            links.classList.toggle('open', open);
+            burger.setAttribute('aria-expanded', open);
+        }
+        burger.addEventListener('click', function (e) { e.stopPropagation(); setOpen(!links.classList.contains('open')); });
+        links.addEventListener('click', function (e) { if (e.target.closest('a')) setOpen(false); });
+        document.addEventListener('click', function (e) { if (!links.contains(e.target) && !burger.contains(e.target)) setOpen(false); });
+        document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setOpen(false); });
+        window.addEventListener('resize', function () { if (window.innerWidth > 900) setOpen(false); });
+    })();
+
+    /* Sélecteur de langue : affiche le drapeau de la langue courante et gère l'ouverture du menu */
+    (function () {
+        var lang = document.getElementById('lang'), btn = document.getElementById('lang-btn');
+        if (!lang || !btn) return;
+
+        var cur = (document.documentElement.lang || 'fr').slice(0, 2).toLowerCase();
+        var links = [].slice.call(lang.querySelectorAll('.lang-menu a'));
+        var mine = links.filter(function (a) { return a.dataset.code === cur; })[0] || links[0];
+
+        links.forEach(function (a) { a.setAttribute('aria-current', a === mine); });
+
+        var src = mine.querySelector('img'), img = btn.querySelector('img');
+        img.src = src.src;
+        img.srcset = src.srcset;
+        btn.querySelector('span').textContent = mine.dataset.code.toUpperCase();
+
+        function close() {
+            lang.classList.remove('open');
+            btn.setAttribute('aria-expanded', 'false');
+        }
+
+        btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var open = lang.classList.toggle('open');
+            btn.setAttribute('aria-expanded', open);
+        });
+        document.addEventListener('click', function (e) { if (!lang.contains(e.target)) close(); });
+        document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+    })();
 </script>
 </body>
 </html>

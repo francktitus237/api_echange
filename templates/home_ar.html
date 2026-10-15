@@ -788,9 +788,10 @@ r = requests.get(<span class="s">"https://api-forexplatform.sendbid.app/api/v1/r
 
   /* Sélecteur de langue : ajoutez une ligne par langue prise en charge.
      code = valeur du paramètre ?lang=  |  flag = code pays du drapeau (ISO 3166, ex. gb, sa, es) */
-  var LANGS = [
+   var LANGS = [
     { code: 'fr', label: 'Français', flag: 'fr' },
     { code: 'en', label: 'English',  flag: 'gb' },
+    { code: 'es', label: 'Español',  flag: 'es' },
     { code: 'ar', label: 'العربية', flag: 'sa' }
   ];
   var lang = document.getElementById('lang'), langBtn = document.getElementById('lang-btn');
