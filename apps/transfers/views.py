@@ -102,11 +102,11 @@ class TransferCreateView(APIView):
             return Response({'success': False, 'error': f'Rate {source_cur}/{dest_cur} not found.'}, status=404)
 
         api_client = request.user.api_clients.filter(is_active=True).first()
-        tier = api_client.tier if api_client else 'standard'
+        tier = api_client.tier if api_client else 'free'
         spread, margin = SPREAD_MAP.get(tier, SPREAD_MAP['standard'])
-        applied_rate = market_rate * (1 + spread + margin)
+        applied_rate = market_rate * (1 - spread - margin)
         dest_amount = amount * applied_rate
-        fee = amount * spread * applied_rate
+        fee = amount * market_rate * (spread + margin)
 
         try:
             sender_wallet = Wallet.objects.get(user=request.user, currency_id=source_cur, is_active=True)
@@ -146,7 +146,7 @@ class TransferCreateView(APIView):
                 sender_wallet=sender_wallet, recipient_wallet=recipient_wallet,
                 source_amount=amount, source_currency_id=source_cur,
                 destination_amount=dest_amount, destination_currency_id=dest_cur,
-                market_rate=rate_obj.market_rate, applied_rate=applied_rate,
+                market_rate=market_rate, applied_rate=applied_rate,
                 spread_pct=spread, fee_amount=fee, tier=tier,
                 status='completed', sender_transaction=sender_tx,
                 recipient_transaction=recip_tx, completed_at=now(),
@@ -158,7 +158,7 @@ class TransferCreateView(APIView):
             'source_currency': source_cur,
             'destination_amount': str(round(dest_amount, 4)),
             'destination_currency': dest_cur,
-            'market_rate': str(rate_obj.market_rate),
+            'market_rate': str(market_rate),
             'applied_rate': str(round(applied_rate, 8)),
             'spread_pct': str(spread),
             'fee_amount': str(round(fee, 4)),

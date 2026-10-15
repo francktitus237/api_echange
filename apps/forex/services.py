@@ -133,13 +133,13 @@ def _fetch_from_db(from_currency, to_currency):
 
     # 3) Cross-rate via a shared anchor (USD/GBP = EUR/GBP / EUR/USD)
     try:
-        to_rate = ExchangeRate.objects.get(to_currency_id=to_currency)
-        anchor = to_rate.from_currency_id
-        from_rate = ExchangeRate.objects.get(
-            from_currency_id=anchor, to_currency_id=from_currency
-        )
-        if from_rate.market_rate:
-            return to_rate.market_rate / from_rate.market_rate
+        for to_rate in ExchangeRate.objects.filter(to_currency_id=to_currency):
+            anchor = to_rate.from_currency_id
+            from_rate = ExchangeRate.objects.filter(
+                from_currency_id=anchor, to_currency_id=from_currency
+            ).first()
+            if from_rate and from_rate.market_rate and to_rate.market_rate:
+                return to_rate.market_rate / from_rate.market_rate
     except Exception:
         pass
 

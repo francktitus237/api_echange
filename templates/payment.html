@@ -94,19 +94,6 @@
             gap: 12px;
         }
 
-        .lang-select {
-            border: 1px solid var(--line);
-            border-radius: 10px;
-            padding: 8px 12px;
-            font-size: 13.5px;
-            font-weight: 600;
-            color: var(--ink);
-            background: #fff;
-            cursor: pointer;
-            transition: border-color .3s;
-        }
-        .lang-select:focus { outline: none; border-color: var(--primary); }
-
         .ghost-link {
             color: var(--muted);
             text-decoration: none;
@@ -118,6 +105,93 @@
         }
         .ghost-link:hover { color: var(--primary); background: rgba(37, 99, 235, 0.08); }
 
+        /* ---------- Sélecteur de langue avec drapeaux ---------- */
+        .lang { position: relative; }
+
+        .lang-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 7px 10px 7px 9px;
+            font: 700 14px var(--body);
+            color: var(--ink);
+            cursor: pointer;
+            transition: border-color .3s, background .3s;
+        }
+        .lang-btn:hover { border-color: var(--primary); background: #fff; }
+        .lang-btn svg { width: 12px; height: 12px; transition: transform .35s var(--ease); }
+        .lang.open .lang-btn svg { transform: rotate(180deg); }
+
+        .flag {
+            width: 22px;
+            height: 16px;
+            border-radius: 3px;
+            object-fit: cover;
+            flex-shrink: 0;
+            box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.14);
+        }
+
+        .lang-menu {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            min-width: 176px;
+            list-style: none;
+            padding: 6px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.97);
+            border: 1px solid var(--line);
+            box-shadow: 0 24px 50px -20px rgba(15, 23, 42, 0.5);
+            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(16px);
+            opacity: 0;
+            transform: translateY(-6px) scale(.98);
+            transform-origin: top right;
+            pointer-events: none;
+            transition: opacity .3s var(--ease), transform .3s var(--ease);
+        }
+        .lang.open .lang-menu { opacity: 1; transform: none; pointer-events: auto; }
+
+        .lang-menu a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 12px;
+            border-radius: 10px;
+            color: var(--ink);
+            text-decoration: none;
+            font-size: 14.5px;
+            font-weight: 500;
+            transition: background .25s, color .25s;
+        }
+        .lang-menu a:hover { background: rgba(37, 99, 235, 0.09); color: var(--primary); }
+        .lang-menu a[aria-current="true"] { background: rgba(37, 99, 235, 0.12); color: var(--primary); font-weight: 700; }
+
+        /* Bouton burger (mobile) */
+        .burger {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            flex-shrink: 0;
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            color: var(--ink);
+            cursor: pointer;
+            transition: border-color .3s;
+        }
+        .burger:hover { border-color: var(--primary); }
+
+        .lang-btn:focus-visible, .burger:focus-visible, .lang-menu a:focus-visible, .ghost-link:focus-visible {
+            outline: 2px solid var(--sky);
+            outline-offset: 3px;
+        }
+
         /* ---------- Layout ---------- */
         .page {
             max-width: 1160px;
@@ -127,9 +201,10 @@
 
         .page h1 {
             font-family: var(--display);
-            font-size: 32px;
+            font-size: clamp(26px, 6vw, 32px);
             font-weight: 800;
             letter-spacing: -0.03em;
+            line-height: 1.2;
         }
 
         .page .subtitle {
@@ -146,8 +221,11 @@
             align-items: start;
         }
 
+        .grid > * { min-width: 0; }
+
         @media (max-width: 900px) {
-            .grid { grid-template-columns: 1fr; }
+            .grid { grid-template-columns: 1fr; gap: 24px; }
+            .summary { position: static; }
         }
 
         .step-label {
@@ -256,6 +334,7 @@
             font-family: var(--display);
             font-weight: 800;
             font-size: 17px;
+            padding-inline-end: 30px;
         }
 
         .plan-desc {
@@ -304,6 +383,8 @@
             cursor: pointer;
             transition: transform .3s var(--ease), border-color .3s, box-shadow .3s, background .3s;
         }
+
+        .method > div:not(.icon) { min-width: 0; }
 
         .method:hover {
             border-color: #93c5fd;
@@ -377,6 +458,7 @@
             color: #166534;
             margin-bottom: 24px;
             display: none;
+            overflow-wrap: anywhere;
             animation: fadeIn .4s var(--ease);
         }
 
@@ -408,6 +490,7 @@
         .srow {
             display: flex;
             justify-content: space-between;
+            gap: 12px;
             padding: 10px 0;
             font-size: 14px;
             color: var(--muted);
@@ -434,6 +517,7 @@
             color: #fff;
             font-size: 15px;
             font-weight: 700;
+            font-family: inherit;
             cursor: pointer;
             box-shadow: 0 10px 26px -10px rgba(37, 99, 235, 0.7);
             transition: transform .3s var(--ease), box-shadow .3s var(--ease), background .3s;
@@ -473,6 +557,63 @@
         /* ---------- RTL polish ---------- */
         [dir="rtl"] body { font-family: var(--body); }
         [dir="rtl"] .plan .badge { letter-spacing: 0; }
+        [dir="rtl"] .lang-menu { right: auto; left: 0; transform-origin: top left; }
+
+        /* ---------- Responsive ---------- */
+        @media (max-width: 760px) {
+            .topbar { top: 10px; left: 10px; right: 10px; }
+            .topbar-in { height: 58px; padding: 0 8px 0 14px; }
+            .burger { display: inline-flex; }
+
+            .topbar-right {
+                position: absolute;
+                top: 68px;
+                left: 0;
+                right: 0;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 6px;
+                padding: 12px;
+                border-radius: 20px;
+                background: rgba(255, 255, 255, 0.96);
+                border: 1px solid var(--line);
+                box-shadow: 0 24px 50px -20px rgba(15, 23, 42, 0.5);
+                -webkit-backdrop-filter: blur(20px);
+                backdrop-filter: blur(20px);
+                opacity: 0;
+                transform: translateY(-10px);
+                pointer-events: none;
+                transition: opacity .35s var(--ease), transform .35s var(--ease);
+            }
+            .topbar-right.open { opacity: 1; transform: none; pointer-events: auto; }
+
+            .ghost-link { order: -1; padding: 12px 14px; font-size: 15px; }
+            .lang-btn { width: 100%; justify-content: space-between; padding: 11px 14px; }
+            .lang-menu,
+            [dir="rtl"] .lang-menu {
+                position: static;
+                display: none;
+                opacity: 1;
+                transform: none;
+                pointer-events: auto;
+                box-shadow: none;
+                margin-top: 6px;
+                background: var(--bg);
+            }
+            .lang.open .lang-menu { display: block; }
+        }
+
+        @media (max-width: 600px) {
+            .page { margin: 96px auto 40px; padding: 0 16px; }
+            .page .subtitle { font-size: 15px; }
+            .grid { margin-top: 24px; }
+            .plans { margin-bottom: 26px; }
+            .plan { padding: 20px; }
+            .method { padding: 14px 16px; gap: 12px; }
+            .method .icon { width: 42px; height: 42px; }
+            .summary { padding: 22px 18px; }
+            .brand { font-size: 17px; }
+        }
     </style>
 </head>
 <body>
@@ -482,12 +623,25 @@
                 <span class="brand-mark">FX</span>
                 <span>Forex<b>Platform</b></span>
             </a>
-            <div class="topbar-right">
-                <select class="lang-select" onchange="setLang(this.value)" aria-label="Language">
-                    {% for code, label in langs %}
-                    <option value="{{ code }}" {% if lang == code %}selected{% endif %}>{{ label }}</option>
-                    {% endfor %}
-                </select>
+
+            <button class="burger" id="burger" type="button" aria-label="{{ t.nav_menu|default:'Menu' }}" aria-expanded="false" aria-controls="topbar-right">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+            </button>
+
+            <div class="topbar-right" id="topbar-right">
+                <!-- Sélecteur de langue avec drapeaux (liste fournie par Django : langs) -->
+                <div class="lang" id="lang">
+                    <button class="lang-btn" id="lang-btn" type="button" aria-haspopup="true" aria-expanded="false" aria-label="Language">
+                        <img class="flag" id="lang-flag" alt="" width="22" height="16">
+                        <span>{{ lang|slice:":2"|upper }}</span>
+                        <svg viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m1 1 5 5 5-5"/></svg>
+                    </button>
+                    <ul class="lang-menu">
+                        {% for code, label in langs %}
+                        <li><a href="?lang={{ code }}" data-code="{{ code }}" hreflang="{{ code }}"{% if lang == code %} aria-current="true"{% endif %}><img class="flag" data-lang="{{ code }}" alt="" width="22" height="16">{{ label }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
                 <a class="ghost-link" href="/dashboard/">{{ t.nav_dashboard }}</a>
             </div>
         </div>
@@ -655,6 +809,56 @@
         const start = document.querySelector(`.plan[data-plan="${urlPlan}"]`) || document.querySelector('.plan[data-plan="free"]');
         selectPlan(start);
         selectMethod(document.querySelector('.method[data-method="stripe"]'));
+
+        /* ---------- Menu mobile ---------- */
+        (function () {
+            const burger = document.getElementById('burger'), panel = document.getElementById('topbar-right');
+            if (!burger || !panel) return;
+            const setOpen = (open) => {
+                panel.classList.toggle('open', open);
+                burger.setAttribute('aria-expanded', open);
+            };
+            burger.addEventListener('click', (e) => { e.stopPropagation(); setOpen(!panel.classList.contains('open')); });
+            document.addEventListener('click', (e) => { if (!panel.contains(e.target) && !burger.contains(e.target)) setOpen(false); });
+            document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setOpen(false); });
+            window.addEventListener('resize', () => { if (window.innerWidth > 760) setOpen(false); });
+        })();
+
+        /* ---------- Sélecteur de langue avec drapeaux ----------
+           Code de langue -> code pays du drapeau (ISO 3166). Ajoutez une ligne si une langue manque. */
+        (function () {
+            const FLAGS = {
+                fr: 'fr', en: 'gb', es: 'es', ar: 'sa', de: 'de', pt: 'pt', it: 'it', nl: 'nl',
+                ru: 'ru', tr: 'tr', zh: 'cn', ja: 'jp', ko: 'kr', hi: 'in', sw: 'tz', pl: 'pl'
+            };
+            const lang = document.getElementById('lang'), btn = document.getElementById('lang-btn');
+            if (!lang || !btn) return;
+
+            const flagUrl = (code, w) => 'https://flagcdn.com/w' + w + '/' + (FLAGS[code] || code).toLowerCase() + '.png';
+            const setFlag = (img, code) => {
+                img.src = flagUrl(code, 40);
+                img.srcset = flagUrl(code, 80) + ' 2x';
+            };
+
+            lang.querySelectorAll('img.flag[data-lang]').forEach((img) => setFlag(img, img.dataset.lang));
+
+            const cur = (document.documentElement.lang || 'fr').slice(0, 2).toLowerCase();
+            setFlag(document.getElementById('lang-flag'), cur);
+
+            /* Conserve le comportement d'origine : cookie + paramètre ?lang= */
+            lang.querySelectorAll('.lang-menu a').forEach((a) => {
+                a.addEventListener('click', (e) => { e.preventDefault(); setLang(a.dataset.code); });
+            });
+
+            const close = () => { lang.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); };
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const open = lang.classList.toggle('open');
+                btn.setAttribute('aria-expanded', open);
+            });
+            document.addEventListener('click', (e) => { if (!lang.contains(e.target)) close(); });
+            document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+        })();
     </script>
 </body>
 </html>
