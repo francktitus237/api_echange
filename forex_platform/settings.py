@@ -197,6 +197,18 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 20,
 }
 
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'ForexPlatform API',
+    'DESCRIPTION': (
+        'API de change en temps réel. Authentifiez-vous avec le header '
+        '`X-API-KEY: fxp_...` (bouton Authorize → ApiKeyAuth) ou un token JWT '
+        '(`Bearer`, obtenu via /api/v1/auth/token/).'
+    ),
+    'VERSION': '1.0.0',
+    'SERVERS': [{'url': os.getenv('SITE_URL', 'http://localhost:8000')}],
+    'COMPONENT_SPLIT_REQUEST': True,
+}
+
 # JWT Configuration
 from datetime import timedelta
 

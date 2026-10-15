@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from apps.api_gateway.authentication import APIKeyAuthentication
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from drf_spectacular.utils import OpenApiParameter, OpenApiTypes, extend_schema
 
 from apps.core.models import Currency
 from .models import ExchangeRate, ForexProvider, RateHistory
@@ -104,14 +105,32 @@ class RatePairView(APIView):
         }})
 
 
+CONVERT_PARAMS = [
+    OpenApiParameter('from_currency', OpenApiTypes.STR, OpenApiParameter.QUERY,
+                     description='Devise source (ex : EUR)', required=True),
+    OpenApiParameter('to_currency', OpenApiTypes.STR, OpenApiParameter.QUERY,
+                     description='Devise cible (ex : USD)', required=True),
+    OpenApiParameter('amount', OpenApiTypes.NUMBER, OpenApiParameter.QUERY,
+                     description='Montant à convertir (ex : 100)', required=True),
+]
+
+
 class ConvertView(APIView):
+    """Convertit un montant entre deux devises au taux live + spread du tier."""
     authentication_classes = [JWTAuthentication, APIKeyAuthentication]
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(parameters=CONVERT_PARAMS, request=None)
+    def get(self, request):
+        return self._convert(request, request.query_params)
+
     def post(self, request):
-        from_cur = request.data.get('from_currency', '').upper()
-        to_cur = request.data.get('to_currency', '').upper()
-        amount = request.data.get('amount')
+        return self._convert(request, request.data)
+
+    def _convert(self, request, params):
+        from_cur = params.get('from_currency', '').upper()
+        to_cur = params.get('to_currency', '').upper()
+        amount = params.get('amount')
 
         api_client = request.user.api_clients.filter(is_active=True).first() if request.user.is_authenticated else None
         tier = api_client.tier if api_client else 'standard'

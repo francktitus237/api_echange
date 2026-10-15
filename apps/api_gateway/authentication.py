@@ -1,6 +1,17 @@
+from drf_spectacular.extensions import OpenApiAuthenticationExtension
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.exceptions import AuthenticationFailed
 from .models import APIClient
+
+
+class APIKeyAuthenticationScheme(OpenApiAuthenticationExtension):
+    """Expose la clé API dans le schéma OpenAPI (bouton Authorize de Swagger UI)."""
+
+    target_class = 'apps.api_gateway.authentication.APIKeyAuthentication'
+    name = 'ApiKeyAuth'
+
+    def get_security_definition(self, auto_schema):
+        return {'type': 'apiKey', 'in': 'header', 'name': 'X-API-KEY'}
 
 
 class APIKeyAuthentication(BaseAuthentication):
