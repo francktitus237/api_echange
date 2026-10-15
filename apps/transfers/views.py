@@ -38,6 +38,10 @@ class WalletListCreateView(APIView):
         if not currency_code:
             return Response({'success': False, 'error': 'currency_code is required.'}, status=400)
 
+        from apps.core.models import Currency
+        if not Currency.objects.filter(code=currency_code, is_active=True).exists():
+            return Response({'success': False, 'error': f'Unknown or inactive currency: {currency_code}.'}, status=400)
+
         wallet, created = Wallet.objects.get_or_create(
             user=request.user, currency_id=currency_code,
             defaults={'is_active': True}
@@ -94,6 +98,18 @@ class TransferCreateView(APIView):
         except User.DoesNotExist:
             return Response({'success': False, 'error': 'Recipient not found.'}, status=404)
 
+        if recipient.pk == request.user.pk:
+            return Response({'success': False, 'error': 'Cannot transfer to yourself.'}, status=400)
+
+        from apps.core.models import Currency
+        unknown = [c for c in (source_cur, dest_cur)
+                   if not Currency.objects.filter(code=c, is_active=True).exists()]
+        if unknown:
+            return Response(
+                {'success': False, 'error': f'Unknown or inactive currency: {", ".join(unknown)}.'},
+                status=400
+            )
+
         # Resolve the rate via the service layer — supports inverse and
         # cross-rates (e.g. USD→XAF), not only pairs stored directly.
         from apps.forex.services import get_live_rate
@@ -146,7 +162,7 @@ class TransferCreateView(APIView):
                 sender_wallet=sender_wallet, recipient_wallet=recipient_wallet,
                 source_amount=amount, source_currency_id=source_cur,
                 destination_amount=dest_amount, destination_currency_id=dest_cur,
-                market_rate=rate_obj.market_rate, applied_rate=applied_rate,
+                market_rate=market_rate, applied_rate=applied_rate,
                 spread_pct=spread, fee_amount=fee, tier=tier,
                 status='completed', sender_transaction=sender_tx,
                 recipient_transaction=recip_tx, completed_at=now(),
@@ -158,7 +174,7 @@ class TransferCreateView(APIView):
             'source_currency': source_cur,
             'destination_amount': str(round(dest_amount, 4)),
             'destination_currency': dest_cur,
-            'market_rate': str(rate_obj.market_rate),
+            'market_rate': str(round(market_rate, 8)),
             'applied_rate': str(round(applied_rate, 8)),
             'spread_pct': str(spread),
             'fee_amount': str(round(fee, 4)),

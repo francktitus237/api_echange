@@ -99,7 +99,7 @@ class RatePairView(APIView):
             'pair': f"{from_currency}/{to_currency}",
             'from_currency': from_currency,
             'to_currency': to_currency,
-            'market_rate': str(rate),
+            'market_rate': str(round(rate, 8)),
             'timestamp': now().isoformat(),
         }})
 
@@ -141,7 +141,7 @@ class ConvertView(APIView):
             'from_currency': from_cur, 'to_currency': to_cur,
             'amount': str(amount),
             'converted_amount': str(round(converted, 4)),
-            'market_rate': str(market_rate),
+            'market_rate': str(round(market_rate, 8)),
             'business_rate': str(round(business_rate, 8)),
             'spread_pct': str(round(spread * 100, 2)),
             'fee_amount': str(round(fee, 4)),
@@ -158,7 +158,10 @@ class RateHistoryView(APIView):
     def get(self, request, from_currency, to_currency):
         from_currency = from_currency.upper()
         to_currency = to_currency.upper()
-        days = min(int(request.query_params.get('days', 30)), 365)
+        try:
+            days = min(max(int(request.query_params.get('days', 30)), 1), 365)
+        except (TypeError, ValueError):
+            return Response({'success': False, 'error': 'days must be an integer.'}, status=400)
 
         history = RateHistory.objects.filter(
             from_currency=from_currency, to_currency=to_currency
