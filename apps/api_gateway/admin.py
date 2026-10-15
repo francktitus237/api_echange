@@ -24,7 +24,7 @@ STATUS_COLORS = {
 @admin.register(APIClient)
 class APIClientAdmin(admin.ModelAdmin):
     list_display = ['name', 'user', 'tier_badge', 'api_key_prefix',
-                    'quota_requests_per_hour', 'total_requests',
+                    'quota_display', 'total_requests',
                     'active_badge', 'created_at']
     list_filter = ['tier', 'is_active', 'created_at']
     search_fields = ['name', 'user__username', 'user__email', 'api_key_prefix']
@@ -39,13 +39,19 @@ class APIClientAdmin(admin.ModelAdmin):
         }),
         ('Configuration API', {
             'fields': ('api_key_prefix', 'api_key_hash', 'quota_requests_per_hour'),
-            'description': 'La clé complète n\'est jamais stockée — seul le hash '
-                           'et le préfixe sont conservés.',
+            'description': 'La clé complète n\'est jamais stockée. '
+                           'Quota = 0 → client illimité (aucun rate-limit).',
         }),
         ('Statistiques', {
             'fields': ('total_requests', 'created_at', 'expires_at')
         }),
     )
+
+    def quota_display(self, obj):
+        if obj.quota_requests_per_hour == 0:
+            return format_html('<b style="color:#7c3aed;">∞ illimité</b>')
+        return obj.quota_requests_per_hour
+    quota_display.short_description = 'Quota/h'
 
     def tier_badge(self, obj):
         return _badge(obj.tier.upper(), TIER_COLORS.get(obj.tier, '#6b7280'))

@@ -66,7 +66,11 @@ class RateLimitMiddleware:
                     api_client = request.user.api_clients.filter(is_active=True).first()
 
                 if api_client:
-                    limit = api_client.quota_requests_per_hour or self.TIER_LIMITS.get(api_client.tier, 100)
+                    quota = api_client.quota_requests_per_hour
+                    if quota == 0:
+                        # 0 = client illimité (partenaire interne) — aucun rate-limit.
+                        return self.get_response(request)
+                    limit = quota or self.TIER_LIMITS.get(api_client.tier, 100)
                     key = f"ratelimit:client:{api_client.id}"
                 else:
                     ip = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR', 'unknown'))
