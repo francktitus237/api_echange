@@ -38,6 +38,10 @@ class Command(BaseCommand):
                 name='archive_daily_rates',
                 defaults={'task': 'apps.forex.tasks.archive_daily_rates', 'interval': daily},
             )
+            PeriodicTask.objects.get_or_create(
+                name='cleanup_old_audit_logs',
+                defaults={'task': 'apps.api_gateway.tasks.cleanup_old_audit_logs', 'interval': daily},
+            )
             self.stdout.write(self.style.SUCCESS('Periodic tasks scheduled'))
         except Exception as e:
             self.stdout.write(self.style.WARNING(f'Could not schedule tasks: {e}'))

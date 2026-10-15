@@ -172,7 +172,8 @@ class Payment(models.Model):
         from datetime import timedelta
         self.subscription.end_date = timezone.now() + timedelta(days=30)
         self.subscription.save()
-        # Générer la clé API si elle n'existe pas
+        # Générer la clé API si elle n'existe pas, sinon mettre à jour
+        # son tier (upgrade/downgrade de plan après paiement).
         if not self.user.api_clients.exists():
             raw_key, key_hash, prefix = APIClient.generate_key()
             tier = self.subscription.get_tier_from_plan()
@@ -184,3 +185,5 @@ class Payment(models.Model):
                 tier=tier,
                 quota_requests_per_hour=APIClient.QUOTA_MAP.get(tier, 100),
             )
+        else:
+            self.subscription.update_api_client_tier()
