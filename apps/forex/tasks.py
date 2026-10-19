@@ -52,7 +52,7 @@ def sync_all_rates(self):
             from_cur, to_cur = pair.split('/')
             total_weight = sum(w for _, w in rate_list)
             market_rate = sum(r * w for r, w in rate_list) / total_weight
-            business_rate = market_rate * (1 - spread - margin)
+            business_rate = market_rate
             ExchangeRate.objects.update_or_create(
                 from_currency_id=from_cur, to_currency_id=to_cur,
                 defaults={

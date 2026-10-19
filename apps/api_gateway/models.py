@@ -1,5 +1,6 @@
 import hashlib
 import secrets
+from django.core.cache import cache
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -40,13 +41,27 @@ class APIClient(models.Model):
         prefix = raw_key[:8]
         return raw_key, key_hash, prefix
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        # Invalide le cache de verify_key (changement de tier, désactivation…)
+        if self.api_key_hash:
+            cache.delete(f"apiclient:verify:{self.api_key_hash}")
+
     @classmethod
     def verify_key(cls, raw_key):
+        """Résolution mise en cache (60s) — appelée à chaque requête par
+        l'auth DRF et le RateLimitMiddleware ; évite un SELECT par frappe."""
         key_hash = hashlib.sha256(raw_key.encode()).hexdigest()
+        cache_key = f"apiclient:verify:{key_hash}"
+        client = cache.get(cache_key)
+        if client is not None:
+            return client
         try:
-            return cls.objects.get(api_key_hash=key_hash, is_active=True)
+            client = cls.objects.get(api_key_hash=key_hash, is_active=True)
         except cls.DoesNotExist:
             return None
+        cache.set(cache_key, client, timeout=60)
+        return client
 
 
 class AuditLog(models.Model):

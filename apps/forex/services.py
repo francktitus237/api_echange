@@ -9,36 +9,51 @@ logger = logging.getLogger(__name__)
 CACHE_TTL = int(getattr(settings, 'FOREX_CACHE_TTL', 300))
 
 
-def get_live_rate(from_currency: str, to_currency: str) -> Decimal | None:
+def get_live_rate_detail(from_currency: str, to_currency: str) -> dict | None:
     """
-    Recupere le taux de change en temps reel.
-    Ordre de priorite : Cache Redis -> ECB (gratuit) -> ExchangeRate-API -> Fixer.io
-    Retourne None si tous les providers echouent.
+    Recupere le taux de change en temps reel avec ses metadonnees.
+    Ordre de priorite : Cache Redis -> DB -> ECB (gratuit) -> ExchangeRate-API -> Fixer.io
+    Retourne {'rate', 'source', 'fetched_at', 'is_stale'} ou None si tous
+    les providers echouent. 'fetched_at' est un datetime ou None (taux live provider).
     """
     if from_currency == to_currency:
-        return Decimal('1')
+        return {'rate': Decimal('1'), 'source': 'identity', 'fetched_at': None, 'is_stale': False}
 
-    cache_key = f"live_rate:{from_currency}:{to_currency}"
+    cache_key = f"live_rate_detail:{from_currency}:{to_currency}"
     cached = cache.get(cache_key)
     if cached:
         logger.debug(f"Cache hit pour {from_currency}/{to_currency}")
-        return Decimal(cached)
+        return {**cached, 'rate': Decimal(cached['rate'])}
 
     # DB first — rates are synced every 15 min by Celery, so this is fast
     # (~10ms) and fresh enough for API consumers.
-    rate = _fetch_from_db(from_currency, to_currency)
-    if rate is None:
-        rate = (
-            _fetch_ecb(from_currency, to_currency)
-            or _fetch_exchangerate_api(from_currency, to_currency)
-            or _fetch_fixer(from_currency, to_currency)
-        )
+    detail = _fetch_from_db_detail(from_currency, to_currency)
+    if detail is None:
+        for source, fetcher in (
+            ('ecb', _fetch_ecb),
+            ('exchangerate-api', _fetch_exchangerate_api),
+            ('fixer', _fetch_fixer),
+        ):
+            rate = fetcher(from_currency, to_currency)
+            if rate:
+                detail = {'rate': rate, 'source': source, 'fetched_at': None, 'is_stale': False}
+                break
 
-    if rate:
-        cache.set(cache_key, str(rate), timeout=CACHE_TTL)
-        logger.info(f"Taux {from_currency}/{to_currency} = {rate} (mis en cache {CACHE_TTL}s)")
+    if detail:
+        # Normalise fetched_at en ISO pour que le format soit identique
+        # en sortie de cache et hors cache.
+        if detail['fetched_at']:
+            detail['fetched_at'] = detail['fetched_at'].isoformat()
+        cache.set(cache_key, {**detail, 'rate': str(detail['rate'])}, timeout=CACHE_TTL)
+        logger.info(f"Taux {from_currency}/{to_currency} = {detail['rate']} (mis en cache {CACHE_TTL}s)")
 
-    return rate
+    return detail
+
+
+def get_live_rate(from_currency: str, to_currency: str) -> Decimal | None:
+    """Retourne uniquement le taux — voir get_live_rate_detail pour les metadonnees."""
+    detail = get_live_rate_detail(from_currency, to_currency)
+    return detail['rate'] if detail else None
 
 
 def _fetch_ecb(from_currency, to_currency):
@@ -105,8 +120,9 @@ def _fetch_fixer(from_currency, to_currency):
     return None
 
 
-def _fetch_from_db(from_currency, to_currency):
-    """Resolve a pair from stored rates: direct, inverse, or cross-rate."""
+def _fetch_from_db_detail(from_currency, to_currency):
+    """Resolve a pair from stored rates: direct, inverse, or cross-rate.
+    Retourne {'rate', 'source', 'fetched_at', 'is_stale'} ou None."""
     try:
         from apps.forex.models import ExchangeRate
     except Exception:
@@ -117,7 +133,10 @@ def _fetch_from_db(from_currency, to_currency):
         rate = ExchangeRate.objects.get(
             from_currency_id=from_currency, to_currency_id=to_currency
         )
-        return rate.market_rate
+        return {
+            'rate': rate.market_rate, 'source': 'db',
+            'fetched_at': rate.fetched_at, 'is_stale': rate.is_stale,
+        }
     except ExchangeRate.DoesNotExist:
         pass
 
@@ -127,7 +146,10 @@ def _fetch_from_db(from_currency, to_currency):
             from_currency_id=to_currency, to_currency_id=from_currency
         )
         if inv.market_rate:
-            return Decimal(1) / inv.market_rate
+            return {
+                'rate': Decimal(1) / inv.market_rate, 'source': 'inverse',
+                'fetched_at': inv.fetched_at, 'is_stale': inv.is_stale,
+            }
     except (ExchangeRate.DoesNotExist, Exception):
         pass
 
@@ -139,7 +161,12 @@ def _fetch_from_db(from_currency, to_currency):
                 from_currency_id=anchor, to_currency_id=from_currency
             ).first()
             if from_rate and from_rate.market_rate and to_rate.market_rate:
-                return to_rate.market_rate / from_rate.market_rate
+                return {
+                    'rate': to_rate.market_rate / from_rate.market_rate,
+                    'source': 'cross',
+                    'fetched_at': min(to_rate.fetched_at, from_rate.fetched_at),
+                    'is_stale': to_rate.is_stale or from_rate.is_stale,
+                }
     except Exception:
         pass
 

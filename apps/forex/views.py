@@ -1,4 +1,4 @@
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from django.utils.timezone import now
 from django.core.cache import cache
 from django.conf import settings
@@ -10,8 +10,9 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from drf_spectacular.utils import OpenApiParameter, OpenApiTypes, extend_schema
 
 from apps.core.models import Currency
+from apps.api_gateway.models import APIClient
 from .models import ExchangeRate, ForexProvider, RateHistory
-from .services import get_live_rate
+from .services import get_live_rate, get_live_rate_detail
 
 # Modèle tarifaire : les abonnés payants convertissent au taux réel (0 %).
 # Seul le tier gratuit paie un spread sur chaque conversion.
@@ -58,7 +59,8 @@ class RateListView(APIView):
                 # (ECB stores EUR→X; USD→Y = EUR→Y / EUR→USD)
                 base_rate = ExchangeRate.objects.filter(to_currency=base).first()
                 if not base_rate:
-                    return Response({'success': False, 'error': f'No rates found for base {base}.'}, status=404)
+                    return Response({'success': False, 'error': f'No rates found for base {base}.',
+                                     'code': 'rates_not_found'}, status=404)
                 anchor = base_rate.from_currency_id
                 anchor_qs = ExchangeRate.objects.filter(from_currency=anchor)
                 inv = Decimal(1) / base_rate.market_rate
@@ -94,15 +96,19 @@ class RatePairView(APIView):
         from_currency = from_currency.upper()
         to_currency = to_currency.upper()
 
-        rate = get_live_rate(from_currency, to_currency)
-        if rate is None:
-            return Response({'success': False, 'error': f'Rate {from_currency}/{to_currency} not available.'}, status=404)
+        detail = get_live_rate_detail(from_currency, to_currency)
+        if detail is None:
+            return Response({'success': False,
+                             'error': f'Rate {from_currency}/{to_currency} not available.',
+                             'code': 'rate_not_found'}, status=404)
 
-        return Response({'success': True, 'source': 'live', 'rate': {
+        return Response({'success': True, 'source': detail['source'], 'rate': {
             'pair': f"{from_currency}/{to_currency}",
             'from_currency': from_currency,
             'to_currency': to_currency,
-            'market_rate': str(round(rate, 8)),
+            'market_rate': str(round(detail['rate'], 8)),
+            'is_stale': detail['is_stale'],
+            'fetched_at': detail['fetched_at'],
             'timestamp': now().isoformat(),
         }})
 
@@ -134,43 +140,71 @@ class ConvertView(APIView):
         to_cur = params.get('to_currency', '').upper()
         amount = params.get('amount')
 
-        api_client = request.user.api_clients.filter(is_active=True).first() if request.user.is_authenticated else None
-        tier = api_client.tier if api_client else 'free'
-        tier = api_client.tier if api_client else 'free'
-
-        if not all([from_cur, to_cur, amount]):
-            return Response({'success': False, 'error': 'from_currency, to_currency and amount are required.'}, status=400)
+        if not all([from_cur, to_cur]) or amount in (None, ''):
+            return Response({'success': False,
+                             'error': 'from_currency, to_currency and amount are required.',
+                             'code': 'missing_params'}, status=400)
         try:
             amount = Decimal(str(amount))
-            if amount <= 0:
+            if amount < 0:
                 raise ValueError
-        except (ValueError, Exception):
-            return Response({'success': False, 'error': 'amount must be a positive number.'}, status=400)
+        except (InvalidOperation, ValueError, TypeError):
+            return Response({'success': False,
+                             'error': 'amount must be a positive number.',
+                             'code': 'invalid_amount'}, status=400)
 
-        market_rate = get_live_rate(from_cur, to_cur)
-        if market_rate is None:
+        # request.auth = la clé API réellement utilisée (APIKeyAuthentication).
+        # Ne pas deviner via first() : un user peut avoir plusieurs clés/tiers.
+        api_client = request.auth if isinstance(request.auth, APIClient) else None
+        if api_client is None and request.user.is_authenticated:
+            api_client = request.user.api_clients.filter(is_active=True).first()
+        tier = api_client.tier if api_client else 'free'
+        spread, margin = SPREAD_MAP.get(tier, SPREAD_MAP['standard'])
+
+        detail = get_live_rate_detail(from_cur, to_cur)
+        conversion = {
+            'from_currency': from_cur, 'to_currency': to_cur,
+            'amount': str(amount), 'tier': tier, 'estimated': True,
+            'spread_pct': str(round(spread * 100, 2)),
+            'timestamp': now().isoformat(),
+        }
+
+        # Champ vidé / remis à zéro pendant la saisie : succès gracieux
+        # au lieu d'un 400, avec le taux courant si disponible.
+        if amount == 0:
+            conversion.update({
+                'converted_amount': '0', 'fee_amount': '0',
+                'market_rate': str(round(detail['rate'], 8)) if detail else None,
+                'business_rate': None,
+                'rate_source': detail['source'] if detail else None,
+                'rate_fetched_at': detail['fetched_at'] if detail else None,
+                'is_stale': detail['is_stale'] if detail else None,
+            })
+            return Response({'success': True, 'conversion': conversion})
+
+        if detail is None:
             return Response(
-                {'success': False, 'error': f'Rate {from_cur}/{to_cur} temporarily unavailable. Try again later.'},
+                {'success': False,
+                 'error': f'Rate {from_cur}/{to_cur} temporarily unavailable. Try again later.',
+                 'code': 'rate_unavailable'},
                 status=503
             )
 
-        spread, margin = SPREAD_MAP.get(tier, SPREAD_MAP['standard'])
+        market_rate = detail['rate']
         business_rate = market_rate * (1 - spread - margin)
         converted = amount * business_rate
         fee = amount * market_rate * (spread + margin)
 
-        return Response({'success': True, 'conversion': {
-            'from_currency': from_cur, 'to_currency': to_cur,
-            'amount': str(amount),
+        conversion.update({
             'converted_amount': str(round(converted, 4)),
             'market_rate': str(round(market_rate, 8)),
             'business_rate': str(round(business_rate, 8)),
-            'spread_pct': str(round(spread * 100, 2)),
             'fee_amount': str(round(fee, 4)),
-            'tier': tier,
-            'source': 'live',
-            'timestamp': now().isoformat(),
-        }})
+            'rate_source': detail['source'],
+            'rate_fetched_at': detail['fetched_at'],
+            'is_stale': detail['is_stale'],
+        })
+        return Response({'success': True, 'conversion': conversion})
 
 
 class RateHistoryView(APIView):
@@ -255,8 +289,12 @@ class ForexSyncView(APIView):
             from apps.forex.tasks import sync_all_rates
             task = sync_all_rates.delay()
             return Response({'success': True, 'task_id': str(task.id)})
-        except Exception as e:
-            return Response({'success': False, 'error': str(e)}, status=500)
+        except Exception:
+            import logging
+            logging.getLogger(__name__).exception('Forex sync failed to start')
+            return Response({'success': False,
+                             'error': 'Rate synchronization could not be started. Try again later.',
+                             'code': 'sync_unavailable'}, status=500)
 
 
 class DemoRatesView(APIView):

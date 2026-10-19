@@ -558,7 +558,8 @@
         </div>
 
         <div class="callout warn">
-            {{ t.docs_auth_warn }}
+            {{ t.docs_auth_warn }}<br><br>
+            {{ t.docs_auth_keynote }}
         </div>
 
         <!-- ===== QUICKSTART ===== -->
@@ -582,11 +583,13 @@
             <div class="code-head"><span>{{ t.docs_response }}</span><button class="copy-btn" onclick="copyCode(this)">{{ t.docs_copy }}</button></div>
             <pre>{
   <span class="k">"success"</span>: <span class="g">true</span>,
-  <span class="k">"source"</span>: <span class="s">"live"</span>,
+  <span class="k">"source"</span>: <span class="s">"inverse"</span>,
   <span class="k">"rate"</span>: {
     <span class="k">"pair"</span>: <span class="s">"USD/EUR"</span>,
     <span class="k">"market_rate"</span>: <span class="s">"0.8788"</span>,
-    <span class="k">"timestamp"</span>: <span class="s">"2026-09-29T10:03:05Z"</span>
+    <span class="k">"is_stale"</span>: <span class="g">false</span>,
+    <span class="k">"fetched_at"</span>: <span class="s">"2026-10-19T08:40:43Z"</span>,
+    <span class="k">"timestamp"</span>: <span class="s">"2026-10-19T10:03:05Z"</span>
   }
 }</pre>
         </div>
@@ -736,6 +739,39 @@ req.setValue(<span class="s">"fxp_your_key"</span>, forHTTPHeaderField: <span cl
             <tr><td>503</td><td>{{ t.docs_err_503 }}</td><td>{{ t.docs_act_503 }}</td></tr>
         </table>
 
+        <h3>{{ t.docs_errcode_title }}</h3>
+        <p>{{ t.docs_err_fmt_p }}</p>
+        <div class="code">
+            <div class="code-head"><span>JSON</span><button class="copy-btn" onclick="copyCode(this)">{{ t.docs_copy }}</button></div>
+            <pre>{
+  <span class="k">"success"</span>: <span class="g">false</span>,
+  <span class="k">"error"</span>: <span class="s">"Insufficient funds: available balance is 42.50 EUR."</span>,
+  <span class="k">"code"</span>: <span class="s">"insufficient_funds"</span>,
+  <span class="k">"available_balance"</span>: <span class="s">"42.50"</span>
+}</pre>
+        </div>
+        <table class="err-table">
+            <tr><th>{{ t.docs_th_errcode }}</th><th>HTTP</th><th>{{ t.docs_th_meaning }}</th></tr>
+            <tr><td>not_authenticated</td><td>401</td><td>{{ t.docs_ec_not_authenticated }}</td></tr>
+            <tr><td>authentication_failed</td><td>401</td><td>{{ t.docs_ec_authentication_failed }}</td></tr>
+            <tr><td>permission_denied</td><td>403</td><td>{{ t.docs_ec_permission_denied }}</td></tr>
+            <tr><td>missing_params</td><td>400</td><td>{{ t.docs_ec_missing_params }}</td></tr>
+            <tr><td>invalid_amount</td><td>400</td><td>{{ t.docs_ec_invalid_amount }}</td></tr>
+            <tr><td>validation_error</td><td>400</td><td>{{ t.docs_ec_validation_error }}</td></tr>
+            <tr><td>unknown_currency</td><td>400</td><td>{{ t.docs_ec_unknown_currency }}</td></tr>
+            <tr><td>rate_not_found</td><td>404</td><td>{{ t.docs_ec_rate_not_found }}</td></tr>
+            <tr><td>rates_not_found</td><td>404</td><td>{{ t.docs_ec_rates_not_found }}</td></tr>
+            <tr><td>rate_unavailable</td><td>503</td><td>{{ t.docs_ec_rate_unavailable }}</td></tr>
+            <tr><td>insufficient_funds</td><td>422</td><td>{{ t.docs_ec_insufficient_funds }}</td></tr>
+            <tr><td>wallet_not_found</td><td>404</td><td>{{ t.docs_ec_wallet_not_found }}</td></tr>
+            <tr><td>recipient_not_found</td><td>404</td><td>{{ t.docs_ec_recipient_not_found }}</td></tr>
+            <tr><td>self_transfer</td><td>400</td><td>{{ t.docs_ec_self_transfer }}</td></tr>
+            <tr><td>transfer_not_found</td><td>404</td><td>{{ t.docs_ec_transfer_not_found }}</td></tr>
+            <tr><td>user_not_found</td><td>404</td><td>{{ t.docs_ec_user_not_found }}</td></tr>
+            <tr><td>rate_limited</td><td>429</td><td>{{ t.docs_ec_rate_limited }}</td></tr>
+            <tr><td>sync_unavailable</td><td>500</td><td>{{ t.docs_ec_sync_unavailable }}</td></tr>
+        </table>
+
         <!-- ===== LIMITS ===== -->
         <h2 id="limits">{{ t.docs_quota_title }}</h2>
         <table class="err-table">
@@ -747,6 +783,9 @@ req.setValue(<span class="s">"fxp_your_key"</span>, forHTTPHeaderField: <span cl
         </table>
         <div class="callout">
             {{ t.docs_quota_note }}
+        </div>
+        <div class="callout">
+            {{ t.docs_quota_rt }}
         </div>
 
         <!-- ===== CURRENCIES ===== -->
