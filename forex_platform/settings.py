@@ -179,7 +179,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICSFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -196,6 +196,7 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ],
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'EXCEPTION_HANDLER': 'apps.api_gateway.exceptions.api_exception_handler',
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
     'DEFAULT_THROTTLE_CLASSES': [
@@ -278,6 +279,9 @@ CELERY_TIMEZONE = TIME_ZONE
 
 # Forex Configuration
 FOREX_CACHE_TTL = int(os.getenv('FOREX_CACHE_TTL', '300'))
+# Limite par minute pour les endpoints temps réel (/convert/, /rates/) —
+# appelés à chaque frappe, exclus du quota horaire.
+FOREX_REALTIME_RATE_LIMIT = int(os.getenv('FOREX_REALTIME_RATE_LIMIT', '300'))
 FOREX_SPREAD_DEFAULT = float(os.getenv('FOREX_SPREAD_DEFAULT', '0.015'))
 FOREX_MARGIN_DEFAULT = float(os.getenv('FOREX_MARGIN_DEFAULT', '0.005'))
 FOREX_ANOMALY_THRESHOLD = float(os.getenv('FOREX_ANOMALY_THRESHOLD', '0.20'))

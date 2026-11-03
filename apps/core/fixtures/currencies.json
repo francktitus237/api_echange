@@ -358,5 +358,55 @@
    "flag": "🇰🇲",
    "is_active": true
   }
- }
+ },
+  {
+  "model": "core.currency",
+  "pk": "CZK",
+  "fields": {
+   "name": "Czech Koruna",
+   "symbol": "Kč",
+   "flag": "🇨🇿",
+   "is_active": true
+  }
+ },
+ {
+  "model": "core.currency",
+  "pk": "HUF",
+  "fields": {
+   "name": "Hungarian Forint",
+   "symbol": "Ft",
+   "flag": "🇭🇺",
+   "is_active": true
+  }
+ },
+ {
+  "model": "core.currency",
+  "pk": "RON",
+  "fields": {
+   "name": "Romanian Leu",
+   "symbol": "lei",
+   "flag": "🇷🇴",
+   "is_active": true
+  }
+ },
+ {
+  "model": "core.currency",
+  "pk": "ISK",
+  "fields": {
+   "name": "Icelandic Króna",
+   "symbol": "kr",
+   "flag": "🇮🇸",
+   "is_active": true
+  }
+ },
+ {
+  "model": "core.currency",
+  "pk": "ILS",
+  "fields": {
+   "name": "Israeli New Shekel",
+   "symbol": "₪",
+   "flag": "🇮🇱",
+   "is_active": true
+  }
+}
 ]
