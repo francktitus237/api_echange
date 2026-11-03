@@ -9,7 +9,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework import status
 from django.db import connection
 from django.core.cache import cache
-from .models import APIClient, Subscription, Payment
+from .models import APIClient, AuditLog, Subscription, Payment
 from apps.forex.models import ExchangeRate
 
 
@@ -737,6 +737,13 @@ def dashboard_view(request):
     payments = Payment.objects.filter(user=request.user).order_by('-created_at')[:10]
     rates = ExchangeRate.objects.select_related('from_currency', 'to_currency').order_by('-fetched_at')[:20]
 
+    from datetime import timedelta
+    from django.utils import timezone
+    month_start = timezone.now() - timedelta(days=30)
+    requests_30d = AuditLog.objects.filter(
+        api_client__user=request.user, timestamp__gte=month_start
+    ).count()
+
     return render(request, 'dashboard.html', {
         'subscription': subscription,
         'api_keys': api_keys,
@@ -744,4 +751,5 @@ def dashboard_view(request):
         'new_api_key': new_api_key,
         'payments': payments,
         'rates': rates,
+        'requests_30d': requests_30d,
     })

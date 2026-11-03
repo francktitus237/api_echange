@@ -310,7 +310,7 @@ fetch('/api/v1/demo/')
             box.innerHTML = '<p style="color:#94a3b8;">Syncing rates…</p>';
             return;
         }
-        box.innerHTML = d.rates.map(function(r) {
+        box.innerHTML = d.rates.slice(0, 15).map(function(r) {
             var t = new Date(r.updated_at);
             var hh = ('0' + t.getHours()).slice(-2) + ':' + ('0' + t.getMinutes()).slice(-2);
             return '<div class="rate-card"><div class="pair">' + r.pair + '</div>' +

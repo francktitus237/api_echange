@@ -923,7 +923,7 @@ r = requests.get(<span class="s">"https://api-forexplatform.sendbid.app/api/v1/r
       chipEl.textContent = first.pair + ' ' + Number(first.rate).toLocaleString('en-US', { maximumFractionDigits: 4 });
       document.getElementById('chip-sub').textContent = live ? 'أسعار مباشرة' : 'أسعار تجريبية';
     }
-    var cards = list.map(function (r) {
+    var cards = list.slice(0, 15).map(function (r) {
       var t = r.updated_at ? new Date(r.updated_at) : null, hh = '';
       if (t && !isNaN(t)) hh = ('0' + t.getHours()).slice(-2) + ':' + ('0' + t.getMinutes()).slice(-2);
       return '<div class="rate-card"><div class="pair">' + r.pair + '</div><div class="val">' + r.rate +

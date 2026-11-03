@@ -188,7 +188,7 @@
                     {{ t.stat_requests }}
                 </div>
                 <div class="num">{% if api_client %}{{ api_client.total_requests }}{% else %}0{% endif %}</div>
-                <div class="foot">{{ t.stat_since }}</div>
+                <div class="foot">{{ requests_30d }} {{ t.stat_30d }}</div>
                 {% if api_client %}
                 <div class="bar"><i style="width: {% widthratio api_client.total_requests api_client.quota_requests_per_hour 100 %}%;"></i></div>
                 {% endif %}

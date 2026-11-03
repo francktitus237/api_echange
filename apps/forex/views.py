@@ -42,8 +42,15 @@ class RateListView(APIView):
         source = 'cache' if cached else 'db'
 
         if not cached:
-            rates_qs = ExchangeRate.objects.filter(from_currency=base).select_related('to_currency')
-            if rates_qs.exists():
+            try:
+                rates_qs = ExchangeRate.objects.filter(from_currency=base).select_related('to_currency')
+                rates_exist = rates_qs.exists()
+            except Exception:
+                return Response(
+                    {'success': False, 'error': 'Rate store temporarily unavailable. Try again later.'},
+                    status=503
+                )
+            if rates_exist:
                 cached = {
                     r.to_currency_id: {
                         'market_rate': str(r.market_rate),
@@ -56,7 +63,13 @@ class RateListView(APIView):
             else:
                 # Cross-rate computation: base/Y = anchor/Y ÷ anchor/base
                 # (ECB stores EUR→X; USD→Y = EUR→Y / EUR→USD)
-                base_rate = ExchangeRate.objects.filter(to_currency=base).first()
+                try:
+                    base_rate = ExchangeRate.objects.filter(to_currency=base).first()
+                except Exception:
+                    return Response(
+                        {'success': False, 'error': 'Rate store temporarily unavailable. Try again later.'},
+                        status=503
+                    )
                 if not base_rate:
                     return Response({'success': False, 'error': f'No rates found for base {base}.'}, status=404)
                 anchor = base_rate.from_currency_id
@@ -267,7 +280,7 @@ class DemoRatesView(APIView):
             ExchangeRate.objects
             .filter(is_stale=False)
             .select_related('from_currency', 'to_currency')
-            .order_by('-fetched_at')[:10]
+            .order_by('-fetched_at')[:60]
         )
         return Response({
             'success': True,
