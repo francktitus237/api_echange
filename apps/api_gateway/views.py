@@ -25,50 +25,50 @@ class DocsHTMLView(APIView):
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ForexPlatform API - Documentation</title>
 <style>
-  :root {{ --primary: #2563eb; --green: #16a34a; --orange: #ea580c; --red: #dc2626; --gray: #f8fafc; --border: #e2e8f0; }}
+  :root {{ --primary: #3354A1; --green: #4B8B3B; --orange: #ea580c; --red: #dc2626; --gray: #F7F9FC; --border: #E3E8F2; }}
   * {{ box-sizing: border-box; margin: 0; padding: 0; }}
-  body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f1f5f9; color: #1e293b; }}
-  header {{ background: linear-gradient(135deg, #1e3a8a, #2563eb); color: white; padding: 40px 24px; text-align: center; }}
+  body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F2F5FA; color: #1A2A52; }}
+  header {{ background: linear-gradient(135deg, #1E2F63, #3354A1); color: white; padding: 40px 24px; text-align: center; }}
   header h1 {{ font-size: 2rem; font-weight: 800; }}
   header p {{ margin-top: 8px; opacity: .85; font-size: 1.05rem; }}
-  .badge {{ display: inline-block; background: #22c55e; color: white; padding: 4px 12px; border-radius: 999px; font-size: .8rem; font-weight: 700; margin-top: 10px; }}
+  .badge {{ display: inline-block; background: #4B8B3B; color: white; padding: 4px 12px; border-radius: 999px; font-size: .8rem; font-weight: 700; margin-top: 10px; }}
   .container {{ max-width: 960px; margin: 0 auto; padding: 32px 16px; }}
-  .base-url-box {{ background: #1e293b; color: #7dd3fc; padding: 16px 20px; border-radius: 10px; font-family: monospace; font-size: 1rem; margin-bottom: 32px; display: flex; align-items: center; gap: 12px; }}
-  .base-url-box span {{ color: #94a3b8; font-size: .85rem; }}
+  .base-url-box {{ background: #1A2A52; color: #9DB2E6; padding: 16px 20px; border-radius: 10px; font-family: monospace; font-size: 1rem; margin-bottom: 32px; display: flex; align-items: center; gap: 12px; }}
+  .base-url-box span {{ color: #8A94A6; font-size: .85rem; }}
   section {{ margin-bottom: 40px; }}
-  section h2 {{ font-size: 1.3rem; font-weight: 700; border-left: 4px solid var(--primary); padding-left: 12px; margin-bottom: 16px; color: #0f172a; }}
+  section h2 {{ font-size: 1.3rem; font-weight: 700; border-left: 4px solid var(--primary); padding-left: 12px; margin-bottom: 16px; color: #0F1A38; }}
   .endpoint {{ background: white; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 14px; overflow: hidden; }}
   .endpoint-header {{ display: flex; align-items: center; gap: 12px; padding: 14px 18px; cursor: pointer; }}
   .method {{ font-weight: 800; font-size: .8rem; padding: 4px 10px; border-radius: 6px; min-width: 56px; text-align: center; }}
-  .GET {{ background: #dbeafe; color: #1d4ed8; }}
-  .POST {{ background: #dcfce7; color: #15803d; }}
+  .GET {{ background: #E2E9F6; color: #2A4587; }}
+  .POST {{ background: #DCEBD2; color: #3E7530; }}
   .DELETE {{ background: #fee2e2; color: #b91c1c; }}
-  .endpoint-header .path {{ font-family: monospace; font-size: .95rem; font-weight: 600; color: #0f172a; flex: 1; }}
+  .endpoint-header .path {{ font-family: monospace; font-size: .95rem; font-weight: 600; color: #0F1A38; flex: 1; }}
   .auth-badge {{ font-size: .72rem; padding: 3px 8px; border-radius: 999px; font-weight: 600; }}
   .auth-open {{ background: #fef9c3; color: #854d0e; }}
   .auth-key {{ background: #ede9fe; color: #5b21b6; }}
   .auth-jwt {{ background: #fce7f3; color: #9d174d; }}
   .endpoint-body {{ border-top: 1px solid var(--border); padding: 18px; display: none; }}
   .endpoint-body.open {{ display: block; }}
-  .desc {{ color: #475569; margin-bottom: 14px; font-size: .93rem; }}
-  .label {{ font-size: .78rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }}
-  pre {{ background: #0f172a; color: #e2e8f0; padding: 14px; border-radius: 8px; font-size: .82rem; overflow-x: auto; margin-bottom: 12px; line-height: 1.6; }}
-  .key-green {{ color: #86efac; }}
-  .key-blue {{ color: #93c5fd; }}
+  .desc {{ color: #4B5670; margin-bottom: 14px; font-size: .93rem; }}
+  .label {{ font-size: .78rem; font-weight: 700; color: #5A6478; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }}
+  pre {{ background: #0F1A38; color: #E3E8F2; padding: 14px; border-radius: 8px; font-size: .82rem; overflow-x: auto; margin-bottom: 12px; line-height: 1.6; }}
+  .key-green {{ color: #9CCD85; }}
+  .key-blue {{ color: #AABCEA; }}
   .key-orange {{ color: #fcd34d; }}
   .grid2 {{ display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }}
   @media(max-width:600px) {{ .grid2 {{ grid-template-columns: 1fr; }} }}
-  .info-box {{ background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 14px; font-size: .88rem; color: #1e40af; margin-bottom: 16px; }}
+  .info-box {{ background: #EDF1FA; border: 1px solid #D3DCF3; border-radius: 8px; padding: 14px; font-size: .88rem; color: #2B4183; margin-bottom: 16px; }}
   .info-box strong {{ display: block; margin-bottom: 4px; }}
   table {{ width: 100%; border-collapse: collapse; font-size: .88rem; }}
-  th {{ background: #f8fafc; text-align: left; padding: 10px 14px; border-bottom: 2px solid var(--border); font-weight: 700; color: #475569; }}
+  th {{ background: #F7F9FC; text-align: left; padding: 10px 14px; border-bottom: 2px solid var(--border); font-weight: 700; color: #4B5670; }}
   td {{ padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }}
   tr:last-child td {{ border-bottom: none; }}
   .tag-r {{ color: #dc2626; font-weight: 700; }}
   .tag-o {{ color: #ea580c; font-weight: 700; }}
-  footer {{ text-align: center; padding: 32px; color: #94a3b8; font-size: .85rem; }}
-  .copy-btn {{ background: #2563eb; color: white; border: none; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: .8rem; float: right; }}
-  .copy-btn:hover {{ background: #1d4ed8; }}
+  footer {{ text-align: center; padding: 32px; color: #8A94A6; font-size: .85rem; }}
+  .copy-btn {{ background: #3354A1; color: white; border: none; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: .8rem; float: right; }}
+  .copy-btn:hover {{ background: #2A4587; }}
 </style>
 </head>
 <body>
@@ -733,14 +733,20 @@ def dashboard_view(request):
         return redirect('/dashboard/')
 
     new_api_key = request.session.pop('new_api_key', None)
-    api_keys = APIClient.objects.filter(user=request.user).order_by('-created_at')
+    api_keys = list(APIClient.objects.filter(user=request.user).order_by('-created_at'))
     payments = Payment.objects.filter(user=request.user).order_by('-created_at')[:10]
     rates = ExchangeRate.objects.select_related('from_currency', 'to_currency').order_by('-fetched_at')[:20]
+
+    # Le compteur n'est flushé en DB que tous les 100 appels : on ajoute le
+    # reliquat encore en cache pour que le dashboard reflète l'usage réel.
+    from django.core.cache import cache
+    for key in api_keys:
+        key.total_requests += cache.get(f"apiclient:reqcount:{key.pk}", 0) or 0
 
     return render(request, 'dashboard.html', {
         'subscription': subscription,
         'api_keys': api_keys,
-        'api_client': api_keys.filter(is_active=True).first(),
+        'api_client': next((k for k in api_keys if k.is_active), None),
         'new_api_key': new_api_key,
         'payments': payments,
         'rates': rates,

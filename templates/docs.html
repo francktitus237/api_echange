@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="{{ lang|default:'fr' }}" dir="{{ dir|default:'ltr' }}">
 <head>
@@ -8,23 +9,24 @@
     <!-- Polices modernes Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='13' fill='%232563eb'/%3E%3Cpath d='M16 35V14h18' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M24 25h12M33 22l3 3-3 3M36 33H24M27 30l-3 3 3 3' stroke='%23bfdbfe' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
 
     <style>
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            --blue: #2563eb;
-            --blue-d: #1d4ed8;
-            --sky: #3b82f6;
-            --navy: #1e3a8a;
-            --dark: #0f172a;
+            --blue: #3354A1;
+            --blue-d: #2A4587;
+            --sky: #5A74C2;
+            --navy: #1E2F63;
+            --green: #4B8B3B; --green-d: #3E7530;
+            --dark: #0F1A38;
             --gray: #64748b;
-            --light: #f8fafc;
-            --line: #e2e8f0;
+            --light: #F7F9FC;
+            --line: #E3E8F2;
             --ease: cubic-bezier(.22, 1, .36, 1);
-            --display: 'Sora', 'Segoe UI', system-ui, sans-serif;
+            --display: 'Montserrat', 'Segoe UI', system-ui, sans-serif;
             --body: 'DM Sans', 'Segoe UI', system-ui, sans-serif;
             --mono: 'Cascadia Code', 'Consolas', 'Menlo', monospace;
         }
@@ -62,17 +64,17 @@
             justify-content: space-between;
             border-radius: 18px;
             background: rgba(255, 255, 255, 0.82);
-            border: 1px solid rgba(226, 232, 240, 0.8);
+            border: 1px solid rgba(227, 232, 242, 0.8);
             -webkit-backdrop-filter: blur(18px) saturate(1.6);
             backdrop-filter: blur(18px) saturate(1.6);
-            box-shadow: 0 10px 40px -14px rgba(15, 23, 42, 0.15);
+            box-shadow: 0 10px 40px -14px rgba(15, 26, 56, 0.15);
             transition: background .4s, box-shadow .4s, top .4s;
         }
 
         .topnav.scrolled { top: 8px; }
         .topnav.scrolled .wrap {
             background: rgba(255, 255, 255, 0.95);
-            box-shadow: 0 14px 44px -14px rgba(15, 23, 42, 0.25);
+            box-shadow: 0 14px 44px -14px rgba(15, 26, 56, 0.25);
         }
 
         .logo {
@@ -87,19 +89,7 @@
             letter-spacing: -0.02em;
         }
 
-        .logo-mark {
-            width: 32px;
-            height: 32px;
-            border-radius: 9px;
-            background: linear-gradient(135deg, #2563eb, #3b82f6);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 13px;
-            font-weight: 800;
-            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
-        }
+        .logo-img{height:36px;width:auto;display:block}
 
         .topnav-links {
             display: flex;
@@ -119,7 +109,7 @@
 
         .topnav-links a:not(.cta):hover {
             color: var(--blue);
-            background: rgba(37, 99, 235, 0.08);
+            background: rgba(51, 84, 161, 0.08);
         }
 
         .topnav-links .cta {
@@ -130,14 +120,14 @@
             font-weight: 700;
             font-size: 14.5px;
             text-decoration: none;
-            box-shadow: 0 8px 20px -6px rgba(37, 99, 235, 0.5);
+            box-shadow: 0 8px 20px -6px rgba(51, 84, 161, 0.5);
             transition: transform .25s var(--ease), background .25s, box-shadow .25s;
         }
 
         .topnav-links .cta:hover {
             background: var(--blue-d);
             transform: translateY(-1px);
-            box-shadow: 0 12px 24px -6px rgba(37, 99, 235, 0.6);
+            box-shadow: 0 12px 24px -6px rgba(51, 84, 161, 0.6);
             color: white;
         }
 
@@ -195,7 +185,7 @@
 
         .docs-side a.active {
             color: var(--blue);
-            background: #eff6ff;
+            background: #EDF1FA;
             font-weight: 700;
         }
 
@@ -257,14 +247,14 @@
         }
 
         .docs-content li code {
-            background: #f1f5f9;
+            background: #F2F5FA;
             padding: 3px 8px;
             border-radius: 6px;
             font-size: 13.5px;
         }
 
         .docs-content p code {
-            background: #f1f5f9;
+            background: #F2F5FA;
             padding: 3px 8px;
             border-radius: 6px;
             font-size: 14px;
@@ -279,7 +269,7 @@
             margin: 20px 0 28px;
             overflow: hidden;
             direction: ltr;
-            box-shadow: 0 16px 36px -12px rgba(15, 23, 42, 0.35);
+            box-shadow: 0 16px 36px -12px rgba(15, 26, 56, 0.35);
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
 
@@ -304,7 +294,7 @@
         .copy-btn {
             background: rgba(255, 255, 255, 0.08);
             border: none;
-            color: #38bdf8;
+            color: #9DB2E6;
             font-size: 12px;
             font-weight: 600;
             cursor: pointer;
@@ -323,12 +313,12 @@
             overflow-x: auto;
             font-size: 14px;
             line-height: 1.75;
-            color: #e2e8f0;
+            color: #E3E8F2;
             text-align: left;
             font-family: var(--mono);
         }
 
-        .c { color: #64748b; } .k { color: #38bdf8; } .s { color: #4ade80; } .g { color: #fbbf24; } .n { color: #f472b6; }
+        .c { color: #64748b; } .k { color: #9DB2E6; } .s { color: #7FB069; } .g { color: #fbbf24; } .n { color: #f472b6; }
 
         /* Cartes d'Endpoints design */
         .ep {
@@ -337,18 +327,18 @@
             margin: 18px 0;
             overflow: hidden;
             background: #ffffff;
-            box-shadow: 0 4px 20px rgba(15, 23, 42, 0.03);
+            box-shadow: 0 4px 20px rgba(15, 26, 56, 0.03);
             transition: box-shadow .25s ease;
         }
 
-        .ep:hover { box-shadow: 0 8px 30px rgba(15, 23, 42, 0.06); }
+        .ep:hover { box-shadow: 0 8px 30px rgba(15, 26, 56, 0.06); }
 
         .ep-head {
             display: flex;
             align-items: center;
             gap: 14px;
             padding: 16px 20px;
-            background: #f8fafc;
+            background: #F7F9FC;
             border-bottom: 1px solid var(--line);
         }
 
@@ -361,8 +351,8 @@
             letter-spacing: .5px;
         }
 
-        .get { background: #dcfce7; color: #15803d; }
-        .post { background: #dbeafe; color: #1d4ed8; }
+        .get { background: #DCEBD2; color: #3E7530; }
+        .post { background: #E2E9F6; color: #2A4587; }
 
         .ep-head .path {
             font-family: var(--mono);
@@ -384,7 +374,7 @@
             font-size: 12.5px;
             color: #6d28d9;
             font-weight: 600;
-            background: #f5f3ff;
+            background: #EDF1FA;
             padding: 3px 10px;
             border-radius: 6px;
         }
@@ -415,21 +405,21 @@
 
         .ep-body td {
             padding: 10px 12px;
-            border-bottom: 1px solid #f1f5f9;
+            border-bottom: 1px solid #F2F5FA;
         }
 
-        .ep-body td code { background: #f1f5f9; padding: 2px 6px; border-radius: 5px; font-size: 13px; }
+        .ep-body td code { background: #F2F5FA; padding: 2px 6px; border-radius: 5px; font-size: 13px; }
 
         /* Callouts élégants */
         .callout {
             border-inline-start: 4px solid var(--blue);
-            background: #eff6ff;
+            background: #EDF1FA;
             border-radius: 0 12px 12px 0;
             padding: 16px 20px;
             margin: 22px 0;
             font-size: 14.5px;
-            color: #1e40af;
-            box-shadow: 0 4px 16px rgba(37, 99, 235, 0.05);
+            color: #2B4183;
+            box-shadow: 0 4px 16px rgba(51, 84, 161, 0.05);
         }
 
         [dir="rtl"] .callout { border-radius: 12px 0 0 12px; }
@@ -460,14 +450,14 @@
             text-transform: uppercase;
             letter-spacing: .6px;
             color: var(--gray);
-            background: #f8fafc;
+            background: #F7F9FC;
             border-bottom: 2px solid var(--line);
             font-weight: 700;
         }
 
         .err-table td {
             padding: 13px 16px;
-            border-bottom: 1px solid #f1f5f9;
+            border-bottom: 1px solid #F2F5FA;
             color: #334155;
         }
 
@@ -486,7 +476,7 @@
             align-items: center;
             gap: 10px;
             padding: 10px 14px;
-            background: #f8fafc;
+            background: #F7F9FC;
             border: 1px solid var(--line);
             border-radius: 10px;
             font-weight: 600;
@@ -508,8 +498,8 @@
 <div class="topnav" id="navbar">
     <div class="wrap">
         <a class="logo" href="/">
-            <span class="logo-mark">FX</span>
-            <span>{{ t.brand }} <span style="color:#94a3b8; font-weight:600; font-size:13.5px; margin-inline-start: 4px;">Docs</span></span>
+            <img class="logo-img" src="{% static 'img/logo.png' %}" alt="ForexPlatform">
+            <span style="color:#64748b; font-weight:600; font-size:13.5px; margin-inline-start:2px; padding:3px 10px; border:1px solid #E3E8F2; border-radius:999px;">Docs</span>
         </a>
         <div class="topnav-links">
             <a href="/dashboard/">{{ t.nav_dashboard }}</a>

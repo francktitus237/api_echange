@@ -1,19 +1,23 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="{{ lang|default:'fr' }}" dir="{{ dir|default:'ltr' }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ t.nav_dashboard }} — {{ t.brand }}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
     <meta http-equiv="refresh" content="60">
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='13' fill='%232563eb'/%3E%3Cpath d='M16 35V14h18' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M24 25h12M33 22l3 3-3 3M36 33H24M27 30l-3 3 3 3' stroke='%23bfdbfe' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+    <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
-            --blue: #2563eb; --blue-dark: #1d4ed8; --dark: #0f172a; --sidebar: #111827;
-            --gray: #64748b; --light: #f8fafc; --border: #e2e8f0;
-            --green: #16a34a; --amber: #d97706; --red: #dc2626;
+            --blue: #3354A1; --blue-dark: #2A4587; --dark: #0F1A38; --sidebar: #0D1730;
+            --gray: #64748b; --light: #F7F9FC; --border: #E3E8F2;
+            --green: #4B8B3B; --amber: #d97706; --red: #dc2626;
         }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif; background: var(--light); color: var(--dark); }
+        body { font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--light); color: var(--dark); }
 
         /* ===== Layout ===== */
         .layout { display: flex; min-height: 100vh; }
@@ -21,18 +25,18 @@
         /* ===== Sidebar ===== */
         .sidebar { width: 248px; background: var(--sidebar); color: #cbd5e1; display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; flex-shrink: 0; }
         .sidebar .brand { padding: 24px 24px 20px; font-weight: 800; font-size: 19px; color: white; text-decoration: none; display: flex; align-items: center; gap: 10px; }
-        .brand-mark { width: 32px; height: 32px; border-radius: 8px; background: linear-gradient(135deg, #2563eb, #3b82f6); display: flex; align-items: center; justify-content: center; color: white; font-size: 15px; font-weight: 800; }
+        .brand-logo-img{height:34px;width:auto;display:block}
         .sidebar nav { padding: 8px 12px; flex: 1; }
         .side-link { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #94a3b8; text-decoration: none; font-size: 14px; font-weight: 500; margin-bottom: 2px; transition: all .15s; }
         .side-link:hover { background: rgba(255,255,255,.06); color: white; }
-        .side-link.active { background: rgba(37,99,235,.18); color: #93c5fd; }
+        .side-link.active { background: rgba(51,84,161,.18); color: #AABCEA; }
         .side-link svg { width: 17px; height: 17px; flex-shrink: 0; }
         .side-section { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #475569; padding: 18px 14px 8px; }
         .sidebar .user-box { padding: 16px; border-top: 1px solid rgba(255,255,255,.08); display: flex; align-items: center; gap: 10px; }
-        .avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #2563eb, #7c3aed); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
+        .avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #3354A1, #4B8B3B); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
         .user-box .uname { color: white; font-size: 14px; font-weight: 600; }
         .user-box a { color: #64748b; font-size: 12px; text-decoration: none; }
-        .user-box a:hover { color: #93c5fd; }
+        .user-box a:hover { color: #AABCEA; }
 
         /* ===== Main ===== */
         main { flex: 1; padding: 32px 40px; max-width: 1200px; }
@@ -48,13 +52,13 @@
         .stat .num { font-size: 28px; font-weight: 800; margin-top: 10px; }
         .stat .num small { font-size: 14px; font-weight: 500; color: var(--gray); }
         .stat .foot { margin-top: 10px; font-size: 13px; color: var(--gray); }
-        .bar { height: 6px; border-radius: 99px; background: #e2e8f0; margin-top: 12px; overflow: hidden; }
-        .bar i { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, #2563eb, #60a5fa); }
+        .bar { height: 6px; border-radius: 99px; background: #E3E8F2; margin-top: 12px; overflow: hidden; }
+        .bar i { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, #3354A1, #8CA3DC); }
 
         /* ===== Badges ===== */
         .badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 999px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; }
         .badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
-        .badge-active { background: #dcfce7; color: #15803d; }
+        .badge-active { background: #DCEBD2; color: #3E7530; }
         .badge-pending { background: #fef3c7; color: #b45309; }
         .badge-other { background: #fee2e2; color: #b91c1c; }
 
@@ -65,22 +69,22 @@
         .card-head .note { font-size: 12px; color: #94a3b8; font-weight: 400; }
         .card-body { padding: 0; }
         table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; padding: 12px 24px; font-size: 11px; color: var(--gray); text-transform: uppercase; letter-spacing: .6px; border-bottom: 1px solid var(--border); background: #fbfdff; }
-        td { padding: 14px 24px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
-        tbody tr:hover { background: #f8fafc; }
+        th { text-align: left; padding: 12px 24px; font-size: 11px; color: var(--gray); text-transform: uppercase; letter-spacing: .6px; border-bottom: 1px solid var(--border); background: #F7F9FD; }
+        td { padding: 14px 24px; border-bottom: 1px solid #F2F5FA; font-size: 14px; }
+        tbody tr:hover { background: #F7F9FC; }
         tbody tr:last-child td { border-bottom: none; }
-        td code { background: #f1f5f9; padding: 3px 8px; border-radius: 6px; font-size: 12.5px; color: #334155; }
+        td code { background: #F2F5FA; padding: 3px 8px; border-radius: 6px; font-size: 12.5px; color: #334155; }
 
         /* ===== API key display ===== */
-        .key-banner { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 14px; padding: 20px 24px; margin-bottom: 24px; }
-        .key-banner h3 { color: #15803d; font-size: 15px; margin-bottom: 6px; }
-        .key-banner p { color: #166534; font-size: 13px; margin-bottom: 12px; }
+        .key-banner { background: #F0F6EA; border: 1px solid #C6E0B4; border-radius: 14px; padding: 20px 24px; margin-bottom: 24px; }
+        .key-banner h3 { color: #3E7530; font-size: 15px; margin-bottom: 6px; }
+        .key-banner p { color: #35632B; font-size: 13px; margin-bottom: 12px; }
         .key-row { display: flex; gap: 10px; align-items: center; }
-        .key-value { flex: 1; background: var(--dark); color: #7dd3fc; padding: 13px 16px; border-radius: 10px; font-family: 'Consolas', 'Monaco', monospace; font-size: 14px; word-break: break-all; }
+        .key-value { flex: 1; background: var(--dark); color: #9DB2E6; padding: 13px 16px; border-radius: 10px; font-family: 'Consolas', 'Monaco', monospace; font-size: 14px; word-break: break-all; }
         .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 10px; font-weight: 600; text-decoration: none; font-size: 14px; background: var(--blue); color: white; border: none; cursor: pointer; transition: background .15s; }
         .btn:hover { background: var(--blue-dark); }
         .btn-ghost { background: white; color: var(--dark); border: 1px solid var(--border); }
-        .btn-ghost:hover { background: #f1f5f9; }
+        .btn-ghost:hover { background: #F2F5FA; }
         .btn-sm { padding: 6px 14px; font-size: 12.5px; }
         .btn-danger { background: #fef2f2; color: var(--red); border: 1px solid #fecaca; }
         .btn-danger:hover { background: #fee2e2; }
@@ -100,14 +104,15 @@
             .sidebar nav { display: flex; flex-wrap: wrap; }
             main { padding: 20px; }
         }
-    </style>
+    h1, h2, h3, .brand, .stat .num { font-family: 'Montserrat', 'DM Sans', sans-serif; }
+</style>
 </head>
 <body>
 
 <div class="layout">
     <!-- ===== Sidebar ===== -->
     <aside class="sidebar">
-        <a class="brand" href="/"><span class="brand-mark">FX</span>ForexPlatform</a>
+        <a class="brand" href="/"><img class="brand-logo-img" src="{% static 'img/logo-white.png' %}" alt="ForexPlatform"></a>
         <nav>
             <div class="side-section">{{ t.side_client }}</div>
             <a class="side-link active" href="#overview">

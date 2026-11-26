@@ -11,13 +11,13 @@ def _badge(text, color):
 
 
 TIER_COLORS = {
-    'free': '#6b7280', 'standard': '#2563eb',
-    'premium': '#7c3aed', 'partner': '#b45309',
+    'free': '#6b7280', 'standard': '#3354A1',
+    'premium': '#1E2F63', 'partner': '#b45309',
 }
 STATUS_COLORS = {
-    'active': '#16a34a', 'pending': '#d97706', 'trial': '#0ea5e9',
+    'active': '#4B8B3B', 'pending': '#d97706', 'trial': '#5A74C2',
     'cancelled': '#6b7280', 'expired': '#dc2626', 'failed': '#dc2626',
-    'completed': '#16a34a', 'refunded': '#6b7280',
+    'completed': '#4B8B3B', 'refunded': '#6b7280',
 }
 
 
@@ -58,7 +58,7 @@ class APIClientAdmin(admin.ModelAdmin):
     tier_badge.short_description = 'Tier'
 
     def active_badge(self, obj):
-        return _badge('ACTIF', '#16a34a') if obj.is_active else _badge('INACTIF', '#dc2626')
+        return _badge('ACTIF', '#4B8B3B') if obj.is_active else _badge('INACTIF', '#dc2626')
     active_badge.short_description = 'Statut'
 
     def get_readonly_fields(self, request, obj=None):
@@ -106,7 +106,7 @@ class SubscriptionAdmin(admin.ModelAdmin):
 
     def is_active_badge(self, obj):
         if obj.is_active():
-            return format_html('<span style="color:#16a34a;">✓ En cours</span>')
+            return format_html('<span style="color:#4B8B3B;">✓ En cours</span>')
         return format_html('<span style="color:#dc2626;">✗ Terminé</span>')
     is_active_badge.short_description = 'Validité'
 
@@ -192,7 +192,7 @@ class AuditLogAdmin(admin.ModelAdmin):
 
     def status_badge(self, obj):
         code = obj.status_code or 0
-        color = '#16a34a' if code < 300 else ('#d97706' if code < 500 else '#dc2626')
+        color = '#4B8B3B' if code < 300 else ('#d97706' if code < 500 else '#dc2626')
         return _badge(code, color)
     status_badge.short_description = 'HTTP'
 

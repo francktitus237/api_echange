@@ -5,22 +5,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ t.pay_title }} — {{ t.brand }}</title>
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='13' fill='%232563eb'/%3E%3Cpath d='M16 35V14h18' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M24 25h12M33 22l3 3-3 3M36 33H24M27 30l-3 3 3 3' stroke='%23bfdbfe' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+    <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
 
     <!-- Polices modernes Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
 
     <style>
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            --primary: #2563eb; --primary-dark: #1d4ed8; --sky: #3b82f6; --navy: #1e3a8a;
-            --ink: #0f172a; --muted: #64748b; --line: #e2e8f0;
-            --bg: #f8fafc; --green: #16a34a;
+            --primary: #3354A1; --primary-dark: #2A4587; --sky: #5A74C2; --navy: #1E2F63;
+            --ink: #0F1A38; --muted: #64748b; --line: #E3E8F2;
+            --bg: #F7F9FC; --green: #4B8B3B;
             --ease: cubic-bezier(.22, 1, .36, 1);
-            --display: 'Sora', 'Segoe UI', system-ui, sans-serif;
+            --display: 'Montserrat', 'Segoe UI', system-ui, sans-serif;
             --body: 'DM Sans', 'Segoe UI', system-ui, sans-serif;
         }
 
@@ -59,7 +59,7 @@
             border: 1px solid rgba(255, 255, 255, 0.6);
             -webkit-backdrop-filter: blur(18px) saturate(1.6);
             backdrop-filter: blur(18px) saturate(1.6);
-            box-shadow: 0 10px 40px -14px rgba(15, 23, 42, 0.35);
+            box-shadow: 0 10px 40px -14px rgba(15, 26, 56, 0.35);
         }
 
         .brand {
@@ -74,19 +74,7 @@
             letter-spacing: -0.02em;
         }
 
-        .brand-mark {
-            width: 34px;
-            height: 34px;
-            border-radius: 10px;
-            background: linear-gradient(135deg, var(--navy), var(--primary));
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-size: 13px;
-            font-weight: 800;
-            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
-        }
+        .brand-logo-img{height:36px;width:auto;display:block}
 
         .topbar-right {
             display: flex;
@@ -103,7 +91,7 @@
             border-radius: 10px;
             transition: color .25s, background .25s;
         }
-        .ghost-link:hover { color: var(--primary); background: rgba(37, 99, 235, 0.08); }
+        .ghost-link:hover { color: var(--primary); background: rgba(51, 84, 161, 0.08); }
 
         /* ---------- Sélecteur de langue avec drapeaux ---------- */
         .lang { position: relative; }
@@ -131,7 +119,7 @@
             border-radius: 3px;
             object-fit: cover;
             flex-shrink: 0;
-            box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.14);
+            box-shadow: 0 0 0 1px rgba(15, 26, 56, 0.14);
         }
 
         .lang-menu {
@@ -144,7 +132,7 @@
             border-radius: 14px;
             background: rgba(255, 255, 255, 0.97);
             border: 1px solid var(--line);
-            box-shadow: 0 24px 50px -20px rgba(15, 23, 42, 0.5);
+            box-shadow: 0 24px 50px -20px rgba(15, 26, 56, 0.5);
             -webkit-backdrop-filter: blur(16px);
             backdrop-filter: blur(16px);
             opacity: 0;
@@ -167,8 +155,8 @@
             font-weight: 500;
             transition: background .25s, color .25s;
         }
-        .lang-menu a:hover { background: rgba(37, 99, 235, 0.09); color: var(--primary); }
-        .lang-menu a[aria-current="true"] { background: rgba(37, 99, 235, 0.12); color: var(--primary); font-weight: 700; }
+        .lang-menu a:hover { background: rgba(51, 84, 161, 0.09); color: var(--primary); }
+        .lang-menu a[aria-current="true"] { background: rgba(51, 84, 161, 0.12); color: var(--primary); font-weight: 700; }
 
         /* Bouton burger (mobile) */
         .burger {
@@ -251,7 +239,7 @@
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+            box-shadow: 0 4px 12px rgba(51, 84, 161, 0.4);
         }
 
         /* ---------- Plan cards ---------- */
@@ -277,15 +265,15 @@
         }
 
         .plan:hover {
-            border-color: #93c5fd;
+            border-color: #AABCEA;
             transform: translateY(-3px);
-            box-shadow: 0 16px 36px -16px rgba(37, 99, 235, 0.15);
+            box-shadow: 0 16px 36px -16px rgba(51, 84, 161, 0.15);
         }
 
         .plan.selected {
             border-color: var(--primary);
-            background: #eff6ff;
-            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15), 0 12px 30px -12px rgba(37, 99, 235, 0.2);
+            background: #EDF1FA;
+            box-shadow: 0 0 0 4px rgba(51, 84, 161, 0.15), 0 12px 30px -12px rgba(51, 84, 161, 0.2);
         }
 
         .plan .check {
@@ -327,7 +315,7 @@
             padding: 4px 12px;
             border-radius: 999px;
             letter-spacing: .04em;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+            box-shadow: 0 4px 12px rgba(51, 84, 161, 0.3);
         }
 
         .plan-name {
@@ -387,14 +375,14 @@
         .method > div:not(.icon) { min-width: 0; }
 
         .method:hover {
-            border-color: #93c5fd;
+            border-color: #AABCEA;
             transform: translateY(-2px);
         }
 
         .method.selected {
             border-color: var(--primary);
-            background: #eff6ff;
-            box-shadow: 0 10px 24px -10px rgba(37, 99, 235, 0.15);
+            background: #EDF1FA;
+            box-shadow: 0 10px 24px -10px rgba(51, 84, 161, 0.15);
         }
 
         .method .icon {
@@ -410,7 +398,7 @@
 
         .icon-stripe { background: rgba(99, 91, 255, 0.1); color: #635bff; }
         .icon-paypal { background: rgba(0, 48, 135, 0.08); color: #0070ba; }
-        .icon-manual { background: rgba(22, 163, 74, 0.1); color: var(--green); }
+        .icon-manual { background: rgba(75, 139, 59, 0.1); color: var(--green); }
 
         .method .m-title {
             font-weight: 700;
@@ -450,12 +438,12 @@
         }
 
         .manual-info {
-            background: #f0fdf4;
-            border: 1px solid #bbf7d0;
+            background: #F0F6EA;
+            border: 1px solid #C6E0B4;
             border-radius: 14px;
             padding: 16px 18px;
             font-size: 13.5px;
-            color: #166534;
+            color: #35632B;
             margin-bottom: 24px;
             display: none;
             overflow-wrap: anywhere;
@@ -477,7 +465,7 @@
             padding: 26px;
             position: sticky;
             top: 96px;
-            box-shadow: 0 16px 40px -16px rgba(15, 23, 42, 0.08);
+            box-shadow: 0 16px 40px -16px rgba(15, 26, 56, 0.08);
         }
 
         .summary h3 {
@@ -519,13 +507,13 @@
             font-weight: 700;
             font-family: inherit;
             cursor: pointer;
-            box-shadow: 0 10px 26px -10px rgba(37, 99, 235, 0.7);
+            box-shadow: 0 10px 26px -10px rgba(51, 84, 161, 0.7);
             transition: transform .3s var(--ease), box-shadow .3s var(--ease), background .3s;
         }
 
         .cta:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 16px 34px -10px rgba(37, 99, 235, 0.8);
+            box-shadow: 0 16px 34px -10px rgba(51, 84, 161, 0.8);
         }
 
         .cta:disabled { opacity: .5; cursor: not-allowed; box-shadow: none; }
@@ -552,7 +540,7 @@
         }
 
         .alert-err { background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; }
-        .alert-ok { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; }
+        .alert-ok { background: #F0F6EA; border: 1px solid #C6E0B4; color: #35632B; }
 
         /* ---------- RTL polish ---------- */
         [dir="rtl"] body { font-family: var(--body); }
@@ -577,7 +565,7 @@
                 border-radius: 20px;
                 background: rgba(255, 255, 255, 0.96);
                 border: 1px solid var(--line);
-                box-shadow: 0 24px 50px -20px rgba(15, 23, 42, 0.5);
+                box-shadow: 0 24px 50px -20px rgba(15, 26, 56, 0.5);
                 -webkit-backdrop-filter: blur(20px);
                 backdrop-filter: blur(20px);
                 opacity: 0;
@@ -620,8 +608,8 @@
     <nav class="topbar">
         <div class="topbar-in">
             <a class="brand" href="/">
-                <span class="brand-mark">FX</span>
-                <span>Forex<b>Platform</b></span>
+                <img class="brand-logo-img" src="{% static 'img/logo.png' %}" alt="ForexPlatform">
+                
             </a>
 
             <button class="burger" id="burger" type="button" aria-label="{{ t.nav_menu|default:'Menu' }}" aria-expanded="false" aria-controls="topbar-right">
@@ -746,7 +734,7 @@
 
                     <div class="notes">
                         <div class="note">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.2"><path d="M12 2l7 3v6c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V5z"/><path d="M9 12l2 2 4-4"/></svg>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4B8B3B" stroke-width="2.2"><path d="M12 2l7 3v6c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V5z"/><path d="M9 12l2 2 4-4"/></svg>
                             {{ t.secure_note }}
                         </div>
                         <div class="note">

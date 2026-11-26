@@ -1,6 +1,6 @@
 {# Language selector — include anywhere: {% include 'lang_select.html' %} #}
 <select class="lang-select" onchange="setLang(this.value)" aria-label="Language"
-        style="border:1px solid #e2e8f0;border-radius:8px;padding:6px 9px;font-size:12.5px;background:#fff;cursor:pointer;color:#0f172a;">
+        style="border:1px solid #E3E8F2;border-radius:8px;padding:6px 9px;font-size:12.5px;background:#fff;cursor:pointer;color:#0F1A38;">
     {% for code, label in langs %}
     <option value="{{ code }}" {% if lang == code %}selected{% endif %}>{{ label }}</option>
     {% endfor %}

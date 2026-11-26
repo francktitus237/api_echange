@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="{{ lang|default:'fr' }}" dir="{{ dir|default:'ltr' }}">
 <head>
@@ -8,17 +9,18 @@
     <!-- Polices modernes Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='13' fill='%232563eb'/%3E%3Cpath d='M16 35V14h18' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M24 25h12M33 22l3 3-3 3M36 33H24M27 30l-3 3 3 3' stroke='%23bfdbfe' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
 
     <style>
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            --blue: #2563eb; --blue-d: #1d4ed8; --sky: #3b82f6; --navy: #1e3a8a;
-            --dark: #0f172a; --gray: #64748b; --light: #f8fafc; --line: #e2e8f0;
+            --blue: #3354A1; --blue-d: #2A4587; --sky: #5A74C2; --navy: #1E2F63;
+            --green: #4B8B3B; --green-d: #3E7530;
+            --dark: #0F1A38; --gray: #64748b; --light: #F7F9FC; --line: #E3E8F2;
             --ease: cubic-bezier(.22, 1, .36, 1);
-            --display: 'Sora', 'Segoe UI', system-ui, sans-serif;
+            --display: 'Montserrat', 'Segoe UI', system-ui, sans-serif;
             --body: 'DM Sans', 'Segoe UI', system-ui, sans-serif;
             --mono: 'Cascadia Code', 'Consolas', 'Menlo', monospace;
         }
@@ -56,7 +58,7 @@
             border: 1px solid rgba(255, 255, 255, 0.6);
             -webkit-backdrop-filter: blur(18px) saturate(1.6);
             backdrop-filter: blur(18px) saturate(1.6);
-            box-shadow: 0 10px 40px -14px rgba(15, 23, 42, 0.35);
+            box-shadow: 0 10px 40px -14px rgba(15, 26, 56, 0.35);
             padding: 0 16px 0 24px;
             max-width: 1160px;
         }
@@ -73,19 +75,7 @@
             letter-spacing: -0.02em;
         }
 
-        .logo-mark {
-            width: 32px;
-            height: 32px;
-            border-radius: 9px;
-            background: linear-gradient(135deg, var(--navy), var(--blue));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 13px;
-            font-weight: 800;
-            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
-        }
+        .logo-img{height:36px;width:auto;display:block}
 
         .nav-links {
             display: flex;
@@ -105,7 +95,7 @@
 
         .nav-links a:not(.btn):hover {
             color: var(--blue);
-            background: rgba(37, 99, 235, 0.08);
+            background: rgba(51, 84, 161, 0.08);
         }
 
         /* Sélecteur de langue avec drapeaux */
@@ -135,7 +125,7 @@
             border-radius: 3px;
             object-fit: cover;
             flex-shrink: 0;
-            box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.14);
+            box-shadow: 0 0 0 1px rgba(15, 26, 56, 0.14);
         }
 
         .lang-menu {
@@ -148,7 +138,7 @@
             border-radius: 14px;
             background: rgba(255, 255, 255, 0.97);
             border: 1px solid var(--line);
-            box-shadow: 0 24px 50px -20px rgba(15, 23, 42, 0.5);
+            box-shadow: 0 24px 50px -20px rgba(15, 26, 56, 0.5);
             -webkit-backdrop-filter: blur(16px);
             backdrop-filter: blur(16px);
             opacity: 0;
@@ -170,8 +160,8 @@
             font-size: 14.5px;
             font-weight: 500;
         }
-        .nav-links .lang-menu a:hover { background: rgba(37, 99, 235, 0.09); color: var(--blue); }
-        .nav-links .lang-menu a[aria-current="true"] { background: rgba(37, 99, 235, 0.12); color: var(--blue); font-weight: 700; }
+        .nav-links .lang-menu a:hover { background: rgba(51, 84, 161, 0.09); color: var(--blue); }
+        .nav-links .lang-menu a[aria-current="true"] { background: rgba(51, 84, 161, 0.12); color: var(--blue); font-weight: 700; }
 
         .page { padding: 120px 0 80px; }
 
@@ -239,19 +229,19 @@
             position: relative;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 10px 30px -12px rgba(15, 23, 42, 0.05);
+            box-shadow: 0 10px 30px -12px rgba(15, 26, 56, 0.05);
         }
 
         .plan:hover {
             transform: translateY(-6px);
-            box-shadow: 0 24px 50px -24px rgba(37, 99, 235, 0.25);
-            border-color: rgba(37, 99, 235, 0.5);
+            box-shadow: 0 24px 50px -24px rgba(51, 84, 161, 0.25);
+            border-color: rgba(51, 84, 161, 0.5);
         }
 
         .plan.featured {
             border-color: var(--blue);
-            background: linear-gradient(160deg, #ffffff 0%, #f8fafc 100%);
-            box-shadow: 0 20px 45px -20px rgba(37, 99, 235, 0.2);
+            background: linear-gradient(160deg, #ffffff 0%, #F7F9FC 100%);
+            box-shadow: 0 20px 45px -20px rgba(51, 84, 161, 0.2);
         }
 
         .plan.featured::before {
@@ -268,7 +258,7 @@
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: .5px;
-            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
+            box-shadow: 0 6px 16px rgba(51, 84, 161, 0.35);
         }
 
         .plan-name {
@@ -320,7 +310,7 @@
             width: 18px;
             height: 18px;
             border-radius: 50%;
-            background: #dcfce7 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2316a34a' stroke-width='3'%3E%3Cpath d='M5 13l4 4L19 7'/%3E%3C/svg%3E") center/11px no-repeat;
+            background: #DCEBD2 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234B8B3B' stroke-width='3'%3E%3Cpath d='M5 13l4 4L19 7'/%3E%3C/svg%3E") center/11px no-repeat;
             margin-right: 12px;
             flex-shrink: 0;
         }
@@ -340,13 +330,13 @@
         .plan-button.primary {
             background: var(--blue);
             color: white;
-            box-shadow: 0 10px 24px -10px rgba(37, 99, 235, 0.6);
+            box-shadow: 0 10px 24px -10px rgba(51, 84, 161, 0.6);
         }
 
         .plan-button.primary:hover {
             background: var(--blue-d);
             transform: translateY(-2px);
-            box-shadow: 0 14px 30px -10px rgba(37, 99, 235, 0.7);
+            box-shadow: 0 14px 30px -10px rgba(51, 84, 161, 0.7);
         }
 
         .plan-button.secondary {
@@ -356,13 +346,13 @@
         }
 
         .plan-button.secondary:hover {
-            background: #e2e8f0;
+            background: #E3E8F2;
             border-color: #cbd5e1;
         }
 
         .current-plan {
-            background: #dcfce7;
-            color: #166534;
+            background: #DCEBD2;
+            color: #35632B;
             padding: 12px 16px;
             border-radius: 12px;
             font-size: 14.5px;
@@ -377,7 +367,7 @@
             border-radius: 22px;
             padding: 36px;
             border: 2px solid var(--line);
-            box-shadow: 0 12px 35px -14px rgba(15, 23, 42, 0.08);
+            box-shadow: 0 12px 35px -14px rgba(15, 26, 56, 0.08);
         }
 
         .key-card h2 {
@@ -405,7 +395,7 @@
             flex: 1;
             min-width: min(240px, 100%);
             background: var(--dark);
-            color: #7dd3fc;
+            color: #9DB2E6;
             padding: 16px 20px;
             border-radius: 12px;
             font-family: var(--mono);
@@ -425,7 +415,7 @@
         }
 
         .usage-steps code {
-            background: #e2e8f0;
+            background: #E3E8F2;
             padding: 3px 8px;
             border-radius: 6px;
             font-family: var(--mono);
@@ -468,7 +458,7 @@
             position: relative;
         }
 
-        footer a { color: #93c5fd; text-decoration: none; transition: color .2s; }
+        footer a { color: #AABCEA; text-decoration: none; transition: color .2s; }
         footer a:hover { color: #ffffff; }
 
         /* Arabe / RTL : menu de langue et coches des offres */
@@ -512,7 +502,7 @@
                 border-radius: 20px;
                 background: rgba(255, 255, 255, 0.96);
                 border: 1px solid var(--line);
-                box-shadow: 0 24px 50px -20px rgba(15, 23, 42, 0.5);
+                box-shadow: 0 24px 50px -20px rgba(15, 26, 56, 0.5);
                 -webkit-backdrop-filter: blur(20px);
                 backdrop-filter: blur(20px);
                 opacity: 0;
@@ -565,8 +555,8 @@
 <nav>
     <div class="container">
         <a class="logo" href="/">
-            <span class="logo-mark">FX</span>
-            <span>Forex<b>Platform</b></span>
+            <img class="logo-img" src="{% static 'img/logo.png' %}" alt="ForexPlatform">
+            
         </a>
         <button class="burger" id="burger" type="button" aria-label="{{ t.nav_menu|default:'Menu' }}" aria-expanded="false" aria-controls="links">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
