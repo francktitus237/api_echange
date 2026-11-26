@@ -9,7 +9,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework import status
 from django.db import connection
 from django.core.cache import cache
-from .models import APIClient, Subscription, Payment
+from .models import APIClient, AuditLog, Subscription, Payment
 from apps.forex.models import ExchangeRate
 
 
@@ -739,9 +739,15 @@ def dashboard_view(request):
 
     # Le compteur n'est flushé en DB que tous les 100 appels : on ajoute le
     # reliquat encore en cache pour que le dashboard reflète l'usage réel.
-    from django.core.cache import cache
     for key in api_keys:
         key.total_requests += cache.get(f"apiclient:reqcount:{key.pk}", 0) or 0
+
+    from datetime import timedelta
+    from django.utils import timezone
+    month_start = timezone.now() - timedelta(days=30)
+    requests_30d = AuditLog.objects.filter(
+        api_client__user=request.user, timestamp__gte=month_start
+    ).count()
 
     return render(request, 'dashboard.html', {
         'subscription': subscription,
@@ -750,4 +756,5 @@ def dashboard_view(request):
         'new_api_key': new_api_key,
         'payments': payments,
         'rates': rates,
+        'requests_30d': requests_30d,
     })

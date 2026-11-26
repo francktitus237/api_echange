@@ -139,6 +139,10 @@ def _fetch_from_db_detail(from_currency, to_currency):
         }
     except ExchangeRate.DoesNotExist:
         pass
+    except Exception as e:
+        # DB unreachable — bail out so callers fall back to external providers
+        logger.warning(f"DB lookup failed for {from_currency}/{to_currency}: {e}")
+        return None
 
     # 2) Inverse pair (USD/EUR = 1 / EUR/USD)
     try:
@@ -150,8 +154,11 @@ def _fetch_from_db_detail(from_currency, to_currency):
                 'rate': Decimal(1) / inv.market_rate, 'source': 'inverse',
                 'fetched_at': inv.fetched_at, 'is_stale': inv.is_stale,
             }
-    except (ExchangeRate.DoesNotExist, Exception):
+    except ExchangeRate.DoesNotExist:
         pass
+    except Exception as e:
+        logger.warning(f"DB lookup failed for {from_currency}/{to_currency}: {e}")
+        return None
 
     # 3) Cross-rate via a shared anchor (USD/GBP = EUR/GBP / EUR/USD)
     try:
